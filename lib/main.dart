@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:graduation_project/view/reading_screen.dart';
+import 'package:graduation_project/view/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,8 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      // home: ReadingScreen(),
+      home: SplashScreen(),
     );
   }
 }
