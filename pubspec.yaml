@@ -75,6 +75,9 @@ dependencies:
   awesome_notifications: ^0.10.1
   connectivity_plus: ^7.0.0
 
+  #  Onboarding
+  flutter_onboarding_slider: ^1.0.11
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -98,8 +101,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - assets/tessdata/ara.traineddata
+  assets:
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

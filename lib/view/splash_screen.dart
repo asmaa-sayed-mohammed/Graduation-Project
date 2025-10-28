@@ -63,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [ScaleTransition(
             scale: _logoAnimation,
-            child: Image.asset('assets/images/icons8-electricity-96 1.png',
+            child: Image.asset('assets/images/Splash_screen.png',
               width: 200,
               height: 200,
               fit: BoxFit.contain,
