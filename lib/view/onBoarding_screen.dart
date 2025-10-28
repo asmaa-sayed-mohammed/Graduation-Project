@@ -36,7 +36,7 @@ class OnBoardingScreen extends StatelessWidget {
             Get.off(() => Homescreen());
           },
 
-          background: const [
+          background: [
             SizedBox.shrink(),
             SizedBox.shrink(),
             SizedBox.shrink(),
