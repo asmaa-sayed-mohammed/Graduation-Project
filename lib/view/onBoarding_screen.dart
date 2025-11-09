@@ -33,7 +33,7 @@ class OnBoardingScreen extends StatelessWidget {
           ),
 
           onFinish: () {
-            Get.off(() => Homescreen());
+            Get.offAll(() => Homescreen());
           },
 
           background: [
@@ -46,9 +46,9 @@ class OnBoardingScreen extends StatelessWidget {
           speed: 1.8,
 
           pageBodies: [
-            _buildFixedImage('assets/images/Onboarding1.jpg'),
-            _buildFixedImage('assets/images/Onboarding2.jpg'),
-            _buildFixedImage('assets/images/Onboarding3.png'),
+            _buildFixedImage('assets/images/On_boarding1.png'),
+            _buildFixedImage('assets/images/On_boarding2.png'),
+            _buildFixedImage('assets/images/On_boarding3.png'),
           ],
         ),
       ),
