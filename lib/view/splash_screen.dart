@@ -24,36 +24,39 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _logoController = AnimationController(
       vsync: this,
-      duration:  Duration(seconds: 1),
+      duration: const Duration(seconds: 1),
     );
     _logoAnimation = CurvedAnimation(
       parent: _logoController,
       curve: Curves.easeOutBack,
     );
-    _textController = AnimationController(vsync: this,
-      duration:  Duration(seconds: 3),
+    _textController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
     );
     _textFadeIn = CurvedAnimation(
-         parent: _textController,
-      curve:  Interval(0.0, 0.5, curve: Curves.easeIn),
+      parent: _textController,
+      curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
     );
     _textFadeOut = CurvedAnimation(
       parent: _textController,
-      curve: Interval(0.7, 1.0, curve: Curves.easeOut),
+      curve: const Interval(0.7, 1.0, curve: Curves.easeOut),
     );
     _logoController.forward().then((_) {
       _textController.forward();
     });
-    Timer(Duration(milliseconds: 3500), () {
-      Get.off(OnBoardingScreen());
+    Timer(const Duration(milliseconds: 3500), () {
+      Get.off(() => OnBoardingScreen());
     });
   }
+
   @override
   void dispose() {
     _logoController.dispose();
     _textController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,15 +64,17 @@ class _SplashScreenState extends State<SplashScreen>
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [ScaleTransition(
-            scale: _logoAnimation,
-            child: Image.asset('assets/images/Splash_screen.png',
-              width: 200,
-              height: 200,
-              fit: BoxFit.contain,
+          children: [
+            ScaleTransition(
+              scale: _logoAnimation,
+              child: Image.asset(
+                'assets/images/Splash_screen.png',
+                width: 200,
+                height: 200,
+                fit: BoxFit.contain,
+              ),
             ),
-          ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             AnimatedBuilder(
               animation: _textController,
               builder: (context, child) {
@@ -79,12 +84,14 @@ class _SplashScreenState extends State<SplashScreen>
                   child: child,
                 );
               },
-              child: Text("Electricity", style: TextStyle(
-                fontSize: 42,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                letterSpacing: 2,
-              ),
+              child: Text(
+                "Electricity",
+                style: TextStyle(
+                  fontSize: 42,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  letterSpacing: 2,
+                ),
               ),
             ),
           ],

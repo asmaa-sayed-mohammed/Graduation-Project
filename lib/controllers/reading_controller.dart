@@ -54,7 +54,7 @@ class ReadingController extends GetxController {
     // Initialize OCR recognizer preferring Arabic script for better handling of Arabic digits and text
     // Fallback to Latin if Arabic is unavailable
     textRecognizer = TextRecognizer(script: TextRecognitionScript.values.firstWhere(
-      (e) => e.name == 'arabic',
+          (e) => e.name == 'arabic',
       orElse: () => TextRecognitionScript.latin,
     ));
   }
@@ -156,7 +156,7 @@ class ReadingController extends GetxController {
         final fullBlockText = block.text.toLowerCase(); // For model detection
 
         // Criteria for potential meter digits: upper/middle area, reasonable height, contains digits
-        if (blockY < imageHeight * 0.8 && 
+        if (blockY < imageHeight * 0.8 &&
             block.boundingBox.height > imageHeight * 0.02 && // Slightly lower threshold for smaller digits
             digitRegex.hasMatch(block.text)) { // Only blocks with digits
 
@@ -355,16 +355,16 @@ class ReadingController extends GetxController {
 
     bool hasInternet = await connectivityService.connected();
 
-        if (!hasInternet) {
-          Get.snackbar(
-            'No Internet Connection',
-            'Please connect to the internet before using Voice Recognition.',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: const Color(0xFFE57373),
-            colorText: Colors.white,
-          );
-          return;
-        }
+    if (!hasInternet) {
+      Get.snackbar(
+        'No Internet Connection',
+        'Please connect to the internet before using Voice Recognition.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFE57373),
+        colorText: Colors.white,
+      );
+      return;
+    }
 
 
 

@@ -10,5 +10,6 @@ class AppColor {
   static Color gray2 = Colors.grey.shade400;
   static Color amber = Colors.amber;
   static Color red = Colors.red;
+  static Color green = Colors.green;
 
 }

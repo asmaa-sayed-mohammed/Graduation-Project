@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
-import 'package:graduation_project/view/homescreen.dart';
+import 'package:graduation_project/view/main_screen.dart';
 
 class OnBoardingScreen extends StatelessWidget {
+  const OnBoardingScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,37 +16,31 @@ class OnBoardingScreen extends StatelessWidget {
           controllerColor: AppColor.black,
           headerBackgroundColor: AppColor.white,
           pageBackgroundColor: AppColor.white2,
-
           finishButtonText: 'Login',
-          finishButtonTextStyle:  TextStyle(
+          finishButtonTextStyle: TextStyle(
             color: AppColor.white,
             fontWeight: FontWeight.bold,
           ),
-
           finishButtonStyle: FinishButtonStyle(
             backgroundColor: AppColor.black,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-
-          skipTextButton: Text('Skip',
+          skipTextButton: Text(
+            'Skip',
             style: TextStyle(color: AppColor.black, fontSize: 16),
           ),
-
           onFinish: () {
-            Get.offAll(() => Homescreen());
+            Get.offAll(() => const MainScreen());
           },
-
           background: [
-            SizedBox.shrink(),
-            SizedBox.shrink(),
-            SizedBox.shrink(),
+            const SizedBox.shrink(),
+            const SizedBox.shrink(),
+            const SizedBox.shrink(),
           ],
-
           totalPage: 3,
           speed: 1.8,
-
           pageBodies: [
             _buildFixedImage('assets/images/On_boarding1.png'),
             _buildFixedImage('assets/images/On_boarding2.png'),

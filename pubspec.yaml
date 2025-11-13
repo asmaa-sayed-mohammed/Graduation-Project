@@ -38,6 +38,7 @@ dependencies:
   image_picker: ^1.2.0
   tesseract_ocr: ^0.5.0
   flutter_spinkit: ^5.2.2
+  shared_preferences: ^2.2.2
 
 # Cloud Database Service
   supabase_flutter: ^2.10.2
