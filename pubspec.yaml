@@ -78,6 +78,7 @@ dependencies:
 
   #  Onboarding
   flutter_onboarding_slider: ^1.0.11
+  fl_chart: ^1.1.1
 
 dev_dependencies:
   flutter_test:
