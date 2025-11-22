@@ -49,6 +49,7 @@ class TipsScreen extends StatelessWidget {
         border: Border(bottom: BorderSide(color: AppColor.gray2)),
       ),
       child: Column(
+
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
