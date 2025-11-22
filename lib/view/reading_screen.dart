@@ -83,7 +83,7 @@ class ReadingScreen extends StatelessWidget{
                           ),
                           const SizedBox(height: 15),
                           Text(
-                            'Reading',
+                            'ادخل القراءة',
                             style: TextStyle(
                               color: AppColor.black,
                               fontSize: 32,
@@ -130,7 +130,7 @@ class ReadingScreen extends StatelessWidget{
                                   ),
                                   SizedBox(height: 10),
                                   Text(
-                                    'Upload',
+                                    'تحميل',
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,
@@ -162,7 +162,7 @@ class ReadingScreen extends StatelessWidget{
                             child: TextField(
                               cursorColor: AppColor.black,
                               decoration: InputDecoration(
-                                hintText: 'Type here or use mic/camera...',
+                                hintText: 'ادخل هنا كتابة او باستخدام الكاميرا او الميكروفون',
                                 border: InputBorder.none,
                                 // suffixText: 'kWh',
                               ),
@@ -198,7 +198,7 @@ class ReadingScreen extends StatelessWidget{
                         // controller.processInput();
                       },
                       child: Text(
-                        'Calculate',
+                        'احسب',
                         style: TextStyle(
                           color: AppColor.black,
                           fontSize: 18,
