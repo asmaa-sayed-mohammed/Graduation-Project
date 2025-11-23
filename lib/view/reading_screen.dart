@@ -15,38 +15,6 @@ class ReadingScreen extends StatelessWidget{
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
-      // bottomNavigationBar: Container(
-      //   decoration:  BoxDecoration(
-      //     border: Border(top: BorderSide(color: AppColor.black)),
-      //   ),
-      //   child: BottomNavigationBar(
-      //     iconSize: 30,
-      //     backgroundColor: AppColor.white,
-      //     type: BottomNavigationBarType.fixed,
-      //     selectedItemColor: AppColor.black,
-      //     unselectedItemColor: AppColor.black,
-      //     showSelectedLabels: true,
-      //     showUnselectedLabels: true,
-      //     items: const [
-      //       BottomNavigationBarItem(
-      //         icon: Icon(Icons.home_outlined),
-      //         label: "Home",
-      //       ),
-      //       BottomNavigationBarItem(
-      //         icon: Icon(Icons.bar_chart_outlined),
-      //         label: "Usage",
-      //       ),
-      //       BottomNavigationBarItem(
-      //         icon: Icon(Icons.power_outlined),
-      //         label: "Power Usage",
-      //       ),
-      //       BottomNavigationBarItem(
-      //         icon: Icon(Icons.history),
-      //         label: "History",
-      //       ),
-      //     ],
-      //   ),
-      // ),
       body: SafeArea(
           child: SingleChildScrollView(
               child: Column(
@@ -66,20 +34,6 @@ class ReadingScreen extends StatelessWidget{
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  Get.back();
-                                },
-                                icon: Icon(Icons.arrow_back, color: AppColor.black, size: 28),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  // Implement logout functionality here
-                                },
-                                icon: Icon(Icons.logout, color: AppColor.black, size: 28),
-                              ),
-                            ],
                           ),
                           const SizedBox(height: 15),
                           Text(
@@ -207,21 +161,6 @@ class ReadingScreen extends StatelessWidget{
                       ),
 
                     ),
-                    // const SizedBox(height: 30),
-                    // // display final text
-                    // Obx(()=> controller.finalText.value.isNotEmpty
-                    //   ? Padding(
-                    //       padding: const EdgeInsets.all(16.0),
-                    //       child: Text(
-                    //         'Reading: ${controller.finalText.value}',
-                    //         textAlign: TextAlign.center,
-                    //         style:TextStyle(
-                    //           color: AppColor.black,
-                    //           fontSize: 18,
-                    //         ),
-                    //       ),
-                    //     )
-                    //   : const SizedBox()),
                   ])
           )
       ),

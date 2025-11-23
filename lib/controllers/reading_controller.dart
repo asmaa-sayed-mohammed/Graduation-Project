@@ -85,7 +85,11 @@ class ReadingController extends GetxController {
       }
     } catch (e) {
       // Show helpful tip instead of raw error
-      _showPhotoTip('Error Picking Image', 'Ensure camera or gallery permissions are granted, and try again. If the issue persists, restart the app.');
+      _showPhotoTip(
+  'خطأ في اختيار الصورة',
+  'تأكدي من منح إذن الكاميرا أو المعرض، ثم أعيدي المحاولة. إذا استمرت المشكلة، أعيدي تشغيل التطبيق.'
+);
+
     }
   }
 
@@ -295,16 +299,16 @@ class ReadingController extends GetxController {
       } else {
         // No match: Show helpful tips based on possible reasons
         _showPhotoTip(
-          'No Valid Reading Found',
-          'Possible reason: The image is unclear due to poor lighting, angled shot, or the meter being too far. \n\nTips for correct photography:\n• Shoot in strong, natural light.\n• Keep the camera parallel to the meter (no angles).\n• Focus on the digital display and fill the frame with it.\n• Try again with a closer, clearer image!',
+          'لا يوجد رقم صالح في الصورة',
+          'السبب المحتمل: الصورة غير واضحة بسبب ضعف الإضاءة، أو التصوير بزاوية، أو أن عداد الكهرباء بعيد في الصورة. \n\nنصائح لالتقاط صورة صحيحة:\n• صوّر في إضاءة قوية ويفضل الضوء الطبيعي.\n• خلي الموبايل موازي للعداد بدون أي ميل.\n• ركّز على شاشة العداد وخليها واضحة ومليّة الإطار.\n• جرّب مرة تانية بصورة أقرب وأوضح!',
           duration: const Duration(seconds: 10),
         );
       }
     } catch (e) {
       // Error handling: Show tip instead of raw error
       _showPhotoTip(
-        'Error Processing Image',
-        'Reason: Technical issue in text recognition. Ensure the image is clear and not blurry, and try again. If it continues, restart the app. \n\nTips: Shoot in high clarity, avoid shadows or reflections.',
+        'خطأ في معالجة الصورة',
+        'السبب: مشكلة تقنية أثناء قراءة النص من الصورة. تأكد إن الصورة واضحة ومش مهزوزة، وجرب مرة تانية. لو المشكلة مستمرة، اقفل التطبيق وافتحه تاني. \n\nنصائح: صوّر بجودة عالية، وتجنب الظلال أو الانعكاسات.',
         duration: const Duration(seconds: 5),
       );
     } finally {
@@ -357,12 +361,13 @@ class ReadingController extends GetxController {
 
     if (!hasInternet) {
       Get.snackbar(
-        'No Internet Connection',
-        'Please connect to the internet before using Voice Recognition.',
+        'لا يوجد اتصال بالإنترنت',
+        'من فضلك اتصل بالإنترنت قبل استخدام خاصية التعرف على الصوت.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFE57373),
         colorText: Colors.white,
       );
+
       return;
     }
 
@@ -386,9 +391,12 @@ class ReadingController extends GetxController {
       );
 
       if (!available) {
-        _showVoiceTip('Speech Not Available', 'This device does not support speech recognition. Use photo or manual typing instead. Common on emulators—try a physical device.');
+        _showVoiceTip(
+          'خاصية الصوت غير متاحة',
+          'هذا الجهاز لا يدعم ميزة التعرف على الصوت. يمكنك استخدام الصورة أو الكتابة اليدوية بدلًا من ذلك. يحدث هذا غالبًا في المحاكيات—جرّب على جهاز فعلي.',
+        );
         return;
-      }
+      } 
 
       const String localeId = 'ar-EG'; // Arabic Egypt for local dialect support
       isListening.value = true; // Start listening UI
@@ -420,7 +428,11 @@ class ReadingController extends GetxController {
     } catch (e) {
       print("Unexpected speech error: $e"); // Debug
       isListening.value = false;
-      _showVoiceTip('Unexpected Voice Error', 'An unexpected error occurred. Check permissions, restart the app, or try manual input. Details: $e');
+      _showVoiceTip(
+        'خطأ غير متوقع في الصوت',
+        'حدث خطأ غير متوقع. تأكد من الصلاحيات، أعد تشغيل التطبيق، أو جرّب الإدخال اليدوي. التفاصيل: $e',
+      );
+
     }
   }
 
@@ -428,20 +440,21 @@ class ReadingController extends GetxController {
   String _getSpeechErrorTip(stt.SpeechRecognitionError error) {
     switch (error.errorMsg.toLowerCase()) {
       case 'no_match':
-        return 'No speech detected. Speak louder or closer to the mic. Try in a quiet environment.';
-      case 'network_error':
-      case 'network_timeout':
-        return 'Network issue. Check your internet connection—speech recognition requires online access on some devices.';
-      case 'audio':
-        return 'Audio input problem. Ensure microphone permissions are granted and no other apps are using the mic.';
-      case 'permission_denied':
-        return 'Microphone permission denied. Go to app settings and grant microphone access.';
-      case 'not_available':
-        return 'Speech service unavailable. Install/update Google Speech Services (Android) or try a different device.';
-      case 'permanent':
-        return 'Permanent error. Restart the app or device. If persists, speech may not be supported here.';
-      default:
-        return 'Speech recognition failed. Speak clearly in Arabic. Common fixes: Check permissions, quiet room, or slower speech.';
+      return 'لم يتم الكشف عن أي كلام. حاول التحدث بصوت أعلى أو بالقرب من الميكروفون. حاول في مكان هادئ.';
+    case 'network_error':
+    case 'network_timeout':
+      return 'مشكلة في الشبكة. تحقق من اتصال الإنترنت—ميزة التعرف على الصوت تتطلب اتصالاً أحيانًا.';
+    case 'audio':
+      return 'مشكلة في إدخال الصوت. تأكد من منح صلاحيات الميكروفون وألا تكون هناك تطبيقات أخرى تستخدمه.';
+    case 'permission_denied':
+      return 'تم رفض صلاحية الميكروفون. اذهب إلى إعدادات التطبيق ومنح إذن الوصول للميكروفون.';
+    case 'not_available':
+      return 'خدمة التعرف على الصوت غير متاحة. قم بتثبيت أو تحديث خدمات Google Speech (للأندرويد) أو جرّب جهازًا آخر.';
+    case 'permanent':
+      return 'خطأ دائم. أعد تشغيل التطبيق أو الجهاز. إذا استمر، قد لا تكون ميزة التعرف على الصوت مدعومة هنا.';
+    default:
+      return 'فشل التعرف على الصوت. تحدث بوضوح باللغة العربية. الحلول الشائعة: تحقق من الصلاحيات، مكان هادئ، أو تحدث ببطء.';
+
     }
   }
 
@@ -504,13 +517,14 @@ class ReadingController extends GetxController {
     } else {
       // No input error
       Get.snackbar(
-        'Error',
-        'Please provide input via typing, voice, or image. Try taking a photo for automatic reading!',
+        'خطأ',
+        'يرجى إدخال القراءة إما كتابةً، أو بالصوت، أو باستخدام صورة. حاول التقاط صورة للقراءة التلقائية!',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orangeAccent,
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
       );
+
       return;
     }
 
