@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
+import 'package:graduation_project/view/homescreen.dart';
 import 'package:graduation_project/view/main_screen.dart';
 
 class OnBoardingScreen extends StatelessWidget {
@@ -12,11 +13,12 @@ class OnBoardingScreen extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        backgroundColor: Colors.white,
         body: OnBoardingSlider(
           controllerColor: AppColor.black,
           headerBackgroundColor: AppColor.white,
           pageBackgroundColor: AppColor.white2,
-          finishButtonText: 'Login',
+          finishButtonText: 'اذهب للصفحة الرئيسية',
           finishButtonTextStyle: TextStyle(
             color: AppColor.white,
             fontWeight: FontWeight.bold,
@@ -32,7 +34,7 @@ class OnBoardingScreen extends StatelessWidget {
             style: TextStyle(color: AppColor.black, fontSize: 16),
           ),
           onFinish: () {
-            Get.offAll(() => const MainScreen());
+            Get.offAll(() => const Homescreen());
           },
           background: [
             const SizedBox.shrink(),
