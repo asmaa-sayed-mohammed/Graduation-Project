@@ -1,12 +1,11 @@
-import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:graduation_project/core/style/colors.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:graduation_project/view/calculation_result_screen.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:graduation_project/controllers/reading_controller.dart';
+import 'package:graduation_project/core/style/colors.dart';
 
 class CalculateOnceScreen extends StatelessWidget {
-
   final controller = Get.put(ReadingController());
 
   CalculateOnceScreen({super.key});
@@ -15,36 +14,42 @@ class CalculateOnceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
-
-      // (Floating Action Button)
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
+      appBar: AppBar(
         backgroundColor: AppColor.primary_color,
-        onPressed: () {
-          // Add your onPressed code here!
-        },
-        icon: Icon(Icons.calculate, color: AppColor.black),
-        label: Text(
-          'الموقع',
-          style: TextStyle(
-            color: AppColor.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppColor.black),
+          onPressed: () => Get.back(),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // floatingActionButton: FloatingActionButton.extended(
+      //   backgroundColor: AppColor.primary_color,
+      //   onPressed: () {
+      //     // يمكنك إضافة أي وظيفة هنا إذا كنت تريد
+      //   },
+      //   icon: Icon(Icons.calculate, color: AppColor.black),
+      //   label: Text(
+      //     'الموقع',
+      //     style: TextStyle(
+      //       color: AppColor.black,
+      //       fontSize: 18,
+      //       fontWeight: FontWeight.bold,
+      //     ),
+      //   ),
+      // ),
 
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-
-              // ----------------------------------------------------
-              //                 HEADER
-              // ----------------------------------------------------
+              // ------------------- HEADER -------------------
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 30,
+                  horizontal: 16,
+                ),
                 decoration: BoxDecoration(
                   color: AppColor.primary_color,
                   borderRadius: const BorderRadius.only(
@@ -54,9 +59,6 @@ class CalculateOnceScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    ),
                     const SizedBox(height: 15),
                     Text(
                       'ادخل القراءة',
@@ -65,19 +67,19 @@ class CalculateOnceScreen extends StatelessWidget {
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 25),
 
-              // ----------------------------------------------------
-              //                 INPUT FIELD 1
-              // ----------------------------------------------------
+              // ------------------- OLD READING FIELD -------------------
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 30),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: AppColor.white,
                   borderRadius: BorderRadius.circular(30),
@@ -88,37 +90,39 @@ class CalculateOnceScreen extends StatelessWidget {
                     Expanded(
                       child: TextField(
                         cursorColor: AppColor.black,
+                        controller: controller.oldReadingController,
                         decoration: InputDecoration(
-                          hintText: 'ادخل هنا كتابة او باستخدام الكاميرا او الميكروفون',
+                          hintText: 'ادخل القراءة القديمة',
                           border: InputBorder.none,
                         ),
-                        controller: controller.textController,
-                        style: TextStyle(
-                          color: AppColor.black,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: AppColor.black, fontSize: 16),
                       ),
                     ),
                     IconButton(
-                      onPressed: controller.recognizeVoice,
+                      onPressed: () => controller.recognizeVoice(
+                        controller.oldReadingController,
+                      ),
                       icon: Icon(Icons.mic, color: AppColor.black),
                     ),
                     IconButton(
-                      onPressed: () => controller.pickImage(ImageSource.camera),
+                      onPressed: () => controller.pickImage(
+                        ImageSource.camera,
+                        controller.oldReadingController,
+                      ),
                       icon: Icon(Icons.camera_alt, color: AppColor.black),
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 30),
 
-              // ----------------------------------------------------
-              //                 INPUT FIELD 2
-              // ----------------------------------------------------
+              // ------------------- NEW READING FIELD -------------------
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 30),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: AppColor.white,
                   borderRadius: BorderRadius.circular(30),
@@ -129,51 +133,106 @@ class CalculateOnceScreen extends StatelessWidget {
                     Expanded(
                       child: TextField(
                         cursorColor: AppColor.black,
+                        controller: controller.newReadingController,
                         decoration: InputDecoration(
-                          hintText: 'ادخل هنا كتابة او باستخدام الكاميرا او الميكروفون',
+                          hintText: 'ادخل القراءة الجديدة',
                           border: InputBorder.none,
                         ),
-                        controller: controller.textController,
-                        style: TextStyle(
-                          color: AppColor.black,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: AppColor.black, fontSize: 16),
                       ),
                     ),
                     IconButton(
-                      onPressed: controller.recognizeVoice,
+                      onPressed: () => controller.recognizeVoice(
+                        controller.newReadingController,
+                      ),
                       icon: Icon(Icons.mic, color: AppColor.black),
                     ),
                     IconButton(
-                      onPressed: () => controller.pickImage(ImageSource.camera),
+                      onPressed: () => controller.pickImage(
+                        ImageSource.camera,
+                        controller.newReadingController,
+                      ),
                       icon: Icon(Icons.camera_alt, color: AppColor.black),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 30),
-                    // calculate button
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColor.primary_color,
-                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      onPressed: () async {
-                        
-                      },
-                      child: Text(
-                        'احسب',
-                        style: TextStyle(
-                          color: AppColor.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
 
-                    ),
+              // ------------------- CALCULATE BUTTON -------------------
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.primary_color,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                    vertical: 15,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                onPressed: () {
+                  final result = controller.calculateManualResult();
+
+                  if (result['error'] == true) {
+                    // لو في خطأ فقط نظهر Snackbar
+                    Get.snackbar(
+                      'خطأ',
+                      result['message'],
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.redAccent,
+                      colorText: Colors.white,
+                      duration: const Duration(seconds: 4),
+                    );
+                  } else {
+                    // لو مفيش خطأ نروح لصفحة النتيجة مباشرة
+                    Get.to(
+                      () => CalculationResultScreen(
+                        oldReading: (result['oldReading'] as num).toDouble(),
+                        newReading: (result['newReading'] as num).toDouble(),
+                        consumption: (result['consumption'] as num).toDouble(),
+                        totalPrice: (result['totalPrice'] as num).toDouble(),
+                        tier: result['tier'].toString(), // مهم جداً
+                      ),
+                    );
+                  }
+                },
+
+                child: Text(
+                  'احسب',
+                  style: TextStyle(
+                    color: AppColor.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.primary_color,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                    vertical: 15,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                onPressed: () {
+                  // إضافة أي وظيفة للزرار هنا
+                },
+                icon: Icon(Icons.location_on, color: AppColor.black),
+                label: Text(
+                  'الموقع',
+                  style: TextStyle(
+                    color: AppColor.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
               const SizedBox(height: 120),
             ],
           ),
