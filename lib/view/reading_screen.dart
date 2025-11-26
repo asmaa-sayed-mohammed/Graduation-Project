@@ -1,13 +1,11 @@
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:graduation_project/core/style/colors.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/controllers/reading_controller.dart';
 
-class ReadingScreen extends StatelessWidget{
-
-  final  controller = Get.put(ReadingController());
+class ReadingScreen extends StatelessWidget {
+  final controller = Get.put(ReadingController());
 
   ReadingScreen({super.key});
 
@@ -16,153 +14,187 @@ class ReadingScreen extends StatelessWidget{
     return Scaffold(
       backgroundColor: AppColor.white,
       body: SafeArea(
-          child: SingleChildScrollView(
-              child: Column(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Header
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 30,
+                  horizontal: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColor.primary_color,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(120),
+                    bottomRight: Radius.circular(120),
+                  ),
+                ),
+                child: Column(
                   children: [
-                    // header section
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: AppColor.primary_color,
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(120),
-                          bottomRight: Radius.circular(120),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          ),
-                          const SizedBox(height: 15),
-                          Text(
-                            'ادخل القراءة',
-                            style: TextStyle(
-                              color: AppColor.black,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        ],
+                    const SizedBox(height: 15),
+                    Text(
+                      'ادخل القراءة',
+                      style: TextStyle(
+                        color: AppColor.black,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 25),
-                    // upload box section
-                    GestureDetector(
-                      onTap: () => controller.pickImage(ImageSource.gallery),
-                      child: Obx((){
-                        if (controller.pickedImage.value != null) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.file(
-                              controller.pickedImage.value!,
-                              fit: BoxFit.cover,
-                              width: 300,
-                              height: 160,
-                            ),
-                          );
-                        } else {
-                          return Container(
-                            width: 300,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              color: AppColor.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: AppColor.black,
-                                width: 1,
-                              ),
-                            ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: () => controller.pickImage(ImageSource.gallery),
-                                    icon: Icon(Icons.upload_file, size: 50, color: AppColor.black),
-                                  ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    'تحميل',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
-                      }),
-                    ),
-                    const SizedBox(height: 20),
-                    // input field with mic & camera
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 30),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColor.white,
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                            color: AppColor.gray
-                        ),
-                      ),
-                      child:Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              cursorColor: AppColor.black,
-                              decoration: InputDecoration(
-                                hintText: 'ادخل هنا كتابة او باستخدام الكاميرا او الميكروفون',
-                                border: InputBorder.none,
-                                // suffixText: 'kWh',
-                              ),
-                              controller: controller.textController,
-                              style: TextStyle(
-                                color: AppColor.black,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: controller.recognizeVoice,
-                            icon: Icon(Icons.mic, color: AppColor.black),
-                          ),
-                          IconButton(
-                            onPressed: () => controller.pickImage(ImageSource.camera),
-                            icon: Icon(Icons.camera_alt, color: AppColor.black),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    // calculate button
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColor.primary_color,
-                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      onPressed: () async {
-                        // controller.processInput();
-                      },
-                      child: Text(
-                        'احسب',
-                        style: TextStyle(
-                          color: AppColor.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 25),
 
+              // Old Reading Field
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColor.white,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: AppColor.gray),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        cursorColor: AppColor.black,
+                        controller: controller.oldReadingController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          hintText: 'ادخل القراءة القديمة',
+                          border: InputBorder.none,
+                        ),
+                        style: TextStyle(color: AppColor.black, fontSize: 16),
+                      ),
                     ),
-                  ])
-          )
+                    IconButton(
+                      onPressed: () => controller.recognizeVoice(
+                        controller.oldReadingController,
+                      ),
+                      icon: Icon(Icons.mic, color: AppColor.black),
+                    ),
+                    IconButton(
+                      onPressed: () => controller.pickImage(
+                        ImageSource.camera,
+                        controller.oldReadingController,
+                      ),
+                      icon: Icon(Icons.camera_alt, color: AppColor.black),
+                    ),
+                    IconButton(
+                      onPressed: () => controller.pickImage(
+                        ImageSource.gallery,
+                        controller.oldReadingController,
+                      ),
+                      icon: Icon(Icons.upload_file, color: AppColor.black),
+                    ),
+                  ],
+                ),
+              ),
+
+              // New Reading Field
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColor.white,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: AppColor.gray),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        cursorColor: AppColor.black,
+                        controller: controller.newReadingController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          hintText: 'ادخل القراءة الجديدة',
+                          border: InputBorder.none,
+                        ),
+                        style: TextStyle(color: AppColor.black, fontSize: 16),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => controller.recognizeVoice(
+                        controller.newReadingController,
+                      ),
+                      icon: Icon(Icons.mic, color: AppColor.black),
+                    ),
+                    IconButton(
+                      onPressed: () => controller.pickImage(
+                        ImageSource.camera,
+                        controller.newReadingController,
+                      ),
+                      icon: Icon(Icons.camera_alt, color: AppColor.black),
+                    ),
+                    IconButton(
+                      onPressed: () => controller.pickImage(
+                        ImageSource.gallery,
+                        controller.newReadingController,
+                      ),
+                      icon: Icon(Icons.upload_file, color: AppColor.black),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Calculate Button
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.primary_color,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                    vertical: 15,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                onPressed: () {
+                  final result = controller.calculateManualResult();
+                  if (result['error'] == true) {
+                    Get.snackbar(
+                      'خطأ',
+                      result['message'],
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.orangeAccent,
+                      colorText: Colors.white,
+                    );
+                  } else {
+                    Get.snackbar(
+                      'تم الحساب',
+                      'الاستهلاك: ${result['consumption']} kWh\nالسعر: ${result['totalPrice']} جنيه',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.green,
+                      colorText: Colors.white,
+                    );
+                  }
+                },
+                child: Text(
+                  'احسب',
+                  style: TextStyle(
+                    color: AppColor.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+            ],
+          ),
+        ),
       ),
     );
   }
