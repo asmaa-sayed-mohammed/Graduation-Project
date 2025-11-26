@@ -1,22 +1,20 @@
 import 'dart:io';
-import 'dart:typed_data'; // For handling image bytes in decodeImageFromList
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart'; // For decodeImageFromList to get image dimensions
+import 'package:flutter/painting.dart';
 import 'package:get/get.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:graduation_project/services/connectivity_service.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:speech_to_text/speech_recognition_error.dart' as stt;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-// Class to store meter reading information extracted from OCR blocks
-// Stores the numeric value, optional unit, confidence score, and position for potential rendering or debugging
+// Model for meter reading blocks
 class MeterReading {
-  final String value; // The cleaned numeric reading (e.g., '12345.6')
-  final String? unit; // Optional unit like 'kWh' after normalization
-  final double confidence; // Score from 0.0 to 1.0 based on position, length, etc.
-  final Rect position; // Bounding box for the detected text block
-  final double left; // Extracted left position for sorting
+  final String value;
+  final String? unit;
+  final double confidence;
+  final Rect position;
+  final double left;
 
   MeterReading({
     required this.value,
@@ -27,438 +25,407 @@ class MeterReading {
   });
 }
 
-// Controller for handling meter reading inputs via image OCR, voice recognition, or manual text
-// Uses GetX for state management and reactive observables
 class ReadingController extends GetxController {
+  final connectivityService = ConnectivityService();
 
-  final connectivityService = ConnectivityService(); // For checking internet connectivity
-  // Reactive variables for UI state updates
-  var pickedImage = Rxn<File>(); // Currently picked image file (nullable reactive)
-  var recognizedText = ''.obs; // Final displayed text next to the number (e.g., '12345 kWh')
-  var isLoading = false.obs; // Loading indicator for OCR processing
-  var isListening = false.obs; // Listening state for voice recognition
-  var recognizedVoiceText = ''.obs; // Raw text from voice recognition
-  var finalText = ''.obs; // Processed final output with unit (e.g., '12345 kWh')
+  var pickedImage = Rxn<File>();
+  var recognizedText = ''.obs;
+  var isLoading = false.obs;
+  var isListening = false.obs;
+  var recognizedVoiceText = ''.obs;
+  var finalText = ''.obs;
 
-  // Controllers and services
-  late final TextEditingController textController; // For manual text input
-  final picker = ImagePicker(); // Service for selecting images from camera/gallery
-  final stt.SpeechToText speech = stt.SpeechToText(); // Voice recognition service
-  late final TextRecognizer textRecognizer; // OCR recognizer for text extraction
+  late final TextEditingController textController;
+  late final TextEditingController oldReadingController;
+  late final TextEditingController newReadingController;
+
+  final picker = ImagePicker();
+  final stt.SpeechToText speech = stt.SpeechToText();
+  late final TextRecognizer textRecognizer;
+
+  String? savedOldReading;
 
   @override
   void onInit() {
     super.onInit();
-    textController = TextEditingController(); // Initialize text controller
+    textController = TextEditingController();
+    oldReadingController = TextEditingController();
+    newReadingController = TextEditingController();
 
-    // Initialize OCR recognizer preferring Arabic script for better handling of Arabic digits and text
-    // Fallback to Latin if Arabic is unavailable
-    textRecognizer = TextRecognizer(script: TextRecognitionScript.values.firstWhere(
-          (e) => e.name == 'arabic',
-      orElse: () => TextRecognitionScript.latin,
-    ));
+    if (savedOldReading != null && savedOldReading!.trim().isNotEmpty) {
+      oldReadingController.text = savedOldReading!;
+    }
+
+    textRecognizer = TextRecognizer(
+      script: TextRecognitionScript.values.firstWhere(
+        (e) => e.name == 'arabic',
+        orElse: () => TextRecognitionScript.latin,
+      ),
+    );
   }
 
   @override
   void onClose() {
-    // Proper disposal to prevent memory leaks
     textController.dispose();
-    textRecognizer.close(); // Release OCR resources
+    oldReadingController.dispose();
+    newReadingController.dispose();
+    textRecognizer.close();
     super.onClose();
   }
 
-  // Method to pick an image from specified source (camera or gallery)
-  // Compresses image for performance (quality 85%, max dimensions)
-  Future<void> pickImage(ImageSource source) async {
+  // ------------------ Manual Reading Helpers ------------------
+
+  double _parseReading(String input) {
+    if (input.trim().isEmpty) return 0.0;
+    String cleaned = convertArabicDigitsToEnglish(input.trim());
+    cleaned = cleaned.replaceAll(RegExp(r'[^\d.]'), '');
+    return double.tryParse(cleaned) ?? 0.0;
+  }
+
+  String? validateManualInputs() {
+    final oldVal = _parseReading(oldReadingController.text);
+    final newVal = _parseReading(newReadingController.text);
+
+    if (oldReadingController.text.trim().isEmpty ||
+        newReadingController.text.trim().isEmpty) {
+      return 'الرجاء إدخال القراءة القديمة والقراءة الجديدة';
+    }
+    if (newVal <= oldVal) {
+      return 'القراءة الجديدة يجب أن تكون أكبر من القديمة';
+    }
+    return null;
+  }
+
+  double calculateManualConsumption() {
+    final oldVal = _parseReading(oldReadingController.text);
+    final newVal = _parseReading(newReadingController.text);
+    if (newVal <= oldVal) return 0.0;
+    return double.parse((newVal - oldVal).toStringAsFixed(3));
+  }
+
+  double calculateCostFromKwh(double kwh) {
+    double cost = 0.0;
+    if (kwh <= 50)
+      cost = kwh * 0.68;
+    else if (kwh <= 100)
+      cost = (50 * 0.68) + ((kwh - 50) * 0.78);
+    else if (kwh <= 200)
+      cost = (50 * 0.68) + (50 * 0.78) + ((kwh - 100) * 0.95);
+    else if (kwh <= 350)
+      cost = (50 * 0.68) + (50 * 0.78) + (100 * 0.95) + ((kwh - 200) * 1.55);
+    else if (kwh <= 650)
+      cost =
+          (50 * 0.68) +
+          (50 * 0.78) +
+          (100 * 0.95) +
+          (150 * 1.55) +
+          ((kwh - 350) * 1.95);
+    else if (kwh <= 1000)
+      cost =
+          (50 * 0.68) +
+          (50 * 0.78) +
+          (100 * 0.95) +
+          (150 * 1.55) +
+          (300 * 1.95) +
+          ((kwh - 650) * 2.10);
+    else
+      cost =
+          (50 * 0.68) +
+          (50 * 0.78) +
+          (100 * 0.95) +
+          (150 * 1.55) +
+          (300 * 1.95) +
+          (350 * 2.10) +
+          ((kwh - 1000) * 2.23);
+
+    return double.parse(cost.toStringAsFixed(2));
+  }
+
+  Map<String, dynamic> _determineTier(double kwh) {
+    if (kwh <= 50) return {'tier': 1, 'pricePerKwh': 0.68};
+    if (kwh <= 100) return {'tier': 2, 'pricePerKwh': 0.78};
+    if (kwh <= 200) return {'tier': 3, 'pricePerKwh': 0.95};
+    if (kwh <= 350) return {'tier': 4, 'pricePerKwh': 1.55};
+    if (kwh <= 650) return {'tier': 5, 'pricePerKwh': 1.95};
+    if (kwh <= 1000) return {'tier': 6, 'pricePerKwh': 2.10};
+    return {'tier': 7, 'pricePerKwh': 2.23};
+  }
+
+  Map<String, dynamic> calculateManualResult() {
+    final error = validateManualInputs();
+    if (error != null) return {'error': true, 'message': error};
+
+    final oldVal = _parseReading(oldReadingController.text);
+    final newVal = _parseReading(newReadingController.text);
+    final consumption = double.parse((newVal - oldVal).toStringAsFixed(3));
+    final totalPrice = calculateCostFromKwh(consumption);
+    final tierInfo = _determineTier(consumption);
+
+    return {
+      'error': false,
+      'oldReading': oldVal,
+      'newReading': newVal,
+      'consumption': consumption,
+      'pricePerKwh': tierInfo['pricePerKwh'],
+      'tier': tierInfo['tier'],
+      'totalPrice': totalPrice,
+    };
+  }
+
+  void clearManualInputs() {
+    oldReadingController.clear();
+    newReadingController.clear();
+  }
+
+  // ------------------ OCR / Image ------------------
+
+  Future<void> pickImage(
+    ImageSource source,
+    TextEditingController targetController,
+  ) async {
     try {
       final pickedFile = await picker.pickImage(
         source: source,
-        imageQuality: 85, // Balance quality and file size
-        maxWidth: 1920, // Limit width for memory efficiency
-        maxHeight: 1080, // Limit height for memory efficiency
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1080,
       );
 
       if (pickedFile != null) {
-        pickedImage.value = File(pickedFile.path); // Update reactive image
-        recognizedText.value = ''; // Reset previous recognition
-        await recognizeText(pickedImage.value!); // Trigger OCR
+        pickedImage.value = File(pickedFile.path);
+        recognizedText.value = '';
+        await recognizeText(pickedImage.value!, targetController);
       }
     } catch (e) {
-      // Show helpful tip instead of raw error
       _showPhotoTip(
-  'خطأ في اختيار الصورة',
-  'تأكدي من منح إذن الكاميرا أو المعرض، ثم أعيدي المحاولة. إذا استمرت المشكلة، أعيدي تشغيل التطبيق.'
-);
-
+        'خطأ في اختيار الصورة',
+        'تأكد من صلاحيات الكاميرا أو المعرض.',
+      );
     }
   }
 
-  // Helper to remove leading zeros from numeric strings, preserving decimals
-  // Ensures clean display (e.g., '00123.0' -> '123')
-  String removeLeadingZeros(String number) {
-    if (number.contains('.')) {
-      final parts = number.split('.');
-      final integerPart = int.parse(parts[0]).toString(); // Remove leading zeros in integer part
-      final decimalPart = parts[1].replaceAll(RegExp(r'0+$'), ''); // Trim trailing zeros in decimal
-      return decimalPart.isEmpty ? integerPart : '$integerPart.$decimalPart';
-    } else {
-      return int.parse(number).toString(); // Simple integer parsing for whole numbers
-    }
-  }
-
-  // Converts Eastern Arabic-Indic digits to Western Arabic digits
-  // Essential for numeric processing (e.g., '١٢٣' -> '123')
-  String convertArabicDigitsToEnglish(String input) {
-    const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-    for (int i = 0; i < arabicDigits.length; i++) {
-      input = input.replaceAll(arabicDigits[i], i.toString());
-    }
-    return input;
-  }
-
-  // Normalizes detected units to standard format
-  // Maps variations like 'كيلو وات ساعة' to 'kWh' for consistency
-  String normalizeUnit(String unit) {
-    unit = unit.toLowerCase().trim();
-    if (unit.contains('كيلو') || unit.contains('kwh')) {
-      return 'kWh';
-    }
-    return unit; // Return as-is if no match
-  }
-
-  // Core OCR processing method
-  // Extracts text blocks, matches meter patterns, scores confidence, and selects best reading
-  // Improved for separate digit detection: collects all digit blocks, sorts by position, and concatenates close ones
-  Future<void> recognizeText(File image) async {
-
-    isLoading.value = true; // Start loading state
-    recognizedText.value = ''; // Reset display
+  Future<void> recognizeText(
+    File image,
+    TextEditingController targetController,
+  ) async {
+    isLoading.value = true;
+    recognizedText.value = '';
 
     try {
-      // Prepare input for ML Kit
       final inputImage = InputImage.fromFile(image);
-      final RecognizedText result = await textRecognizer.processImage(inputImage); // Perform OCR
+      final result = await textRecognizer.processImage(inputImage);
 
-      // Decode image to get dimensions for relative positioning
-      final Uint8List imageBytes = image.readAsBytesSync(); // Read once to avoid multiple I/O
+      final Uint8List imageBytes = image.readAsBytesSync();
       final imageData = await decodeImageFromList(imageBytes);
-      final imageHeight = imageData.height.toDouble();
       final imageWidth = imageData.width.toDouble();
+      final imageHeight = imageData.height.toDouble();
 
-      List<MeterReading> digitBlocks = []; // Collect individual digit or short number blocks
-
-      // Regex for any sequence of digits (1+), optional decimal; flexible for separate digits in meters
+      List<MeterReading> digitBlocks = [];
       final digitRegex = RegExp(r'[\d٠١٢٣٤٥٦٧٨٩]+(\.[\d٠١٢٣٤٥٦٧٨٩]{1,3})?');
+      final meterModelRegex = RegExp(
+        r'(GGIE|CG61E|82E|B2E|CG61|عداد كهرباء)',
+        caseSensitive: false,
+      );
 
-      // Regex to detect specific meter models (e.g., GGIE, 82E) for confidence boost
-      final meterModelRegex = RegExp(r'(GGIE|CG61E|82E|B2E|CG61|عداد كهرباء)', caseSensitive: false);
-
-      // Iterate over detected text blocks
       for (final block in result.blocks) {
-        final blockY = block.boundingBox.top; // Vertical position
-        final blockX = block.boundingBox.left; // Horizontal position
-        final fullBlockText = block.text.toLowerCase(); // For model detection
+        final blockY = block.boundingBox.top;
+        final blockX = block.boundingBox.left;
+        final fullBlockText = block.text.toLowerCase();
 
-        // Criteria for potential meter digits: upper/middle area, reasonable height, contains digits
         if (blockY < imageHeight * 0.8 &&
-            block.boundingBox.height > imageHeight * 0.02 && // Slightly lower threshold for smaller digits
-            digitRegex.hasMatch(block.text)) { // Only blocks with digits
-
-          String text = block.text;
-          print("Raw OCR block at ($blockX, $blockY): $text"); // Enhanced debug with position
-
-          String convertedText = convertArabicDigitsToEnglish(text);
-          print("Converted text: $convertedText"); // Debug after conversion
-
-          final matches = digitRegex.allMatches(convertedText); // Find digit patterns
+            block.boundingBox.height > imageHeight * 0.02 &&
+            digitRegex.hasMatch(block.text)) {
+          String text = convertArabicDigitsToEnglish(block.text);
+          final matches = digitRegex.allMatches(text);
 
           for (final match in matches) {
-            final numberPart = match.group(0)!;
-            // Clean number (keep only digits and dot)
-            String cleanNumber = numberPart.replaceAll(RegExp(r'[^\d.]'), '');
+            String cleanNumber = match
+                .group(0)!
+                .replaceAll(RegExp(r'[^\d.]'), '');
+            if (cleanNumber.isEmpty) continue;
 
-            // Skip if no valid number
-            if (cleanNumber.isEmpty || !RegExp(r'^\d+(\.\d{1,3})?$').hasMatch(cleanNumber)) continue;
-
-            // Calculate base confidence
             double confidence = 0.0;
-            // Central horizontal and upper position boost
-            confidence += (blockX - (imageWidth * 0.5)).abs() < (imageWidth * 0.3) ? 0.2 : 0;
+            confidence +=
+                (blockX - (imageWidth * 0.5)).abs() < (imageWidth * 0.3)
+                ? 0.2
+                : 0;
             confidence += blockY < imageHeight * 0.5 ? 0.2 : 0.1;
-            // Boost for longer sequences (but accept shorts for concatenation)
             confidence += (cleanNumber.length >= 2 ? 0.2 : 0.1);
-
-            // Unit presence (if any non-digit after, but rare for digit blocks)
-            // Model detection boost
-            if (meterModelRegex.hasMatch(fullBlockText)) {
-              confidence += 0.3;
-              print("Meter model detected near digits: $fullBlockText - Boosting confidence");
-            }
-
-            // Decimal validation
-            if (cleanNumber.contains('.')) {
-              final parts = cleanNumber.split('.');
-              if (parts[1].length > 3 || parts[1].length == 0) {
-                confidence -= 0.1;
-              } else {
-                confidence += 0.05;
-              }
-            }
-
-            // Clamp and store with position for sorting
+            if (meterModelRegex.hasMatch(fullBlockText)) confidence += 0.3;
             confidence = confidence.clamp(0.0, 1.0);
-            digitBlocks.add(MeterReading(
-              value: cleanNumber,
-              unit: null, // Units handled separately if needed
-              confidence: confidence,
-              position: block.boundingBox,
-              left: blockX, // For horizontal sorting
-            ));
-          }
-        }
-      }
 
-      print("Total digit blocks found: ${digitBlocks.length}"); // Debug count
-
-      // Sort digit blocks by left position (x-coordinate) for left-to-right concatenation
-      digitBlocks.sort((a, b) => a.left.compareTo(b.left));
-
-      // Group and concatenate close blocks (e.g., separate digits in meter display)
-      List<MeterReading> mergedReadings = [];
-      if (digitBlocks.isNotEmpty) {
-        List<MeterReading> currentGroup = [digitBlocks.first];
-        double lastRight = digitBlocks.first.position.right;
-
-        for (int i = 1; i < digitBlocks.length; i++) {
-          final current = digitBlocks[i];
-          final gap = current.left - lastRight; // Gap between previous right and current left
-
-          // If gap is small (e.g., < 1.5x average digit width, approx imageWidth/50), concatenate
-          if (gap < imageWidth * 0.02) { // Tunable threshold: ~2% of width for close digits
-            currentGroup.add(current);
-            lastRight = current.position.right;
-          } else {
-            // End group: concatenate values
-            final concatenated = _concatenateGroup(currentGroup);
-            if (concatenated.isNotEmpty) {
-              // Average confidence for group
-              final avgConfidence = currentGroup.map((b) => b.confidence).reduce((a, b) => a + b) / currentGroup.length;
-              mergedReadings.add(MeterReading(
-                value: concatenated,
+            digitBlocks.add(
+              MeterReading(
+                value: cleanNumber,
                 unit: null,
-                confidence: avgConfidence,
-                position: Rect.fromLTRB(
-                  currentGroup.first.left,
-                  currentGroup.first.position.top,
-                  currentGroup.last.position.right,
-                  currentGroup.last.position.bottom,
-                ),
-                left: currentGroup.first.left,
-              ));
-            }
-            // Start new group
-            currentGroup = [current];
-            lastRight = current.position.right;
+                confidence: confidence,
+                position: block.boundingBox,
+                left: blockX,
+              ),
+            );
           }
-        }
-        // Handle last group
-        final concatenated = _concatenateGroup(currentGroup);
-        if (concatenated.isNotEmpty) {
-          final avgConfidence = currentGroup.map((b) => b.confidence).reduce((a, b) => a + b) / currentGroup.length;
-          mergedReadings.add(MeterReading(
-            value: concatenated,
-            unit: null,
-            confidence: avgConfidence,
-            position: Rect.fromLTRB(
-              currentGroup.first.left,
-              currentGroup.first.position.top,
-              currentGroup.last.position.right,
-              currentGroup.last.position.bottom,
-            ),
-            left: currentGroup.first.left,
-          ));
         }
       }
 
-      // Filter merged readings: only those with 4+ digits (typical meter length)
-      final validReadings = mergedReadings.where((r) => r.value.length >= 4).toList();
+      digitBlocks.sort((a, b) => a.left.compareTo(b.left));
+      final mergedReadings = _mergeDigitBlocks(digitBlocks, imageWidth);
 
-      print("Merged valid readings: ${validReadings.map((r) => '${r.value} (conf: ${r.confidence})').toList()}"); // Debug merged
-
-      // Select and display best reading
-      if (validReadings.isNotEmpty) {
-        validReadings.sort((a, b) => b.confidence.compareTo(a.confidence)); // Global sort by confidence
-        final bestReading = validReadings.first;
-        final cleanedValue = removeLeadingZeros(bestReading.value);
-        final displayUnit = bestReading.unit ?? 'kWh'; // Default unit
-
-        recognizedText.value = '$cleanedValue $displayUnit';
-        finalText.value = '$cleanedValue $displayUnit';
-        textController.text = cleanedValue; // Populate text field
-
+      if (mergedReadings.isNotEmpty) {
+        mergedReadings.sort((a, b) => b.confidence.compareTo(a.confidence));
+        final best = mergedReadings.first;
+        final cleaned = removeLeadingZeros(best.value);
+        targetController.text = cleaned; // <- يملى الفيلد المناسب
+        recognizedText.value = '$cleaned kWh';
+        finalText.value = '$cleaned kWh';
       } else {
-        // No match: Show helpful tips based on possible reasons
         _showPhotoTip(
           'لا يوجد رقم صالح في الصورة',
-          'السبب المحتمل: الصورة غير واضحة بسبب ضعف الإضاءة، أو التصوير بزاوية، أو أن عداد الكهرباء بعيد في الصورة. \n\nنصائح لالتقاط صورة صحيحة:\n• صوّر في إضاءة قوية ويفضل الضوء الطبيعي.\n• خلي الموبايل موازي للعداد بدون أي ميل.\n• ركّز على شاشة العداد وخليها واضحة ومليّة الإطار.\n• جرّب مرة تانية بصورة أقرب وأوضح!',
-          duration: const Duration(seconds: 10),
+          'حاول التقاط صورة أقرب وأوضح للعداد.',
         );
       }
     } catch (e) {
-      // Error handling: Show tip instead of raw error
       _showPhotoTip(
         'خطأ في معالجة الصورة',
-        'السبب: مشكلة تقنية أثناء قراءة النص من الصورة. تأكد إن الصورة واضحة ومش مهزوزة، وجرب مرة تانية. لو المشكلة مستمرة، اقفل التطبيق وافتحه تاني. \n\nنصائح: صوّر بجودة عالية، وتجنب الظلال أو الانعكاسات.',
-        duration: const Duration(seconds: 5),
+        'تأكد من وضوح الصورة وجودة الإضاءة.',
       );
     } finally {
-      isLoading.value = false; // End loading
+      isLoading.value = false;
     }
   }
 
-  // Helper to show user-friendly photo tips in snackbar (no raw errors)
-  void _showPhotoTip(String title, String message, {Duration? duration}) {
-    recognizedText.value = 'No valid meter reading found';
+  List<MeterReading> _mergeDigitBlocks(
+    List<MeterReading> blocks,
+    double imageWidth,
+  ) {
+    if (blocks.isEmpty) return [];
+    List<MeterReading> merged = [];
+    List<MeterReading> current = [blocks.first];
+    double lastRight = blocks.first.position.right;
+
+    for (int i = 1; i < blocks.length; i++) {
+      final block = blocks[i];
+      if ((block.left - lastRight) < imageWidth * 0.02) {
+        current.add(block);
+        lastRight = block.position.right;
+      } else {
+        merged.add(_concatGroup(current));
+        current = [block];
+        lastRight = block.position.right;
+      }
+    }
+    merged.add(_concatGroup(current));
+    return merged.where((r) => r.value.length >= 4).toList();
+  }
+
+  MeterReading _concatGroup(List<MeterReading> group) {
+    String val = group.map((b) => b.value).join();
+    double avgConf =
+        group.map((b) => b.confidence).reduce((a, b) => a + b) / group.length;
+    return MeterReading(
+      value: val,
+      unit: 'kWh',
+      confidence: avgConf,
+      position: group.first.position,
+      left: group.first.left,
+    );
+  }
+
+  void _showPhotoTip(String title, String message) {
+    recognizedText.value = '';
     Get.snackbar(
       title,
       message,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.orangeAccent,
       colorText: Colors.white,
-      duration: duration ?? const Duration(seconds: 4),
+      duration: const Duration(seconds: 5),
       margin: const EdgeInsets.all(16),
       borderRadius: 8,
       isDismissible: true,
     );
   }
 
-  // Helper to concatenate values in a group (left-to-right, preserve decimals if any)
-  String _concatenateGroup(List<MeterReading> group) {
-    if (group.isEmpty) return '';
-    // Sort group by left position (already sorted, but ensure)
-    group.sort((a, b) => a.left.compareTo(b.left));
-    // Concatenate, but if any has decimal, place it at the end or handle carefully (simple: join as strings)
-    String result = '';
-    bool hasDecimal = false;
-    for (final block in group) {
-      if (block.value.contains('.')) {
-        hasDecimal = true;
-        // For simplicity, append full; in practice, meters rarely have decimals per digit
-        result += block.value;
-      } else {
-        result += block.value;
-      }
+  String removeLeadingZeros(String number) {
+    if (number.contains('.')) {
+      final parts = number.split('.');
+      final integerPart = int.parse(parts[0]).toString();
+      final decimalPart = parts[1].replaceAll(RegExp(r'0+$'), '');
+      return decimalPart.isEmpty ? integerPart : '$integerPart.$decimalPart';
+    } else {
+      return int.parse(number).toString();
     }
-    // If multiple decimals, this might error; for meters, assume at most one
-    return result;
   }
 
-  // Starts voice recognition session
-  // Initializes speech service if needed, listens in Arabic (Egyptian dialect)
-  Future<void> recognizeVoice({bool append = false}) async {
+  String convertArabicDigitsToEnglish(String input) {
+    const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    for (int i = 0; i < arabicDigits.length; i++) {
+      input = input.replaceAll(arabicDigits[i], i.toString());
+    }
+    return input;
+  }
 
+  // ------------------ Voice ------------------
+
+  Future<void> recognizeVoice(
+    TextEditingController targetController, {
+    bool append = false,
+  }) async {
     bool hasInternet = await connectivityService.connected();
-
     if (!hasInternet) {
       Get.snackbar(
         'لا يوجد اتصال بالإنترنت',
-        'من فضلك اتصل بالإنترنت قبل استخدام خاصية التعرف على الصوت.',
+        'من فضلك اتصل بالإنترنت لاستخدام التعرف على الصوت',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFE57373),
+        backgroundColor: Colors.redAccent,
         colorText: Colors.white,
       );
-
       return;
     }
 
-
-
     try {
-      // Initialize speech with status/error callbacks
       bool available = await speech.initialize(
         onStatus: (status) {
-          print("Speech status: $status"); // Debug status changes
-          if (status == 'done' || status == 'notListening') {
-            isListening.value = false; // Update UI on stop
-          }
+          if (status == 'done' || status == 'notListening')
+            isListening.value = false;
         },
         onError: (error) {
-          print("Speech error: ${error.errorMsg} (permanent: ${error.permanent})"); // Debug full error
           isListening.value = false;
-          String tip = _getSpeechErrorTip(error); // Get specific tip based on error
-          _showVoiceTip('Speech Recognition Error: ${error.errorMsg}', tip);
+          _showVoiceTip('خطأ في التعرف على الصوت', error.errorMsg);
         },
       );
 
       if (!available) {
         _showVoiceTip(
           'خاصية الصوت غير متاحة',
-          'هذا الجهاز لا يدعم ميزة التعرف على الصوت. يمكنك استخدام الصورة أو الكتابة اليدوية بدلًا من ذلك. يحدث هذا غالبًا في المحاكيات—جرّب على جهاز فعلي.',
+          'جرب على جهاز حقيقي أو تحقق من الصلاحيات.',
         );
         return;
-      } 
+      }
 
-      const String localeId = 'ar-EG'; // Arabic Egypt for local dialect support
-      isListening.value = true; // Start listening UI
-      recognizedVoiceText.value = append ? recognizedVoiceText.value : ''; // Preserve or reset
+      isListening.value = true;
+      recognizedVoiceText.value = append ? recognizedVoiceText.value : '';
 
-      // Listen with dictation mode for continuous input
       await speech.listen(
-        localeId: localeId,
+        localeId: 'ar-EG',
         listenMode: stt.ListenMode.dictation,
-        partialResults: true, // Real-time updates
+        partialResults: true,
         onResult: (result) {
-          recognizedVoiceText.value = cleanText(result.recognizedWords); // Clean and update
-
-          if (result.finalResult) { // Process final result
+          recognizedVoiceText.value = cleanText(result.recognizedWords);
+          if (result.finalResult) {
             final double number = _parseInput(recognizedVoiceText.value);
             final displayValue = _formatNumber(number);
+            targetController.text = displayValue; // <- يملى الفيلد الصحيح
             recognizedText.value = '$displayValue kWh';
             finalText.value = '$displayValue kWh';
-
-            // Update text field (append or replace)
-            if (append) {
-              textController.text = (textController.text + ' ' + result.recognizedWords).trim();
-            } else {
-              textController.text = result.recognizedWords;
-            }
           }
         },
       );
     } catch (e) {
-      print("Unexpected speech error: $e"); // Debug
       isListening.value = false;
-      _showVoiceTip(
-        'خطأ غير متوقع في الصوت',
-        'حدث خطأ غير متوقع. تأكد من الصلاحيات، أعد تشغيل التطبيق، أو جرّب الإدخال اليدوي. التفاصيل: $e',
-      );
-
+      _showVoiceTip('خطأ غير متوقع في التعرف على الصوت', e.toString());
     }
   }
 
-  // Helper to get specific tip based on speech error type
-  String _getSpeechErrorTip(stt.SpeechRecognitionError error) {
-    switch (error.errorMsg.toLowerCase()) {
-      case 'no_match':
-      return 'لم يتم الكشف عن أي كلام. حاول التحدث بصوت أعلى أو بالقرب من الميكروفون. حاول في مكان هادئ.';
-    case 'network_error':
-    case 'network_timeout':
-      return 'مشكلة في الشبكة. تحقق من اتصال الإنترنت—ميزة التعرف على الصوت تتطلب اتصالاً أحيانًا.';
-    case 'audio':
-      return 'مشكلة في إدخال الصوت. تأكد من منح صلاحيات الميكروفون وألا تكون هناك تطبيقات أخرى تستخدمه.';
-    case 'permission_denied':
-      return 'تم رفض صلاحية الميكروفون. اذهب إلى إعدادات التطبيق ومنح إذن الوصول للميكروفون.';
-    case 'not_available':
-      return 'خدمة التعرف على الصوت غير متاحة. قم بتثبيت أو تحديث خدمات Google Speech (للأندرويد) أو جرّب جهازًا آخر.';
-    case 'permanent':
-      return 'خطأ دائم. أعد تشغيل التطبيق أو الجهاز. إذا استمر، قد لا تكون ميزة التعرف على الصوت مدعومة هنا.';
-    default:
-      return 'فشل التعرف على الصوت. تحدث بوضوح باللغة العربية. الحلول الشائعة: تحقق من الصلاحيات، مكان هادئ، أو تحدث ببطء.';
-
-    }
-  }
-
-  // Helper to show user-friendly voice tips in snackbar
   void _showVoiceTip(String title, String message) {
     Get.snackbar(
       title,
@@ -466,157 +433,116 @@ class ReadingController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.orangeAccent,
       colorText: Colors.white,
-      duration: const Duration(seconds: 5), // Slightly longer for tips
+      duration: const Duration(seconds: 5),
       margin: const EdgeInsets.all(16),
       borderRadius: 8,
     );
   }
 
-  // Cleans input text for processing: keeps Arabic letters, digits, spaces, decimals; removes punctuation
   String cleanText(String text) {
     return text
-        .replaceAll(RegExp(r'[^\u0621-\u064A0-9\s.]'), ' ') // Retain Arabic, digits, spaces, dots
-        .replaceAll('،', ' ') // Replace Arabic comma
-        .replaceAll('؟', '') // Remove Arabic question mark
-        .trim(); // Remove leading/trailing whitespace
+        .replaceAll(RegExp(r'[^\u0621-\u064A0-9\s.]'), ' ')
+        .replaceAll('،', ' ')
+        .replaceAll('؟', '')
+        .trim();
   }
 
-  // Parses input to double: tries direct numeric parse first, falls back to Arabic word-to-number
   double _parseInput(String input) {
-    // Extract numeric string for direct parsing
     String numericStr = input.replaceAll(RegExp(r'[^\d.]'), '');
-    double? parsed = double.tryParse(numericStr);
-    if (parsed != null) {
-      return parsed;
-    }
-    // Fallback to word-based extraction for spoken numbers
-    return extractArabicNumber(input);
+    return double.tryParse(numericStr) ?? extractArabicNumber(input);
   }
 
-  // Formats double to string: integer if whole, else fixed with trimmed trailing zeros
   String _formatNumber(double number) {
-    if (number == number.toInt().toDouble()) {
-      return number.toInt().toString(); // Clean integer
-    } else {
-      return number.toStringAsFixed(3) // Up to 3 decimals
-          .replaceAll(RegExp(r'0+$'), '') // Trim trailing zeros
-          .replaceAll(RegExp(r'\.$'), ''); // Remove trailing dot
-    }
+    if (number == number.toInt().toDouble()) return number.toInt().toString();
+    return number
+        .toStringAsFixed(3)
+        .replaceAll(RegExp(r'0+$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
   }
 
-  // Processes input from any source (text, voice, OCR) and extracts final numeric value
   void processInput() {
     String input = '';
-    if (textController.text.isNotEmpty) {
+    if (textController.text.isNotEmpty)
       input = cleanText(textController.text);
-    } else if (recognizedVoiceText.value.isNotEmpty) {
+    else if (recognizedVoiceText.value.isNotEmpty)
       input = cleanText(recognizedVoiceText.value);
-    } else if (recognizedText.value.isNotEmpty) {
-      // Strip units from OCR result
-      input = recognizedText.value.replaceAll(RegExp(r'\s*(kWh|kW|كيلو وات ساعة|وات ساعة|ساعة|kwh|kw|وات)'), '').trim();
-    } else {
-      // No input error
-      Get.snackbar(
-        'خطأ',
-        'يرجى إدخال القراءة إما كتابةً، أو بالصوت، أو باستخدام صورة. حاول التقاط صورة للقراءة التلقائية!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orangeAccent,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
-
-      return;
-    }
+    else if (recognizedText.value.isNotEmpty)
+      input = recognizedText.value
+          .replaceAll(
+            RegExp(r'\s*(kWh|kW|كيلو وات ساعة|وات ساعة|ساعة|kwh|kw|وات)'),
+            '',
+          )
+          .trim();
 
     if (input.isNotEmpty) {
       final double number = _parseInput(input);
       final displayValue = _formatNumber(number);
-      finalText.value = '$displayValue kWh'; // Default unit
-
-      // Reset states
-      clearImage();
+      finalText.value = '$displayValue kWh';
+      pickedImage.value = null;
       textController.clear();
       recognizedVoiceText.value = '';
-
-      // Success for manual input
-      Get.snackbar(
-        'Done!',
-        'Reading saved: $displayValue kWh',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 2),
-      );
     }
   }
 
-  // Clears picked image and resets OCR-related states
   void clearImage() {
     pickedImage.value = null;
     recognizedText.value = '';
   }
 }
 
-// Standalone function to extract numeric value from Arabic text (formal and colloquial words)
-// Supports numbers up to hundreds; returns double for decimal compatibility
-// Parses words sequentially, handling multipliers like 'مية' (100)
+// Arabic word to number conversion
 double extractArabicNumber(String text) {
-  text = text.replaceAll("و", " ").trim(); // Normalize 'and' connector to space
-
-  // Mapping of Arabic number words (formal + colloquial Egyptian variants)
+  text = text.replaceAll("و", " ").trim();
   final Map<String, int> numbers = {
     'صفر': 0,
-    'واحد': 1, 'واحدة': 1,
-    'اتنين': 2, 'اثنين': 2,
-    'تلاتة': 3, 'ثلاثة': 3,
-    'أربعة': 4, 'اربعة': 4,
+    'واحد': 1,
+    'واحدة': 1,
+    'اثنين': 2,
+    'اتنين': 2,
+    'ثلاثة': 3,
+    'تلاتة': 3,
+    'أربعة': 4,
+    'اربعة': 4,
     'خمسة': 5,
     'ستة': 6,
     'سبعة': 7,
-    'تمانية': 8, 'ثمانية': 8,
+    'ثمانية': 8,
+    'تمانية': 8,
     'تسعة': 9,
     'عشرة': 10,
-    'حداشر': 11, 'احد عشر': 11,
-    'اتناشر': 12, 'اثنا عشر': 12,
-    'تلتاشر': 13, 'ثلاثة عشر': 13,
-    'اربعتاشر': 14, 'أربعة عشر': 14,
-    'خمستاشر': 15, 'خمسة عشر': 15,
-    'ستاشر': 16, 'ستة عشر': 16,
-    'سبعتاشر': 17, 'سبعة عشر': 17,
-    'تمنتاشر': 18, 'ثمانية عشر': 18,
-    'تسعتاشر': 19, 'تسعة عشر': 19,
+    'حداشر': 11,
+    'احد عشر': 11,
+    'اتناشر': 12,
+    'اثنا عشر': 12,
+    'تلتاشر': 13,
+    'ثلاثة عشر': 13,
+    'اربعتاشر': 14,
+    'أربعة عشر': 14,
+    'خمستاشر': 15,
+    'خمسة عشر': 15,
+    'ستاشر': 16,
+    'ستة عشر': 16,
+    'سبعتاشر': 17,
+    'سبعة عشر': 17,
+    'تمنتاشر': 18,
+    'ثمانية عشر': 18,
+    'تسعتاشر': 19,
     'عشرين': 20,
-    'تلاتين': 30, 'ثلاثين': 30,
-    'اربعين': 40, 'أربعين': 40,
+    'تلاتين': 30,
+    'ثلاثين': 30,
+    'اربعين': 40,
+    'أربعين': 40,
     'خمسين': 50,
     'ستين': 60,
     'سبعين': 70,
-    'تمانين': 80, 'ثمانين': 80,
+    'تمانين': 80,
     'تسعين': 90,
-    'مية': 100, 'مائة': 100,
+    'مئة': 100,
   };
 
-  double total = 0.0;
-  double current = 0.0; // Accumulator for current number
-
-  final words = text.split(' '); // Split into words
-
-  for (var word in words) {
-    if (numbers.containsKey(word)) {
-      int value = numbers[word]!;
-      if (value == 100) {
-        // Multiply current or start new hundred
-        current = (current == 0 ? 1 : current) * 100;
-      } else if (value >= 10 && value % 10 == 0 && current != 0) {
-        // Tens place addition (e.g., 'عشرين' after units)
-        current += value;
-      } else {
-        // Simple addition for units/teens
-        current += value;
-      }
-    }
+  int sum = 0;
+  for (var word in text.split(' ')) {
+    if (numbers.containsKey(word)) sum += numbers[word]!;
   }
-
-  total += current; // Add to total (supports simple phrases; extend for complex if needed)
-  return total;
+  return sum.toDouble();
 }
