@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:graduation_project/view/login_page.dart';
 import 'package:graduation_project/view/sign_up_page.dart';
 
 import '../core/style/colors.dart';
@@ -84,6 +85,28 @@ class Homescreen extends StatelessWidget {
                     },
                     child: Text(
                       ' احسب مرة واحدة',
+                      style: TextStyle(
+                        color: AppColor.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primary_color,
+                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    onPressed: () async {
+                      // controller.processInput();
+                      Get.to(()=> LoginPage());
+                    },
+                    child: Text(
+                      ' لديك حساب بالفعل',
                       style: TextStyle(
                         color: AppColor.black,
                         fontSize: 18,

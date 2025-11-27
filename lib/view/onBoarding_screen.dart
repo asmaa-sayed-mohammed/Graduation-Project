@@ -4,10 +4,13 @@ import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/view/homescreen.dart';
 import 'package:graduation_project/view/main_screen.dart';
+import 'package:graduation_project/view/reading_screen.dart';
+
+import '../services/auth_service.dart';
 
 class OnBoardingScreen extends StatelessWidget {
-  const OnBoardingScreen({super.key});
-
+  OnBoardingScreen({super.key});
+  final AuthService _authService = AuthService();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,7 +37,9 @@ class OnBoardingScreen extends StatelessWidget {
             style: TextStyle(color: AppColor.black, fontSize: 16),
           ),
           onFinish: () {
-            Get.offAll(() => const Homescreen());
+            final logged = _authService.isLoggedIn();
+
+            Get.off(() =>   logged ? ReadingScreen() : Homescreen());
           },
           background: [
             const SizedBox.shrink(),
