@@ -93,6 +93,7 @@ class Homescreen extends StatelessWidget {
                     ),
 
                   ),
+                  const SizedBox(height: 50,),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.primary_color,
