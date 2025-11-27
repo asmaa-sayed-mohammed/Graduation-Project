@@ -11,27 +11,35 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // استلام البيانات مرة واحدة فقط
+    if (Get.arguments != null &&
+        Get.arguments['usage'] != null &&
+        Get.arguments['price'] != null &&
+        controller.didReceiveData.isFalse) 
+    {
+      final usage = Get.arguments['usage'];
+      final price = Get.arguments['price'];
+
+      controller.updateReading(usage, price);
+      controller.didReceiveData.value = true;
+    }
+
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: AppColor.white,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-
               // =========================== HEADER ===========================
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.all(22),
-                decoration: BoxDecoration(
-                  color: AppColor.primary_color,
-                ),
+                decoration: BoxDecoration(color: AppColor.primary_color),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-                    // icons row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -43,7 +51,6 @@ class HomeScreen extends StatelessWidget {
 
                     SizedBox(height: 22),
 
-                    // title
                     Text(
                       "Electricity usage",
                       style: TextStyle(
@@ -54,7 +61,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 18),
 
-                    // black usage box
+                    // usage box
                     Container(
                       width: double.infinity,
                       padding: EdgeInsets.symmetric(vertical: 25),
@@ -63,24 +70,22 @@ class HomeScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Obx(
-                        () => Column(
-                          children: [
-                            Text(
-                              "${controller.currentUsage.value} KWh",
-                              style: TextStyle(
-                                fontSize: 42,
-                                fontWeight: FontWeight.bold,
-                                color: AppColor.white,
-                              ),
+                        () => Center(
+                          child: Text(
+                            "${controller.currentUsage.value} KWh",
+                            style: TextStyle(
+                              fontSize: 42,
+                              fontWeight: FontWeight.bold,
+                              color: AppColor.white,
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
 
                     SizedBox(height: 14),
 
-                    // yellow price box
+                    // price box
                     Container(
                       width: double.infinity,
                       padding: EdgeInsets.symmetric(vertical: 18),
@@ -106,7 +111,6 @@ class HomeScreen extends StatelessWidget {
 
               SizedBox(height: 25),
 
-              // ======================= TITLE =======================
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Align(
@@ -124,20 +128,20 @@ class HomeScreen extends StatelessWidget {
 
               SizedBox(height: 25),
 
-              // ======================= BAR CHART WITH SCROLL =======================
+              // ======================= BAR CHART =======================
               Container(
-                height: screenHeight * 0.55, // زيادة طول البار جراف
+                height: screenHeight * 0.55,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: SizedBox(
-                      width: controller.price12Months.length * 40, // عرض أصغر لكل بار
+                      width: controller.price12Months.length * 40,
                       child: BarChart(
                         BarChartData(
-                          maxY: controller.maxPriceValue() + 50, // أعلى قيمة تظهر كاملة
+                          maxY: controller.maxPriceValue() + 50,
                           minY: 0,
-                          alignment: BarChartAlignment.spaceAround, // توزيع الأعمدة
+                          alignment: BarChartAlignment.spaceAround,
                           borderData: FlBorderData(show: false),
                           gridData: FlGridData(
                             show: true,
@@ -146,8 +150,10 @@ class HomeScreen extends StatelessWidget {
                           ),
                           titlesData: FlTitlesData(
                             show: true,
-                            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            topTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
                             leftTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
@@ -158,10 +164,11 @@ class HomeScreen extends StatelessWidget {
                             bottomTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
-                                reservedSize: 30, // مساحة كافية للشهور
+                                reservedSize: 30,
                                 getTitlesWidget: (value, meta) {
                                   int i = value.toInt();
-                                  if (i < 0 || i >= controller.months.length) return SizedBox.shrink();
+                                  if (i < 0 || i >= controller.months.length)
+                                    return SizedBox.shrink();
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 8.0),
                                     child: Text(
@@ -183,7 +190,7 @@ class HomeScreen extends StatelessWidget {
                               barRods: [
                                 BarChartRodData(
                                   toY: controller.price12Months[i],
-                                  width: 30, // أصغر من قبل لكن أطول
+                                  width: 30,
                                   borderRadius: BorderRadius.circular(8),
                                   color: AppColor.primary_color,
                                 ),
@@ -199,8 +206,7 @@ class HomeScreen extends StatelessWidget {
 
               SizedBox(height: 20),
 
-              // ======================= BUTTON =======================
-              Container(
+              SizedBox(
                 width: 260,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
