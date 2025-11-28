@@ -10,6 +10,11 @@ class HistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        actions: [IconButton(onPressed: (){
+          controller.syncWithCloud();
+        }, icon: Icon(Icons.refresh))],
+      ),
       body: Column(
         children: [
           Container(
@@ -33,21 +38,6 @@ class HistoryScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
-                // زرار التحديث
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    controller.syncWithCloud();
-                  },
-                  child:  Icon(Icons.refresh),
-                )
               ],
             ),
           ),
@@ -59,7 +49,7 @@ class HistoryScreen extends StatelessWidget {
               }
 
               if (controller.history.isEmpty) {
-                return Center(child: Text("No history found"));
+                return Center(child: Text("لا يوجد سجل"));
               }
 
               return ListView.builder(
@@ -75,7 +65,7 @@ class HistoryScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      title: Text("Price: ${item.price} EGP"),
+                      title: Text("السعر: ${item.price} جنية"),
                       trailing: Text(
                         '${item.reading} Kw',
                         style: TextStyle(fontSize: 16),
