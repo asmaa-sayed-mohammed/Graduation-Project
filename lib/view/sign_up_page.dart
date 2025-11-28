@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:graduation_project/services/profile_hive_services.dart';
 import '../core/style/colors.dart';
+import '../main.dart';
 import '../services/auth_service.dart';
 import '../services/profile_services.dart';
-import '../models/profile_model.dart';
+import '../models/profile_model_supabase.dart';
 import 'main_screen.dart';
+import '../models/profile_model_hive.dart';
 
 class SignUpPage extends StatelessWidget {
   SignUpPage({super.key});
@@ -14,9 +17,10 @@ class SignUpPage extends StatelessWidget {
   final nameController = TextEditingController();
   final addressController = TextEditingController();
   final companyController = TextEditingController();
+  final _profileService = ProfileService();
 
   final AuthService _authService = AuthService();
-  final ProfileService _profileService = ProfileService();
+  final _profileHiveService = ProfileHiveService(profileBox);
 
   void _signUp(BuildContext context) async {
     final email = emailController.text.trim();
@@ -43,9 +47,12 @@ class SignUpPage extends StatelessWidget {
         createdAt: DateTime.now(),
       );
 
+      final hiveProfile = ProfileHive(id: user.id, name: name, createdAt: DateTime.now());
+
       final success = await _profileService.createProfile(profile);
 
       if (success) {
+        await _profileHiveService.addProfile(hiveProfile);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account created successfully!')),
         );

@@ -1,8 +1,9 @@
 // services/profile_service.dart
+import 'package:flutter/src/material/snack_bar.dart';
 import 'package:graduation_project/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/profile_model.dart';
-import '../models/profile_model.dart';
+import '../models/profile_model_supabase.dart';
+import '../models/profile_model_supabase.dart';
 
 class ProfileService {
   final String _tableName = 'profile';
@@ -52,4 +53,5 @@ class ProfileService {
       return false;
     }
   }
+
 }

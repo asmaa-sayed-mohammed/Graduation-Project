@@ -4,7 +4,7 @@ import 'package:graduation_project/view/reading_screen.dart';
 import '../core/style/colors.dart';
 import '../services/auth_service.dart';
 import '../services/profile_services.dart';
-import '../models/profile_model.dart';
+import '../models/profile_model_supabase.dart';
 import 'main_screen.dart';
 
 class LoginPage extends StatelessWidget {
