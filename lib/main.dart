@@ -18,6 +18,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'models/history_model.dart';
 import 'models/usage_report_adapter.dart';
 
+late Box<ProfileHive> profileBox;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
@@ -39,9 +41,11 @@ void main() async {
   // تسجيل Adapter بتاع تسجيل  الاستخدام
   if (!Hive.isAdapterRegistered(0)) {
     Hive.registerAdapter(UsageRecordAdapter());
+    Hive.registerAdapter(ProfileHiveAdapter());
   }
   // فتح hive
   await Hive.openBox<UsageRecord>('history');
+  await Hive.openBox<ProfileHive>('profileBox');
 
   runApp(MyApp());
 }
