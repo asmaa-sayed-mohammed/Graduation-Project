@@ -1,3 +1,4 @@
+// screens/budget_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
@@ -13,218 +14,309 @@ class BudgetScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
-      appBar: AppBar(
-        backgroundColor: AppColor.primary_color,
-        title: Text(
-          'الميزانية الشهرية',
-          style: TextStyle(
-            color: AppColor.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColor.black),
-          onPressed: () => Get.back(),
-        ),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // نص التوضيح
-              Text(
-                'حدد ميزانيتك الشهرية للكهرباء',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: AppColor.black,
-                  fontWeight: FontWeight.bold,
-                ),
+      body: Column(
+        children: [
+          // الهيدر
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppColor.primary_color,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(120),
+                bottomRight: Radius.circular(120),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'سنساعدك على توفير الطاقة والمال بناءً على ميزانيتك',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColor.gray,
-                ),
-              ),
-              const SizedBox(height: 30),
-        
-              // حقل إدخال الميزانية
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColor.white2,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColor.gray2),
-                ),
-                child: TextField(
-                  controller: budgetController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'الميزانية الشهرية (جنيه)',
-                    labelStyle: TextStyle(color: AppColor.black),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    suffixText: 'جنيه',
-                    suffixStyle: TextStyle(color: AppColor.black, fontWeight: FontWeight.bold),
-                  ),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppColor.black,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-        
-              // أمثلة للميزانيات
-              Text(
-                'اقتراحات:',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColor.gray,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  _buildBudgetChip('٣٠٠ جنيه', 300.0),
-                  _buildBudgetChip('٥٠٠ جنيه', 500.0),
-                  _buildBudgetChip('٧٥٠ جنيه', 750.0),
-                  _buildBudgetChip('١٠٠٠ جنيه', 1000.0),
-                ],
-              ),
-              const SizedBox(height: 30),
-        
-              // زر الحفظ
-              Obx(() => controller.isLoading.value
-                  ? Center(
-                child: CircularProgressIndicator(
-                  color: AppColor.primary_color,
-                ),
-              )
-                  : ElevatedButton(
-                onPressed: () {
-                  _saveBudget();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primary_color,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'حفظ الميزانية',
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 15),
+                Text(
+                  'الميزانية الشهرية',
                   style: TextStyle(
                     color: AppColor.black,
-                    fontSize: 18,
+                    fontSize: 32,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-              ),
-        
-              const SizedBox(height: 20),
-        
-              // عرض الميزانية الحالية إذا موجودة
-              Obx(() => controller.hasBudget.value
-                  ? Column(
+              ],
+            ),
+          ),
+
+          // محتوى الشاشة
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
                 children: [
-                  Divider(
-                    color: AppColor.gray2,
-                    thickness: 1,
-                  ),
+                  // الميزانية الحالية
+                  Obx(() => controller.hasBudget.value
+                      ? _buildCurrentBudgetCard()
+                      : const SizedBox()),
+
+                  const SizedBox(height: 30),
+
+                  // قسم إدخال الميزانية
+                  _buildBudgetInputSection(),
+
                   const SizedBox(height: 20),
-                  Text(
-                    'ميزانيتك الحالية',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: AppColor.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColor.primary_color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColor.primary_color),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.attach_money,
-                          color: AppColor.primary_color,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${controller.monthlyBudget.value} جنيه',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColor.primary_color,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () {
-                      budgetController.text = controller.monthlyBudget.value.toStringAsFixed(0);
-                    },
-                    child: Text(
-                      'تعديل الميزانية',
-                      style: TextStyle(
-                        color: AppColor.blue,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
+
+                  // الاقتراحات
+                  _buildBudgetSuggestions(),
+
+                  const SizedBox(height: 30),
+
+                  // زر الحفظ
+                  _buildSaveButton(),
                 ],
-              )
-                  : const SizedBox(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCurrentBudgetCard() {
+    return Obx(() => Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColor.primary_color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColor.primary_color, width: 2),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.account_balance_wallet,
+                color: AppColor.primary_color,
+                size: 28,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'ميزانيتك الحالية',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColor.black,
+                ),
               ),
             ],
           ),
+          const SizedBox(height: 15),
+          Text(
+            '${controller.monthlyBudget.value} جنيه',
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: AppColor.primary_color,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'شهرياً',
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColor.gray,
+            ),
+          ),
+          const SizedBox(height: 15),
+          ElevatedButton.icon(
+            onPressed: () {
+              budgetController.text = controller.monthlyBudget.value.toStringAsFixed(0);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColor.blue,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            icon: Icon(Icons.edit, color: AppColor.white, size: 18),
+            label: Text(
+              'تعديل الميزانية',
+              style: TextStyle(
+                color: AppColor.white,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ));
+  }
+
+  Widget _buildBudgetInputSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColor.white2,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColor.gray2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'حدد ميزانيتك الشهرية',
+            style: TextStyle(
+              fontSize: 18,
+              color: AppColor.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'سنساعدك على توفير الطاقة والمال بناءً على ميزانيتك',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColor.gray,
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          TextField(
+            controller: budgetController,
+            keyboardType: TextInputType.number,
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              hintText: 'أدخل المبلغ',
+              hintStyle: TextStyle(color: AppColor.gray),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColor.gray2),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColor.gray2),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColor.primary_color),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              suffixText: 'جنيه',
+              suffixStyle: TextStyle(
+                color: AppColor.primary_color,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            style: TextStyle(
+              fontSize: 18,
+              color: AppColor.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBudgetSuggestions() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColor.white2,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColor.gray2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'اقتراحات سريعة',
+            style: TextStyle(
+              fontSize: 18,
+              color: AppColor.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSuggestionButton('٣٠٠ جنيه', 300.0),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildSuggestionButton('٥٠٠ جنيه', 500.0),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSuggestionButton('٧٥٠ جنيه', 750.0),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildSuggestionButton('١٠٠٠ جنيه', 1000.0),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuggestionButton(String text, double value) {
+    return ElevatedButton(
+      onPressed: () {
+        budgetController.text = value.toStringAsFixed(0);
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.primary_color.withOpacity(0.1),
+        foregroundColor: AppColor.black,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: AppColor.primary_color),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
 
-  Widget _buildBudgetChip(String text, double value) {
-    return GestureDetector(
-      onTap: () {
-        budgetController.text = value.toStringAsFixed(0);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColor.primary_color.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColor.primary_color),
+  Widget _buildSaveButton() {
+    return Obx(() => SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: controller.isLoading.value ? null : _saveBudget,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColor.primary_color,
+          foregroundColor: AppColor.black,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          disabledBackgroundColor: AppColor.gray2,
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: AppColor.black,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+        child: controller.isLoading.value
+            ? const SizedBox(
+          height: 20,
+          width: 20,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: Colors.white,
+          ),
+        )
+            : Text(
+          controller.hasBudget.value ? 'تحديث الميزانية' : 'حفظ الميزانية',
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
-    );
+    ));
   }
 
   void _saveBudget() {
@@ -235,7 +327,6 @@ class BudgetScreen extends StatelessWidget {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
-        duration: const Duration(seconds: 3),
       );
       return;
     }
@@ -248,7 +339,6 @@ class BudgetScreen extends StatelessWidget {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
-        duration: const Duration(seconds: 3),
       );
       return;
     }

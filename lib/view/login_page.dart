@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:graduation_project/view/appliance_screen.dart';
+import 'package:graduation_project/view/budget_screen.dart';
+import 'package:graduation_project/view/home_screen.dart';
+import 'package:graduation_project/view/homescreen.dart';
 import 'package:graduation_project/view/reading_screen.dart';
+import 'package:graduation_project/view/tips_screen.dart';
 import '../core/style/colors.dart';
 import '../services/auth_service.dart';
 import '../services/profile_services.dart';
@@ -30,7 +35,7 @@ class LoginPage extends StatelessWidget {
     final loggedIn = await _authService.login(email, password);
 
     if (loggedIn) {
-      Get.off((()=> ReadingScreen()));
+      Get.off((()=> MainScreen()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('فشل تسجيل الدخول')),

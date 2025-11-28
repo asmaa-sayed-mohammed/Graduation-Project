@@ -1,83 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/controllers/appliances_controller.dart';
-import 'package:graduation_project/core/style/colors.dart';
+import 'package:graduation_project/models/appliance_category_model.dart';
 import 'package:graduation_project/models/appliance_model.dart';
+import '../core/style/colors.dart';
 
 class AppliancesScreen extends StatelessWidget {
-  const AppliancesScreen({super.key});
+  AppliancesScreen({super.key});
+
+  final AppliancesController controller = Get.put(AppliancesController());
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<AppliancesController>(
-      init: AppliancesController(),
-      builder: (controller) {
-        return Scaffold(
-          backgroundColor: AppColor.white,
-          appBar: AppBar(
-            backgroundColor: AppColor.primary_color,
-            title: Text(
-              'إدارة الأجهزة',
-              style: TextStyle(
-                color: AppColor.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: AppColor.black),
-              onPressed: () => Get.back(),
-            ),
-            elevation: 0,
-          ),
-          body: Column(
-            children: [
-              // فئات الأجهزة
-              _buildCategoriesSection(controller),
-
-              // قائمة الأجهزة
-              Expanded(child: _buildAppliancesSection(controller)),
-
-              // التقدير والإحصاءات
-              _buildStatisticsSection(controller),
-            ],
-          ),
-        );
-      },
+    return Scaffold(
+      backgroundColor: AppColor.white2,
+      body: Column(
+        children: [
+          _buildHeader(),
+          Expanded(child: _buildContent()),
+        ],
+      ),
+      floatingActionButton: _buildFloatingActionButton(),
     );
   }
 
-  Widget _buildCategoriesSection(AppliancesController controller) {
+  Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColor.white2,
-        border: Border(bottom: BorderSide(color: AppColor.gray2)),
+        color: AppColor.primary_color,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(120),
+          bottomRight: Radius.circular(120),
+        ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 15),
           Text(
-            'اختر الفئة',
+            'اختر أجهزتك',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
               color: AppColor.black,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 50,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: controller.categories.length,
-              itemBuilder: (context, index) {
-                final category = controller.categories[index];
-                final isSelected = controller.selectedCategory.value?.id == category.id;
-
-                return _buildCategoryItem(controller, category, isSelected);
-              },
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Tajawal',
             ),
           ),
         ],
@@ -85,34 +52,185 @@ class AppliancesScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryItem(AppliancesController controller, dynamic category, bool isSelected) {
-    return GestureDetector(
-      onTap: () => controller.selectCategory(category),
-      child: Container(
-        margin: const EdgeInsets.only(left: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColor.primary_color : AppColor.white,
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(
-            color: isSelected ? AppColor.primary_color : AppColor.gray2,
+  Widget _buildSelectionCounters() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColor.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildCounterItem(
+            'المختارة',
+            controller.selectedAppliancesCount.toString(),
+            AppColor.primary_color,
+          ),
+          _buildCounterItem(
+            'الإجمالي',
+            controller.appliances.length.toString(),
+            AppColor.blue,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCounterItem(final String title, final String value, final Color color) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.4),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Text(
+            value,
+            style: TextStyle(
+              color: AppColor.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Tajawal',
+            ),
           ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        const SizedBox(height: 8),
+        Text(
+          title,
+          textDirection: TextDirection.rtl,
+          style: TextStyle(
+            color: AppColor.black,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Tajawal',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContent() {
+    return Column(
+      children: [
+        _buildCategorySection(),
+        const SizedBox(height: 8),
+        Expanded(child: _buildAppliancesList()),
+      ],
+    );
+  }
+
+  Widget _buildCategorySection() {
+    return Obx(() {
+      if (controller.categories.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12, right: 8),
+              child: Text(
+                'الفئات',
+                textDirection: TextDirection.rtl,
+                style: TextStyle(
+                  color: AppColor.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Tajawal',
+                ),
+              ),
+            ),
+            _buildCategoriesGrid(),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildCategoriesGrid() {
+    return Obx(() {
+      return GridView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 8, // تقليل المسافة
+          mainAxisSpacing: 8,  // تقليل المسافة
+          childAspectRatio: 1.4, // تقليل الارتفاع
+        ),
+        itemCount: controller.categories.length,
+        itemBuilder: (final BuildContext context, final int index) {
+          final ApplianceCategory category = controller.categories[index];
+          final bool isSelected = controller.selectedCategory.value?.id == category.id;
+          return _buildCategoryItem(category, isSelected);
+        },
+      );
+    });
+  }
+
+  Widget _buildCategoryItem(final ApplianceCategory category, final bool isSelected) {
+    return GestureDetector(
+      onTap: () => controller.selectCategory(category),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColor.primary_color : AppColor.white,
+          borderRadius: BorderRadius.circular(15), // تقليل نصف القطر
+          border: Border.all(
+            color: isSelected ? AppColor.primary_color : AppColor.gray2.withOpacity(0.3),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColor.black.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              _getCategoryIcon(category.id),
+              _getCategoryIcon(category.nameAr),
               color: isSelected ? AppColor.white : AppColor.primary_color,
-              size: 16,
+              size: 22, // تقليل حجم الأيقونة
             ),
-            const SizedBox(width: 6),
-            Text(
-              category.nameAr,
-              style: TextStyle(
-                color: isSelected ? AppColor.white : AppColor.black,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+            const SizedBox(height: 4), // تقليل المسافة
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4), // تقليل الحشو
+              child: Text(
+                category.nameAr,
+                textDirection: TextDirection.rtl,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isSelected ? AppColor.white : AppColor.black,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 11, // تقليل حجم الخط
+                  fontFamily: 'Tajawal',
+                  height: 1.1,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -121,247 +239,221 @@ class AppliancesScreen extends StatelessWidget {
     );
   }
 
-  IconData _getCategoryIcon(int categoryId) {
-    switch (categoryId) {
-      case 1: return Icons.ac_unit;
-      case 2: return Icons.home;
-      case 3: return Icons.tv;
-      case 4: return Icons.kitchen;
-      case 5: return Icons.lightbulb;
-      case 6: return Icons.computer;
-      case 7: return Icons.whatshot;
-      default: return Icons.electrical_services;
+  // دالة لإرجاع الأيقونة المناسبة لكل فئة
+  IconData _getCategoryIcon(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'تكييف':
+      case 'مكيفات':
+      case 'تكييف هواء':
+        return Icons.ac_unit;
+      case 'إضاءة':
+      case 'إنارة':
+      case 'اضاءة':
+        return Icons.lightbulb_outline;
+      case 'مطبخ':
+      case 'أجهزة مطبخ':
+      case 'اجهزة مطبخ':
+        return Icons.kitchen;
+      case 'غسيل':
+      case 'ملابس':
+      case 'غسالة':
+        return Icons.local_laundry_service;
+      case 'تلفزيون':
+      case 'ترفيه':
+      case 'تلفاز':
+        return Icons.tv;
+      case 'كمبيوتر':
+      case 'أجهزة مكتب':
+      case 'حاسوب':
+        return Icons.computer;
+      case 'ثلاجة':
+      case 'تبريد':
+        return Icons.kitchen;
+      case 'صحون':
+      case 'غسالة صحون':
+        return Icons.cleaning_services;
+      case 'تدفئة':
+      case 'سخان':
+      case 'دفاية':
+        return Icons.whatshot;
+      case 'شاشات':
+      case 'عرض':
+        return Icons.desktop_windows;
+      case 'مروحة':
+      case 'مراوح':
+        return Icons.air;
+      case 'ميكروويف':
+      case 'فرن':
+        return Icons.microwave;
+      case 'مكنسة':
+      case 'مكنسة كهربائية':
+        return Icons.cleaning_services;
+      case 'سخان مياه':
+      case 'سخان كهربائي':
+        return Icons.water_damage;
+      default:
+        return Icons.devices_other;
     }
   }
 
-  Widget _buildAppliancesSection(AppliancesController controller) {
-    if (controller.selectedCategory.value == null) {
-      return _buildEmptyState('اختر فئة لرؤية الأجهزة');
-    }
+  Widget _buildAppliancesList() {
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return _buildLoadingIndicator();
+      }
 
-    if (controller.isLoading.value) {
-      return _buildLoadingState();
-    }
+      if (controller.appliances.isEmpty) {
+        return _buildEmptyState();
+      }
 
-    if (controller.appliances.isEmpty) {
-      return _buildEmptyState('لا توجد أجهزة في هذه الفئة');
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: controller.appliances.length,
-      itemBuilder: (context, index) {
-        final appliance = controller.appliances[index];
-        final isSelected = controller.isApplianceSelected(appliance);
-
-        return _buildApplianceItem(controller, appliance, isSelected);
-      },
-    );
+      return Padding(
+        padding: const EdgeInsets.all(12), // تقليل الحشو العام
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 8,  // تقليل المسافة
+            mainAxisSpacing: 8,   // تقليل المسافة
+            childAspectRatio: 0.75, // تقليل الارتفاع أكثر
+          ),
+          itemCount: controller.appliances.length,
+          itemBuilder: (final BuildContext context, final int index) {
+            final Appliance appliance = controller.appliances[index];
+            return _buildApplianceCard(appliance);
+          },
+        ),
+      );
+    });
   }
 
-  Widget _buildApplianceItem(AppliancesController controller, Appliance appliance, bool isSelected) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: isSelected ? AppColor.primary_color : AppColor.gray2,
-        ),
-      ),
-      child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: isSelected ? AppColor.primary_color.withOpacity(0.1) : AppColor.white2,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.electrical_services,
-            color: isSelected ? AppColor.primary_color : AppColor.gray,
-          ),
-        ),
-        title: Text(
-          appliance.nameAr,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColor.black,
+  Widget _buildApplianceCard(final Appliance appliance) {
+    final bool isSelected = controller.isApplianceSelected(appliance);
+
+    return GestureDetector(
+      onTap: () => controller.toggleApplianceSelection(appliance),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColor.primary_color : AppColor.white,
+          borderRadius: BorderRadius.circular(12), // تقليل نصف القطر
+          boxShadow: [
+            BoxShadow(
+              color: AppColor.black.withOpacity(0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
+          border: Border.all(
+            color: isSelected ? AppColor.primary_color : Colors.grey.shade300,
+            width: 1.2,
           ),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            const SizedBox(height: 4),
-            Row(
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.bolt, size: 12, color: AppColor.primary_color),
-                const SizedBox(width: 4),
-                Text(
-                  appliance.wattageDisplay,
-                  style: TextStyle(
-                    color: AppColor.gray,
-                    fontSize: 12,
+                Container(
+                  padding: const EdgeInsets.all(6), // تقليل الحشو
+                  decoration: BoxDecoration(
+                    color: isSelected ? _withOpacity(AppColor.white, 0.2) : _withOpacity(AppColor.primary_color, 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.bolt,
+                    color: isSelected ? AppColor.white : AppColor.primary_color,
+                    size: 20, // تقليل حجم الأيقونة
+                  ),
+                ),
+                const SizedBox(height: 6), // تقليل المسافة
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4), // تقليل الحشو
+                  child: Text(
+                    appliance.nameAr,
+                    textDirection: TextDirection.rtl,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isSelected ? AppColor.white : AppColor.black,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 10, // تقليل حجم الخط
+                      fontFamily: 'Tajawal',
+                      height: 1.1,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 3), // تقليل المسافة
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1), // تقليل الحشو
+                  decoration: BoxDecoration(
+                    color: isSelected ? _withOpacity(AppColor.white, 0.2) : _withOpacity(AppColor.gray, 0.1),
+                    borderRadius: BorderRadius.circular(6), // تقليل نصف القطر
+                  ),
+                  child: Text(
+                    '${appliance.watt} واط',
+                    textDirection: TextDirection.rtl,
+                    style: TextStyle(
+                      color: isSelected ? _withOpacity(AppColor.white, 0.9) : AppColor.black,
+                      fontSize: 8, // تقليل حجم الخط
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Tajawal',
+                    ),
                   ),
                 ),
               ],
             ),
-            if (appliance.commonBrands.isNotEmpty) ...[
-              const SizedBox(height: 2),
-              Text(
-                'ماركات: ${appliance.brandsDisplay}',
-                style: TextStyle(
-                  color: AppColor.gray,
-                  fontSize: 11,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ],
-        ),
-        trailing: Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isSelected ? AppColor.primary_color : Colors.transparent,
-            border: Border.all(
-              color: isSelected ? AppColor.primary_color : AppColor.gray2,
-            ),
-          ),
-          child: isSelected
-              ? Icon(Icons.check, size: 16, color: AppColor.white)
-              : null,
-        ),
-        onTap: () => controller.toggleApplianceSelection(appliance),
-      ),
-    );
-  }
-
-  Widget _buildStatisticsSection(AppliancesController controller) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColor.white2,
-        border: Border(top: BorderSide(color: AppColor.gray2)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'الإحصائيات',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.black,
-                  fontSize: 16,
-                ),
-              ),
-              Text(
-                '${controller.userAppliances.length} جهاز',
-                style: TextStyle(
-                  color: AppColor.primary_color,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              _buildStatItem(
-                'الاستهلاك اليومي',
-                '${controller.estimatedDailyConsumption.toStringAsFixed(1)} kWh',
-                Icons.bolt,
-              ),
-              const SizedBox(width: 16),
-              _buildStatItem(
-                'التكلفة الشهرية',
-                '${(controller.estimatedDailyConsumption * 30 * 1.5).toStringAsFixed(0)} جنيه',
-                Icons.attach_money,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: controller.userAppliances.isNotEmpty ? () => _saveAppliances(controller) : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColor.primary_color,
-                foregroundColor: AppColor.black,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                'حفظ الأجهزة المختارة',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(String title, String value, IconData icon) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColor.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColor.gray2),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 16, color: AppColor.primary_color),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: AppColor.black,
-                      fontSize: 14,
-                    ),
+            if (isSelected)
+              Positioned(
+                top: 4, // تقليل المسافة
+                right: 4, // تقليل المسافة
+                child: Container(
+                  padding: const EdgeInsets.all(3), // تقليل الحشو
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 1,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
                   ),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: AppColor.gray,
-                      fontSize: 10,
-                    ),
+                  child: Icon(
+                    Icons.check,
+                    color: AppColor.primary_color,
+                    size: 12, // تقليل حجم الأيقونة
                   ),
-                ],
+                ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLoadingState() {
+  // دالة بديلة لـ withOpacity بدون تحذيرات
+  Color _withOpacity(Color color, double opacity) {
+    return color.withOpacity(opacity);
+  }
+
+  Widget _buildLoadingIndicator() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppColor.primary_color),
+          CircularProgressIndicator(
+            color: AppColor.primary_color,
+            strokeWidth: 2,
+          ),
           const SizedBox(height: 16),
           Text(
             'جاري تحميل الأجهزة...',
+            textDirection: TextDirection.rtl,
             style: TextStyle(
-              color: AppColor.gray,
+              color: AppColor.black,
+              fontSize: 14,
+              fontFamily: 'Tajawal',
             ),
           ),
         ],
@@ -369,18 +461,35 @@ class AppliancesScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(String message) {
+  Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.devices_other, size: 64, color: AppColor.gray2),
-          const SizedBox(height: 16),
+          Icon(
+            Icons.devices_other,
+            color: AppColor.gray2,
+            size: 60,
+          ),
+          const SizedBox(height: 12),
           Text(
-            message,
+            'لا توجد أجهزة',
+            textDirection: TextDirection.rtl,
             style: TextStyle(
-              color: AppColor.gray,
-              fontWeight: FontWeight.bold,
+              color: AppColor.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Tajawal',
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'اختر فئة لعرض الأجهزة المتاحة',
+            textDirection: TextDirection.rtl,
+            style: TextStyle(
+              color: AppColor.black,
+              fontSize: 12,
+              fontFamily: 'Tajawal',
             ),
           ),
         ],
@@ -388,14 +497,50 @@ class AppliancesScreen extends StatelessWidget {
     );
   }
 
-  void _saveAppliances(AppliancesController controller) {
-    Get.back();
-    Get.snackbar(
-      'تم الحفظ',
-      'تم حفظ ${controller.userAppliances.length} جهاز',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: AppColor.green,
-      colorText: AppColor.white,
-    );
+  Widget _buildFloatingActionButton() {
+    return Obx(() {
+      if (controller.selectedAppliancesCount == 0) {
+        return const SizedBox.shrink();
+      }
+
+      return Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: FloatingActionButton.extended(
+          onPressed: controller.isSaving.value ? null : controller.saveUserAppliances,
+          backgroundColor: AppColor.primary_color,
+          foregroundColor: AppColor.black,
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          icon: controller.isSaving.value
+              ? SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(
+              color: AppColor.black,
+              strokeWidth: 2,
+            ),
+          )
+              : Icon(
+            Icons.save_alt_rounded,
+            color: AppColor.black,
+            size: 20,
+          ),
+          label: Text(
+            controller.isSaving.value
+                ? 'جاري الحفظ...'
+                : 'حفظ ${controller.selectedAppliancesCount} جهاز',
+            textDirection: TextDirection.rtl,
+            style: TextStyle(
+              color: AppColor.black,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              fontFamily: 'Tajawal',
+            ),
+          ),
+        ),
+      );
+    });
   }
 }

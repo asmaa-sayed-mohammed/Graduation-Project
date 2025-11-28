@@ -11,49 +11,46 @@ import '../services/auth_service.dart';
 class OnBoardingScreen extends StatelessWidget {
   OnBoardingScreen({super.key});
   final AuthService _authService = AuthService();
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        body: OnBoardingSlider(
-          controllerColor: AppColor.black,
-          headerBackgroundColor: AppColor.white,
-          pageBackgroundColor: AppColor.white2,
-          finishButtonText: 'اذهب للصفحة الرئيسية',
-          finishButtonTextStyle: TextStyle(
-            color: AppColor.white,
-            fontWeight: FontWeight.bold,
-          ),
-          finishButtonStyle: FinishButtonStyle(
-            backgroundColor: AppColor.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          skipTextButton: Text(
-            'Skip',
-            style: TextStyle(color: AppColor.black, fontSize: 16),
-          ),
-          onFinish: () {
-            final logged = _authService.isLoggedIn();
-
-            Get.off(() =>   logged ? ReadingScreen() : Homescreen());
-          },
-          background: [
-            const SizedBox.shrink(),
-            const SizedBox.shrink(),
-            const SizedBox.shrink(),
-          ],
-          totalPage: 3,
-          speed: 1.8,
-          pageBodies: [
-            _buildFixedImage('assets/images/On_boarding1.png'),
-            _buildFixedImage('assets/images/On_boarding2.png'),
-            _buildFixedImage('assets/images/On_boarding3.png'),
-          ],
+    return Scaffold( // ✅ صح - بدل MaterialApp
+      backgroundColor: Colors.white,
+      body: OnBoardingSlider(
+        controllerColor: AppColor.black,
+        headerBackgroundColor: AppColor.white,
+        pageBackgroundColor: AppColor.white2,
+        finishButtonText: 'اذهب للصفحة الرئيسية',
+        finishButtonTextStyle: TextStyle(
+          color: AppColor.white,
+          fontWeight: FontWeight.bold,
         ),
+        finishButtonStyle: FinishButtonStyle(
+          backgroundColor: AppColor.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        skipTextButton: Text(
+          'Skip',
+          style: TextStyle(color: AppColor.black, fontSize: 16),
+        ),
+        onFinish: () {
+          final logged = _authService.isLoggedIn();
+          Get.off(() => logged ? ReadingScreen() : Homescreen());
+        },
+        background: [
+          const SizedBox.shrink(),
+          const SizedBox.shrink(),
+          const SizedBox.shrink(),
+        ],
+        totalPage: 3,
+        speed: 1.8,
+        pageBodies: [
+          _buildFixedImage('assets/images/On_boarding1.png'),
+          _buildFixedImage('assets/images/On_boarding2.png'),
+          _buildFixedImage('assets/images/On_boarding3.png'),
+        ],
       ),
     );
   }

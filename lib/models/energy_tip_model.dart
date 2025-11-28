@@ -1,52 +1,67 @@
-// models/energy_tip_model.dart
-import 'appliance_model.dart';
+import 'package:flutter/foundation.dart';
 
+@immutable
 class EnergyTip {
   final int id;
-  final int applianceId;
-  final String tipAr;
-  final String? tipEn;
-  final String priority;
-  final String? conditions;
+  final String title;
+  final String description;
+  final int? applianceId;
+  final int priority;
   final DateTime createdAt;
 
-  final Appliance? appliance;
-
-  EnergyTip({
+  const EnergyTip({
     required this.id,
-    required this.applianceId,
-    required this.tipAr,
-    this.tipEn,
+    required this.title,
+    required this.description,
+    this.applianceId,
     required this.priority,
-    this.conditions,
     required this.createdAt,
-    this.appliance,
   });
 
-  factory EnergyTip.fromJson(Map<String, dynamic> json) {
+  factory EnergyTip.fromJson(Map<String, Object?> json) {
     return EnergyTip(
-      id: json['id'] as int,
-      applianceId: json['appliance_id'] as int,
-      tipAr: json['tip_ar'] as String,
-      tipEn: json['tip_en'] as String?,
-      priority: json['priority'] as String,
-      conditions: json['conditions'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      appliance: json['appliances'] != null
-          ? Appliance.fromJson(json['appliances'] as Map<String, dynamic>)
+      id: _safeCastInt(json['id']),
+      title: _safeCastString(json['title']),
+      description: _safeCastString(json['description']),
+      applianceId: json['appliance_id'] != null
+          ? _safeCastInt(json['appliance_id'])
           : null,
+      priority: _safeCastInt(json['priority']),
+      createdAt: _safeCastDateTime(json['created_at']),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'appliance_id': applianceId,
-      'tip_ar': tipAr,
-      'tip_en': tipEn,
-      'priority': priority,
-      'conditions': conditions,
-      'created_at': createdAt.toIso8601String(),
-    };
+
+  static int _safeCastInt(Object? value) {
+    if (value == null) throw const FormatException('القيمة لا يمكن أن تكون null');
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    throw FormatException('قيمة غير صالحة لرقم: $value');
   }
+
+  static String _safeCastString(Object? value) {
+    if (value == null) throw const FormatException('القيمة لا يمكن أن تكون null');
+    return value.toString();
+  }
+
+  static DateTime _safeCastDateTime(Object? value) {
+    if (value == null) throw const FormatException('القيمة لا يمكن أن تكون null');
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.parse(value);
+    throw FormatException('قيمة وقت غير صالحة: $value');
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is EnergyTip &&
+            runtimeType == other.runtimeType &&
+            id == other.id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'EnergyTip(id: $id, title: $title)';
 }

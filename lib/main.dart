@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:graduation_project/view/my_appliances_screen.dart';
 import 'package:graduation_project/view/onBoarding_screen.dart';
 import 'package:graduation_project/view/reading_screen.dart';
 import 'package:graduation_project/view/splash_screen.dart';
 import 'package:graduation_project/view/tips_screen.dart';
+import 'package:graduation_project/view/my_appliances_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async{
@@ -17,13 +19,19 @@ final cloud = Supabase.instance.client;
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
+      // أضف routes للانتقال لشاشة الأجهزة
+      getPages: [
+        GetPage(name: '/my-appliances', page: () => MyAppliancesScreen()),
+        GetPage(name: '/splash', page: () => SplashScreen()),
+        GetPage(name: '/onboarding', page: () => OnBoardingScreen()),
+        GetPage(name: '/reading', page: () => ReadingScreen()),
+        GetPage(name: '/tips', page: () => TipsScreen()),
+      ],
     );
   }
 }
