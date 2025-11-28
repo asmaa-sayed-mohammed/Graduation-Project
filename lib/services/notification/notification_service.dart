@@ -5,7 +5,7 @@ import 'package:graduation_project/core/style/colors.dart';
 class NotificationService {
 
   Future<void> initialize() async {
-    await AwesomeNotifications().initialize('assets/images/icon.png',
+    await AwesomeNotifications().initialize(null,
       [
         NotificationChannel(
           channelKey: 'notification',
