@@ -8,9 +8,12 @@ import 'package:graduation_project/view/tips_screen.dart';
 import 'package:graduation_project/view/my_appliances_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'controllers/appliances_controller.dart';
+
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(url: 'https://qtkxpsgmmcubmaogzjck.supabase.co', anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0a3hwc2dtbWN1Ym1hb2d6amNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwMzYzNDEsImV4cCI6MjA3NzYxMjM0MX0.7VoDnNK1a7cptEBbiugbpw0PQMLpSGuxspQWS6sfV3Q');
+  Get.put(AppliancesController());
   runApp( MyApp());
 }
 

@@ -100,6 +100,32 @@ class UserAppliance {
     if (value is String) return value.toLowerCase() == 'true';
     return true;
   }
+  UserAppliance copyWith({
+    int? id,
+    String? userId,
+    int? applianceId,
+    String? brand,
+    String? model,
+    double? hoursPerDay,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Appliance? appliance,
+  }) {
+    return UserAppliance(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      applianceId: applianceId ?? this.applianceId,
+      brand: brand ?? this.brand,
+      model: model ?? this.model,
+      hoursPerDay: hoursPerDay ?? this.hoursPerDay,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      appliance: appliance ?? this.appliance,
+    );
+  }
+
 
   @override
   bool operator ==(Object other) {

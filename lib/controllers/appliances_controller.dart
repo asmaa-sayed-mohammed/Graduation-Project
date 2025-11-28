@@ -8,6 +8,7 @@ import 'package:graduation_project/models/user_appliance_model.dart';
 class AppliancesController extends GetxController {
   final ApplianceService _applianceService = ApplianceService();
 
+  // متغيرات مراقبة
   final RxList<ApplianceCategory> categories = <ApplianceCategory>[].obs;
   final Rxn<ApplianceCategory> selectedCategory = Rxn<ApplianceCategory>();
   final RxList<Appliance> appliances = <Appliance>[].obs;
@@ -15,26 +16,14 @@ class AppliancesController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isSaving = false.obs;
 
-
   @override
   void onInit() {
     super.onInit();
     _loadInitialData();
-    _loadUserAppliances(); // ⬅️ أضف هذا السطر
+    _loadUserAppliances();
   }
 
-  Future<void> _loadUserAppliances() async {
-    try {
-      final String userId = _applianceService.getCurrentUserId();
-      if (userId.isNotEmpty) {
-        final List<UserAppliance> loadedUserAppliances =
-        await _applianceService.getUserAppliances(userId);
-        userAppliances.assignAll(loadedUserAppliances);
-      }
-    } catch (e) {
-      _showError('فشل في تحميل أجهزتك', e.toString());
-    }
-  }
+  // تحميل الفئات والأجهزة الأولى
   Future<void> _loadInitialData() async {
     try {
       isLoading.value = true;
@@ -52,12 +41,14 @@ class AppliancesController extends GetxController {
     }
   }
 
+  // تحميل أجهزة فئة معينة
   Future<void> _loadAppliancesByCategory(ApplianceCategory category) async {
     try {
       isLoading.value = true;
       appliances.clear();
 
-      final List<Appliance> loadedAppliances = await _applianceService.getAppliancesByCategory(category.id);
+      final List<Appliance> loadedAppliances =
+      await _applianceService.getAppliancesByCategory(category.id);
       appliances.assignAll(loadedAppliances);
     } catch (e) {
       _showError('فشل في تحميل الأجهزة', e.toString());
@@ -67,14 +58,61 @@ class AppliancesController extends GetxController {
     }
   }
 
-  void selectCategory(ApplianceCategory category) {
-    appliances.clear();
+  // اختيار فئة
+  Future<void> selectCategory(ApplianceCategory category) async {
     selectedCategory.value = category;
-    _loadAppliancesByCategory(category);
+    await _loadAppliancesByCategory(category);
   }
 
-  void toggleApplianceSelection(Appliance appliance) {
-    final int existingIndex = userAppliances.indexWhere((UserAppliance ua) => ua.applianceId == appliance.id);
+  // تحميل الأجهزة الخاصة بالمستخدم
+  Future<void> _loadUserAppliances() async {
+    try {
+      final String userId = _applianceService.getCurrentUserId();
+      if (userId.isNotEmpty) {
+        final List<UserAppliance> loadedUserAppliances =
+        await _applianceService.getUserAppliances(userId);
+        userAppliances.assignAll(loadedUserAppliances);
+      }
+    } catch (e) {
+      _showError('فشل في تحميل أجهزتك', e.toString());
+    }
+  }
+
+  // تحديث جهاز المستخدم
+  Future<void> updateUserAppliance(UserAppliance userAppliance) async {
+    try {
+      await _applianceService.updateUserAppliance(userAppliance);
+      final index = userAppliances.indexWhere((ua) => ua.id == userAppliance.id);
+      if (index != -1) {
+        userAppliances[index] = userAppliance;
+      }
+      _showSuccess('تم التحديث', 'تم تعديل الجهاز بنجاح');
+    } catch (e) {
+      _showError('فشل في التحديث', e.toString());
+    }
+  }
+
+  // حذف جهاز المستخدم
+  Future<void> deleteUserAppliance(int userApplianceId) async {
+    try {
+      await _applianceService.deleteUserAppliance(userApplianceId);
+      userAppliances.removeWhere((ua) => ua.id == userApplianceId);
+      _showSuccess('تم الحذف', 'تم حذف الجهاز بنجاح');
+    } catch (e) {
+      _showError('فشل في الحذف', e.toString());
+    }
+  }
+
+  // اختيار الجهاز بالبراند (البراند موجود بالفعل في Appliance)
+  void showBrandSelection(Appliance appliance) {
+    // لأن كل جهاز له براند واحد فقط، نستخدمه مباشرة
+    toggleApplianceSelection(appliance, appliance.brand);
+  }
+
+  // تفعيل أو إلغاء اختيار الجهاز
+  void toggleApplianceSelection(Appliance appliance, String brand) {
+    final int existingIndex = userAppliances.indexWhere(
+            (ua) => ua.applianceId == appliance.id && ua.brand == brand);
 
     if (existingIndex != -1) {
       userAppliances.removeAt(existingIndex);
@@ -83,8 +121,8 @@ class AppliancesController extends GetxController {
         id: 0,
         userId: '',
         applianceId: appliance.id,
-        brand: appliance.brand,
-        model: '${appliance.name} - ${appliance.brand}',
+        brand: brand,
+        model: '${appliance.nameAr} - $brand',
         hoursPerDay: 4.0,
         isActive: true,
         createdAt: DateTime.now(),
@@ -95,10 +133,13 @@ class AppliancesController extends GetxController {
     }
   }
 
+  // التحقق من اختيار جهاز محدد بالبراند
   bool isApplianceSelected(Appliance appliance) {
-    return userAppliances.any((UserAppliance ua) => ua.applianceId == appliance.id);
+    return userAppliances.any(
+            (ua) => ua.applianceId == appliance.id && ua.brand == appliance.brand);
   }
 
+  // حفظ الأجهزة المختارة
   Future<void> saveUserAppliances() async {
     try {
       isSaving.value = true;
@@ -112,6 +153,10 @@ class AppliancesController extends GetxController {
     }
   }
 
+  // عدد الأجهزة المختارة
+  int get selectedAppliancesCount => userAppliances.length;
+
+  // رسائل الخطأ
   void _showError(String title, String message) {
     Get.log('Error: $title - $message');
     Get.snackbar(
@@ -123,6 +168,7 @@ class AppliancesController extends GetxController {
     );
   }
 
+  // رسائل النجاح
   void _showSuccess(String title, String message) {
     Get.snackbar(
       title,
@@ -132,6 +178,4 @@ class AppliancesController extends GetxController {
       colorText: Colors.white,
     );
   }
-
-  int get selectedAppliancesCount => userAppliances.length;
 }

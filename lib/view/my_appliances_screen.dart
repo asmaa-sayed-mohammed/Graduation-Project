@@ -4,8 +4,6 @@ import 'package:graduation_project/controllers/appliances_controller.dart';
 import 'package:graduation_project/models/user_appliance_model.dart';
 import 'package:graduation_project/core/style/colors.dart';
 
-import 'appliance_screen.dart';
-
 class MyAppliancesScreen extends StatelessWidget {
   final AppliancesController controller = Get.find<AppliancesController>();
 
@@ -15,36 +13,64 @@ class MyAppliancesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white2,
-      appBar: AppBar(
-        backgroundColor: AppColor.primary_color,
-        foregroundColor: AppColor.black,
-        title: const Text('أجهزتي'),
-        centerTitle: true,
-        elevation: 0,
+      body: Column(
+        children: [
+          _buildHeader(),
+          Expanded(child: _buildBody()),
+        ],
       ),
-      body: Obx(() {
-        if (controller.userAppliances.isEmpty) {
-          return _buildEmptyState();
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: controller.userAppliances.length,
-          itemBuilder: (context, index) {
-            final userAppliance = controller.userAppliances[index];
-            return _buildApplianceItem(userAppliance);
-          },
-        );
-      }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(() => AppliancesScreen());
+          Get.toNamed('/select-appliances'); // Navigate to SelectAppliancesScreen
         },
         backgroundColor: AppColor.primary_color,
         foregroundColor: AppColor.black,
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+      decoration: BoxDecoration(
+        color: AppColor.primary_color,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(120),
+          bottomRight: Radius.circular(120),
+        ),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 15),
+          Text(
+            'أجهزتي',
+            style: TextStyle(
+              color: AppColor.black,
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Tajawal',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return Obx(() {
+      if (controller.userAppliances.isEmpty) return _buildEmptyState();
+
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: controller.userAppliances.length,
+        itemBuilder: (context, index) {
+          final userAppliance = controller.userAppliances[index];
+          return _buildApplianceItem(userAppliance);
+        },
+      );
+    });
   }
 
   Widget _buildApplianceItem(UserAppliance userAppliance) {
@@ -100,7 +126,6 @@ class MyAppliancesScreen extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // زر التعديل
             IconButton(
               onPressed: () => _editAppliance(userAppliance),
               icon: Icon(
@@ -108,7 +133,6 @@ class MyAppliancesScreen extends StatelessWidget {
                 color: AppColor.blue,
               ),
             ),
-            // زر الحذف
             IconButton(
               onPressed: () => _deleteAppliance(userAppliance),
               icon: Icon(
@@ -155,21 +179,18 @@ class MyAppliancesScreen extends StatelessWidget {
   }
 
   void _editAppliance(UserAppliance userAppliance) {
+    final hoursController = TextEditingController(text: userAppliance.hoursPerDay.toString());
+
     showDialog(
       context: Get.context!,
       builder: (context) => AlertDialog(
         title: const Text('تعديل الجهاز'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              initialValue: userAppliance.hoursPerDay.toString(),
-              decoration: const InputDecoration(
-                labelText: 'ساعات الاستخدام اليومية',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          ],
+        content: TextFormField(
+          controller: hoursController,
+          decoration: const InputDecoration(
+            labelText: 'ساعات الاستخدام اليومية',
+          ),
+          keyboardType: TextInputType.number,
         ),
         actions: [
           TextButton(
@@ -177,9 +198,18 @@ class MyAppliancesScreen extends StatelessWidget {
             child: const Text('إلغاء'),
           ),
           TextButton(
-            onPressed: () {
-              // كود التعديل
+            onPressed: () async {
+              userAppliance.copyWith(
+                hoursPerDay: double.tryParse(hoursController.text) ?? userAppliance.hoursPerDay,
+              );
+              await controller.updateUserAppliance(userAppliance);
               Get.back();
+              Get.snackbar(
+                'تم التعديل',
+                'تم تعديل الجهاز بنجاح',
+                backgroundColor: AppColor.green,
+                colorText: AppColor.white,
+              );
             },
             child: const Text('حفظ'),
           ),
@@ -199,7 +229,8 @@ class MyAppliancesScreen extends StatelessWidget {
             child: const Text('إلغاء'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+              await controller.deleteUserAppliance(userAppliance.id);
               controller.userAppliances.remove(userAppliance);
               Get.back();
               Get.snackbar(
