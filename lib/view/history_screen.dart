@@ -28,7 +28,7 @@ class HistoryScreen extends StatelessWidget {
                 Text(
                   "السجل",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColor.white,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
