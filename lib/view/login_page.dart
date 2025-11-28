@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/main.dart';
+import 'package:graduation_project/view/home_screen.dart';
 import 'package:graduation_project/view/homescreen.dart';
 import 'package:graduation_project/view/profile_screen.dart';
 import 'package:graduation_project/view/reading_screen.dart';
@@ -33,7 +34,7 @@ class LoginPage extends StatelessWidget {
     final loggedIn = await _authService.login(email, password);
 
     if (loggedIn) {
-      Get.off((()=> ProfileScreen()));
+      Get.off((()=> StartScreen()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('فشل تسجيل الدخول')),

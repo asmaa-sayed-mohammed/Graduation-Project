@@ -42,7 +42,7 @@ class OnBoardingScreen extends StatelessWidget {
           onFinish: () {
             final logged = _authService.isLoggedIn();
 
-              Get.off(() =>   logged ? ProfileScreen() : Homescreen());
+              Get.off(() =>   logged ? StartScreen() : Homescreen());
 
           },
           background: [
