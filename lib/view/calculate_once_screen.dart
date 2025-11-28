@@ -14,32 +14,29 @@ class CalculateOnceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
-      appBar: AppBar(
-        backgroundColor: AppColor.primary_color,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColor.black),
-          onPressed: () => Get.back(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: FloatingActionButton.extended(
+          backgroundColor: AppColor.primary_color,
+          onPressed: () {
+            // add any functionality here if needed
+          },
+          icon: Icon(Icons.location_on, color: AppColor.black),
+          label: Text(
+            'الموقع',
+            style: TextStyle(
+              color: AppColor.black,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      // floatingActionButton: FloatingActionButton.extended(
-      //   backgroundColor: AppColor.primary_color,
-      //   onPressed: () {
-      //     // يمكنك إضافة أي وظيفة هنا إذا كنت تريد
-      //   },
-      //   icon: Icon(Icons.calculate, color: AppColor.black),
-      //   label: Text(
-      //     'الموقع',
-      //     style: TextStyle(
-      //       color: AppColor.black,
-      //       fontSize: 18,
-      //       fontWeight: FontWeight.bold,
-      //     ),
-      //   ),
-      // ),
 
       body: SafeArea(
+        top: true,
+        bottom: false,
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -209,31 +206,31 @@ class CalculateOnceScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primary_color,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 50,
-                    vertical: 15,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                onPressed: () {
-                  // إضافة أي وظيفة للزرار هنا
-                },
-                icon: Icon(Icons.location_on, color: AppColor.black),
-                label: Text(
-                  'الموقع',
-                  style: TextStyle(
-                    color: AppColor.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 120),
+              // ElevatedButton.icon(
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: AppColor.primary_color,
+              //     padding: const EdgeInsets.symmetric(
+              //       horizontal: 50,
+              //       vertical: 15,
+              //     ),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(30),
+              //     ),
+              //   ),
+              //   onPressed: () {
+              //     // إضافة أي وظيفة للزرار هنا
+              //   },
+              //   icon: Icon(Icons.location_on, color: AppColor.black),
+              //   label: Text(
+              //     'الموقع',
+              //     style: TextStyle(
+              //       color: AppColor.black,
+              //       fontSize: 18,
+              //       fontWeight: FontWeight.bold,
+              //     ),
+              //   ),
+              // ),
+              const SizedBox(height: 200),
             ],
           ),
         ),
