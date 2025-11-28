@@ -14,11 +14,13 @@ import 'package:graduation_project/view/tips_screen.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:graduation_project/view/login_page.dart';
 
 import 'models/history_model.dart';
 import 'models/usage_report_adapter.dart';
 
 late Box<ProfileHive> profileBox;
+late Box<bool> onboarding;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +52,7 @@ void main() async {
   // فتح hive
   await Hive.openBox<UsageRecord>('history');
   profileBox = await Hive.openBox<ProfileHive>('profileBox');
+  onboarding = await Hive.openBox<bool>('onboarding');
 
   runApp(MyApp());
 }

@@ -2,7 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
+import 'package:graduation_project/main.dart';
+import 'package:graduation_project/services/auth_service.dart';
+import 'package:graduation_project/view/homescreen.dart';
+import 'package:graduation_project/view/login_page.dart';
 import 'package:graduation_project/view/onBoarding_screen.dart';
+
+import 'main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,6 +24,8 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _logoAnimation;
   late Animation<double> _textFadeIn;
   late Animation<double> _textFadeOut;
+
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -46,7 +54,16 @@ class _SplashScreenState extends State<SplashScreen>
       _textController.forward();
     });
     Timer(const Duration(milliseconds: 3500), () {
-      Get.off(() => OnBoardingScreen());
+      final bool isOnboardingComplete = onboarding.get('isComplete') ?? false;
+      final bool isLoggedIn = _authService.isLoggedIn();
+
+      if (isLoggedIn) {
+        Get.off(() => Homescreen());
+      } else if (isOnboardingComplete) {
+        Get.off(() => LoginPage());
+      } else {
+        Get.off(() => OnBoardingScreen());
+      }
     });
   }
 

@@ -40,14 +40,14 @@ dependencies:
   flutter_spinkit: ^5.2.2
   shared_preferences: ^2.2.2
 
-# Cloud Database Service
+  # Cloud Database Service
   supabase_flutter: ^2.10.2
 
-# Text
+  # Text
   speech_to_text: ^7.3.0
   google_mlkit_text_recognition: ^0.15.0
 
-#   State Management
+  #   State Management
   get: ^4.7.2
 
   # Animation
@@ -69,13 +69,14 @@ dependencies:
   geolocator: ^14.0.2
   geocoding: ^4.0.0
 
-#   Internationalization
+  #   Internationalization
   flutter_localizations:
     sdk: flutter
   intl: any
-#
-##Local Notification
+  #
+  ##Local Notification
   awesome_notifications: ^0.10.1
+
   connectivity_plus: ^7.0.0
 
   #  Onboarding

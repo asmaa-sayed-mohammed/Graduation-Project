@@ -3,17 +3,13 @@ import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/view/homescreen.dart';
-import 'package:graduation_project/view/main_screen.dart';
-import 'package:graduation_project/view/profile_screen.dart';
-import 'package:graduation_project/view/reading_screen.dart';
+import 'package:graduation_project/view/login_page.dart';
 
 import '../main.dart';
-import '../services/auth_service.dart';
-import 'home_screen.dart';
 
 class OnBoardingScreen extends StatelessWidget {
   OnBoardingScreen({super.key});
-  final AuthService _authService = AuthService();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,7 +20,7 @@ class OnBoardingScreen extends StatelessWidget {
           controllerColor: AppColor.black,
           headerBackgroundColor: AppColor.white,
           pageBackgroundColor: AppColor.white2,
-          finishButtonText: 'اذهب للصفحة الرئيسية',
+          finishButtonText: 'اذهب لصفحة التسجيل',
           finishButtonTextStyle: TextStyle(
             color: AppColor.white,
             fontWeight: FontWeight.bold,
@@ -40,10 +36,8 @@ class OnBoardingScreen extends StatelessWidget {
             style: TextStyle(color: AppColor.black, fontSize: 16),
           ),
           onFinish: () {
-            final logged = _authService.isLoggedIn();
-
-              Get.off(() =>   logged ? StartScreen() : Homescreen());
-
+            onboarding.put('isComplete', true);
+            Get.off(() => Homescreen());
           },
           background: [
             const SizedBox.shrink(),
