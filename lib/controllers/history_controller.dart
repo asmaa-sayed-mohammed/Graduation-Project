@@ -45,13 +45,12 @@ class HistoryController extends GetxController {
       }
     } catch (e) {
        Get.snackbar('loaded History', '$e');
-      print("Error loading history: $e");
     } finally {
       isLoading.value = false;
     }
   }
 
-  // دالة اختيارية للمزامنة اليدوية
+  // دالة  للمزامنة اليدوية
   Future<void> syncWithCloud() async {
      try {
       isLoading.value = true;
