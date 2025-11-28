@@ -8,7 +8,7 @@ part of 'profile_model_hive.dart';
 
 class ProfileHiveAdapter extends TypeAdapter<ProfileHive> {
   @override
-  final int typeId = 0;
+  final int typeId = 1;
 
   @override
   ProfileHive read(BinaryReader reader) {
