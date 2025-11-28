@@ -1,14 +1,14 @@
 class ProfileModel {
   final String? id;
   final String name;
-  final DateTime? createdAt;
+  final DateTime? created_at;
   final String? address;
   final String? company_Name;
 
   ProfileModel({
     this.id,
     required this.name,
-    this.createdAt,
+    this.created_at,
     this.address,
     this.company_Name,
   });
@@ -18,9 +18,9 @@ class ProfileModel {
     return {
       'id': id,
       'name': name,
-      'created_at': createdAt?.toIso8601String(),
-      'address': address,
-      'company_Name': company_Name,
+      'created_at': created_at?.toIso8601String(),
+      'address': address ?? '',
+      'company_Name': company_Name ?? '',
     };
   }
 
@@ -28,7 +28,7 @@ class ProfileModel {
     return ProfileModel(
       id: map['id'] as String?,
       name: map['name'] as String? ?? 'user',
-      createdAt: map['created_at'] != null
+      created_at: map['created_at'] != null
           ? DateTime.parse(map['created_at'] as String)
           : null,
       address: map['address'] as String?,

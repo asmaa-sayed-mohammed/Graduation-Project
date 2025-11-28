@@ -206,7 +206,7 @@ class ReadingScreen extends StatelessWidget {
                     final price = result['totalPrice'];
 
                     Get.off(
-                      () => HomeScreen(),
+                      () => StartScreen(),
                       arguments: {'usage': usage, 'price': price},
                     );
                   }

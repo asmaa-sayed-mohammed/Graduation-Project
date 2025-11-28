@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/services/profile_hive_services.dart';
+import 'package:graduation_project/view/homescreen.dart';
 import '../core/style/colors.dart';
 import '../main.dart';
 import '../services/auth_service.dart';
@@ -44,19 +45,19 @@ class SignUpPage extends StatelessWidget {
         name: name,
         address: address,
         company_Name: companyName,
-        createdAt: DateTime.now(),
+        created_at: DateTime.now(),
       );
 
-      final hiveProfile = ProfileHive(id: user.id, name: name, createdAt: DateTime.now());
+      final hiveProfile = ProfileHive(id: user.id, name: name, createdAt: DateTime.now(), companyName: companyName, address: address);
+      await _profileHiveService.addProfile(hiveProfile);
 
       final success = await _profileService.createProfile(profile);
 
       if (success) {
-        await _profileHiveService.addProfile(hiveProfile);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account created successfully!')),
         );
-        Get.off(() => MainScreen());
+        Get.off(() => Homescreen());
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to create profile')),

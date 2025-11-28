@@ -8,6 +8,7 @@ import 'package:graduation_project/services/notification/notification_permission
 import 'package:graduation_project/services/notification/notification_service.dart';
 import 'package:graduation_project/services/notification/workmanager_service.dart';
 import 'package:graduation_project/view/onBoarding_screen.dart';
+import 'package:graduation_project/view/profile_screen.dart';
 import 'package:graduation_project/view/reading_screen.dart';
 import 'package:graduation_project/view/splash_screen.dart';
 import 'package:graduation_project/view/tips_screen.dart';
@@ -19,6 +20,7 @@ import 'models/history_model.dart';
 import 'models/usage_report_adapter.dart';
 
 late Box<ProfileHive> profileBox;
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +51,7 @@ void main() async {
   }
   // فتح hive
   await Hive.openBox<UsageRecord>('history');
-  await Hive.openBox<ProfileHive>('profileBox');
+  profileBox = await Hive.openBox<ProfileHive>('profileBox');
 
   runApp(MyApp());
 }

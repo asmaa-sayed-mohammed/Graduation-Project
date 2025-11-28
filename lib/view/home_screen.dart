@@ -5,10 +5,10 @@ import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/view/history_screen.dart';
 import '../controllers/home_controller.dart';
 
-class HomeScreen extends StatelessWidget {
+class StartScreen extends StatelessWidget {
   final HomeController controller = Get.put(HomeController());
 
-  HomeScreen({super.key});
+  StartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
