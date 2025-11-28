@@ -1,67 +1,56 @@
-// models/appliance_model.dart
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
+@immutable
 class Appliance {
   final int id;
   final int categoryId;
   final String nameAr;
-  final String? nameEn;
-  final int avgWattage;
-  final int? minWattage;
-  final int? maxWattage;
-  final List<String> commonBrands;
-  final String? usageTipsAr;
+  final String brand;
+  final int watt;
 
-  Appliance({
+  const Appliance({
     required this.id,
     required this.categoryId,
     required this.nameAr,
-    this.nameEn,
-    required this.avgWattage,
-    this.minWattage,
-    this.maxWattage,
-    required this.commonBrands,
-    this.usageTipsAr,
+    required this.brand,
+    required this.watt,
   });
 
-  factory Appliance.fromJson(Map<String, dynamic> json) {
+  factory Appliance.fromJson(Map<String, Object?> json) {
     return Appliance(
-      id: json['id'] as int,
-      categoryId: json['category_id'] as int,
-      nameAr: json['name_ar'] as String,
-      nameEn: json['name_en'] as String?,
-      avgWattage: json['avg_wattage'] as int,
-      minWattage: json['min_wattage'] as int?,
-      maxWattage: json['max_wattage'] as int?,
-      commonBrands: List<String>.from(json['common_brands'] ?? []),
-      usageTipsAr: json['usage_tips_ar'] as String?,
+      id: _safeCastInt(json['id']),
+      categoryId: _safeCastInt(json['category_id']),
+      nameAr: _safeCastString(json['name_ar']),
+      brand: _safeCastString(json['brand']),
+      watt: _safeCastInt(json['watt']),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'category_id': categoryId,
-      'name_ar': nameAr,
-      'name_en': nameEn,
-      'avg_wattage': avgWattage,
-      'min_wattage': minWattage,
-      'max_wattage': maxWattage,
-      'common_brands': commonBrands,
-      'usage_tips_ar': usageTipsAr,
-    };
+  static int _safeCastInt(Object? value) {
+    if (value == null) throw const FormatException('القيمة لا يمكن أن تكون null');
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    throw FormatException('قيمة غير صالحة لرقم: $value');
   }
 
-  // دالة مساعدة لعرض استهلاك الطاقة
-  String get wattageDisplay {
-    if (minWattage != null && maxWattage != null) {
-      return '$minWattage - $maxWattage واط';
-    }
-    return '$avgWattage واط';
+  static String _safeCastString(Object? value) {
+    if (value == null) throw const FormatException('القيمة لا يمكن أن تكون null');
+    return value.toString();
   }
 
-  // دالة لعرض الماركات كـ String
-  String get brandsDisplay {
-    return commonBrands.join('، ');
+  String get name => nameAr;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Appliance &&
+            runtimeType == other.runtimeType &&
+            id == other.id;
   }
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'Appliance(id: $id, nameAr: $nameAr, watt: $watt)';
 }

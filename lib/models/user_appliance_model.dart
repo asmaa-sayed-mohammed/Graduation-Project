@@ -1,108 +1,143 @@
-// models/user_appliance_model.dart
+import 'package:flutter/foundation.dart';
 import 'appliance_model.dart';
 
+@immutable
 class UserAppliance {
   final int id;
   final String userId;
   final int applianceId;
-  final String? brand;
-  final String? model;
+  final String brand;
+  final String model;
   final double hoursPerDay;
   final bool isActive;
   final DateTime createdAt;
-  final DateTime updatedAt;
-
-  // العلاقة مع جدول الأجهزة
+  final DateTime? updatedAt;
   final Appliance? appliance;
 
-  UserAppliance({
+  const UserAppliance({
     required this.id,
     required this.userId,
     required this.applianceId,
-    this.brand,
-    this.model,
+    required this.brand,
+    required this.model,
     required this.hoursPerDay,
     required this.isActive,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
     this.appliance,
   });
 
-  factory UserAppliance.fromJson(Map<String, dynamic> json) {
+  factory UserAppliance.fromJson(Map<String, Object?> json) {
+    final Object? applianceData = json['appliances'];
+    final Map<String, Object?>? applianceJson =
+    applianceData is Map<String, Object?> ? applianceData : null;
+
     return UserAppliance(
-      id: json['id'] as int,
-      userId: json['user_id'] as String,
-      applianceId: json['appliance_id'] as int,
-      brand: json['brand'] as String?,
-      model: json['model'] as String?,
-      hoursPerDay: (json['hours_per_day'] as num).toDouble(),
-      isActive: json['is_active'] as bool,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      appliance: json['appliances'] != null
-          ? Appliance.fromJson(json['appliances'] as Map<String, dynamic>)
-          : null,
+      id: _safeCastInt(json['id']),
+      userId: _safeCastString(json['user_id']),
+      applianceId: _safeCastInt(json['appliance_id']),
+      brand: _getBrand(json['brand']),
+      model: _getModel(json['model']),
+      hoursPerDay: _getHoursPerDay(json['hours_per_day']),
+      isActive: _getIsActive(json['is_active']),
+      createdAt: _safeCastDateTime(json['created_at']),
+      updatedAt: json['updated_at'] != null ? _safeCastNullableDateTime(json['updated_at']) : null,
+      appliance: applianceJson != null ? Appliance.fromJson(applianceJson) : null,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'user_id': userId,
-      'appliance_id': applianceId,
-      'brand': brand,
-      'model': model,
-      'hours_per_day': hoursPerDay,
-      'is_active': isActive,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
+  // الدوال المساعدة مضافة هنا مباشرة
+  static int _safeCastInt(Object? value) {
+    if (value == null) throw const FormatException('القيمة لا يمكن أن تكون null');
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    throw FormatException('قيمة غير صالحة لرقم: $value');
   }
 
-  // حساب الاستهلاك اليومي
-  double get dailyConsumption {
-    if (appliance == null) return 0.0;
-    return (appliance!.avgWattage * hoursPerDay) / 1000; // كيلوواط ساعة
+  static String _safeCastString(Object? value) {
+    if (value == null) throw const FormatException('القيمة لا يمكن أن تكون null');
+    return value.toString();
   }
 
-  // حساب الاستهلاك الشهري
-  double get monthlyConsumption {
-    return dailyConsumption * 30;
+  static String? _safeCastNullableString(Object? value) {
+    if (value == null) return null;
+    return value.toString();
   }
 
-  // حساب التكلفة الشهرية (بافتراض سعر 1.5 جنيه للكيلوواط ساعة)
-  double get monthlyCost {
-    return monthlyConsumption * 1.5;
+  static DateTime _safeCastDateTime(Object? value) {
+    if (value == null) throw const FormatException('القيمة لا يمكن أن تكون null');
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.parse(value);
+    throw FormatException('قيمة وقت غير صالحة: $value');
   }
 
-  // الحصول على معلومات الجهاز بشكل آمن
-  String get applianceName {
-    return appliance?.nameAr ?? 'جهاز غير معروف';
+  static DateTime? _safeCastNullableDateTime(Object? value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    return null;
   }
 
-  String get wattageInfo {
-    if (appliance == null) return 'غير معروف';
-    return appliance!.wattageDisplay;
+  // الدوال الخاصة بـ UserAppliance
+  static String _getBrand(Object? value) {
+    if (value is String && value.isNotEmpty) return value;
+    return 'عام';
   }
 
-  // دالة لتحديث ساعات الاستخدام
+  static String _getModel(Object? value) {
+    if (value is String && value.isNotEmpty) return value;
+    return 'نموذج افتراضي';
+  }
+
+  static double _getHoursPerDay(Object? value) {
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 4.0;
+    return 4.0;
+  }
+
+  static bool _getIsActive(Object? value) {
+    if (value is bool) return value;
+    if (value is String) return value.toLowerCase() == 'true';
+    return true;
+  }
   UserAppliance copyWith({
-    double? hoursPerDay,
+    int? id,
+    String? userId,
+    int? applianceId,
     String? brand,
     String? model,
+    double? hoursPerDay,
     bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Appliance? appliance,
   }) {
     return UserAppliance(
-      id: id,
-      userId: userId,
-      applianceId: applianceId,
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      applianceId: applianceId ?? this.applianceId,
       brand: brand ?? this.brand,
       model: model ?? this.model,
       hoursPerDay: hoursPerDay ?? this.hoursPerDay,
       isActive: isActive ?? this.isActive,
-      createdAt: createdAt,
-      updatedAt: DateTime.now(),
-      appliance: appliance,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      appliance: appliance ?? this.appliance,
     );
   }
+
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is UserAppliance &&
+            runtimeType == other.runtimeType &&
+            id == other.id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'UserAppliance(id: $id, applianceId: $applianceId)';
 }
