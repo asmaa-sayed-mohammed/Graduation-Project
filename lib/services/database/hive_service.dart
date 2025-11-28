@@ -21,7 +21,6 @@ class HiveHistoryService {
   List<UsageRecord>? loadHistory() {
     final box = Hive.box<UsageRecord>("history");
 
-    // Hive سيقوم بالتحويل تلقائياً بفضل الـ
     final data = box.values.toList();
 
     if (data.isEmpty) {

@@ -41,6 +41,10 @@ void main() async {
   // تسجيل Adapter بتاع تسجيل  الاستخدام
   if (!Hive.isAdapterRegistered(0)) {
     Hive.registerAdapter(UsageRecordAdapter());
+
+  }
+  // تسجيل Adapter بتاع ال profile
+  if (!Hive.isAdapterRegistered(1)) {
     Hive.registerAdapter(ProfileHiveAdapter());
   }
   // فتح hive
