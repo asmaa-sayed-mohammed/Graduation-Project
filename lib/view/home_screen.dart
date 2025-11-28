@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
+import 'package:graduation_project/view/history_screen.dart';
 import '../controllers/home_controller.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -216,7 +217,9 @@ class HomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.to(HistoryScreen());
+                  },
                   child: Text(
                     "See your readings",
                     style: TextStyle(
