@@ -1,70 +1,46 @@
-// controllers/tips_controller.dart
 import 'package:get/get.dart';
 import 'package:graduation_project/services/appliance_service.dart';
 import 'package:graduation_project/models/energy_tip_model.dart';
-import 'package:flutter/material.dart';
 
 class TipsController extends GetxController {
-  final ApplianceService _applianceService = ApplianceService();
+  final ApplianceService _applianceService = ApplianceService(); // بدون parameters
 
-  var allTips = <EnergyTip>[].obs;
-  var filteredTips = <EnergyTip>[].obs;
-  var isLoading = false.obs;
-  var selectedPriority = 'ALL'.obs;
+  final RxList<EnergyTip> staticTips = <EnergyTip>[].obs;
+  final RxList<EnergyTip> customTips = <EnergyTip>[].obs;
+  final RxBool isLoading = false.obs;
+  final RxBool hasUserAppliances = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadEnergyTips();
+    _loadTips();
   }
 
-  Future<void> loadEnergyTips() async {
+  Future<void> _loadTips() async {
     try {
       isLoading.value = true;
-      allTips.value = await _applianceService.getAllEnergyTips();
-      filteredTips.value = allTips;
+
+      final List<EnergyTip> static = await _applianceService.getStaticTips();
+      staticTips.assignAll(static);
+
+      final List<EnergyTip> custom = await _applianceService.getEnergyTipsForUserAppliances();
+      customTips.assignAll(custom);
+
+      hasUserAppliances.value = await _checkUserAppliances();
+
     } catch (e) {
-      Get.log('Error loading energy tips: $e');
+      Get.snackbar('خطأ', 'فشل في تحميل النصائح: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
-  void filterByPriority(String priority) {
-    selectedPriority.value = priority;
-
-    if (priority == 'ALL') {
-      filteredTips.value = allTips;
-    } else {
-      filteredTips.value = allTips
-          .where((tip) => tip.priority == priority)
-          .toList();
-    }
-  }
-
-  String getPriorityText(String priority) {
-    switch (priority) {
-      case 'HIGH':
-        return 'عالي';
-      case 'MEDIUM':
-        return 'متوسط';
-      case 'LOW':
-        return 'منخفض';
-      default:
-        return 'جميع المستويات';
-    }
-  }
-
-  Color getPriorityColor(String priority) {
-    switch (priority) {
-      case 'HIGH':
-        return const Color(0xFFE53935);
-      case 'MEDIUM':
-        return const Color(0xFFFB8C00);
-      case 'LOW':
-        return const Color(0xFF43A047);
-      default:
-        return const Color(0xFF757575);
+  Future<bool> _checkUserAppliances() async {
+    try {
+      final userAppliances = await _applianceService.getUserAppliances(_applianceService.getCurrentUserId());
+      return userAppliances.isNotEmpty;
+    } catch (e) {
+      return false;
     }
   }
 }

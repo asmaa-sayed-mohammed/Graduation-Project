@@ -48,4 +48,24 @@ class AuthService {
     }
   }
 
+  Future<String?> getUserId() async {
+    try {
+      final user = cloud.auth.currentUser;
+      if (user == null) return null;
+
+      final data = await cloud
+          .from('profile')
+          .select('id')
+          .eq('id', user.id)
+          .maybeSingle();
+
+      if (data == null) return null;
+      return data['id'] as String?;
+    } catch (e) {
+      print('Error getting user id: $e');
+      return null;
+    }
+  }
+
+
 }

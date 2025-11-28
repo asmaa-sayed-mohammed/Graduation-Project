@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/view/history_screen.dart';
+import 'package:graduation_project/view/profile_screen.dart';
 import '../controllers/home_controller.dart';
 
-class HomeScreen extends StatelessWidget {
+class StartScreen extends StatelessWidget {
   final HomeController controller = Get.put(HomeController());
 
-  HomeScreen({super.key});
+  StartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +45,8 @@ class HomeScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(Icons.menu, size: 32, color: AppColor.black),
-                        Icon(Icons.notifications_none,
-                            size: 32, color: AppColor.black),
+                        IconButton(onPressed: (){Get.to(()=>ProfileScreen());}, icon: Icon(Icons.menu, size: 32, color: AppColor.black),),
+                        Icon(Icons.notifications_none, size: 32, color: AppColor.black),
                       ],
                     ),
 

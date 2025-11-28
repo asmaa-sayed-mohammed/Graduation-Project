@@ -4,9 +4,12 @@ import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/view/homescreen.dart';
 import 'package:graduation_project/view/main_screen.dart';
+import 'package:graduation_project/view/profile_screen.dart';
 import 'package:graduation_project/view/reading_screen.dart';
 
+import '../main.dart';
 import '../services/auth_service.dart';
+import 'home_screen.dart';
 
 class OnBoardingScreen extends StatelessWidget {
   OnBoardingScreen({super.key});
@@ -39,7 +42,8 @@ class OnBoardingScreen extends StatelessWidget {
           onFinish: () {
             final logged = _authService.isLoggedIn();
 
-            Get.off(() =>   logged ? ReadingScreen() : Homescreen());
+              Get.off(() =>   logged ? StartScreen() : Homescreen());
+
           },
           background: [
             const SizedBox.shrink(),

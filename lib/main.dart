@@ -49,7 +49,7 @@ void main() async {
   }
   // فتح hive
   await Hive.openBox<UsageRecord>('history');
-  await Hive.openBox<ProfileHive>('profileBox');
+  profileBox = await Hive.openBox<ProfileHive>('profileBox');
 
   runApp(MyApp());
 }

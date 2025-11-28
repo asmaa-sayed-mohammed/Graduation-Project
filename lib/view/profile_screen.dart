@@ -1,69 +1,135 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:graduation_project/services/profile_hive_services.dart';
+import 'package:graduation_project/services/auth_service.dart';
 import '../core/style/colors.dart';
-import '../main.dart';
-import '../services/auth_service.dart';
-import '../services/profile_services.dart';
-import '../models/profile_model_supabase.dart';
-import 'main_screen.dart';
-import '../models/profile_model_hive.dart';
+import '../controllers/profile_controller.dart';
 
-final getProfiles = <ProfileHive>[].obs;
-
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
+  final _authService = AuthService();
 
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
+  final ProfileController controller = Get.put(ProfileController());
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  @override
-  void initState(){
-    super.initState();
-    loadProfile();
-  }
-
-  void loadProfile(){
-
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  decoration: BoxDecoration(
-                    color: AppColor.primary_color,
-                    borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(120),
-                        bottomRight: Radius.circular(120),
-                      ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: Column(
+            children: [
+
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                decoration: BoxDecoration(
+                  color: AppColor.primary_color,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(120),
+                    bottomRight: Radius.circular(120),
                   ),
-                  child: Center(
-                    child: Text(
-                      'الملف الشخصي',
-                       style: TextStyle(
-                          color: AppColor.black,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
+                ),
+                child: Center(
+                  child: Text(
+                    'الملف الشخصي',
+                    style: TextStyle(
+                      color: AppColor.black,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              Obx(() {
+                final profile = controller.profile.value;
+
+                if (profile == null) {
+                  return const Text(
+                    "لا توجد بيانات للعرض",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: [
+                    Text(
+                      profile.name,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                ),
-                const SizedBox(height: 40),
 
-              ]
-            ),
+                    const SizedBox(height: 10),
+
+                    Text(
+                      "تاريخ الإنشاء: ${profile.createdAt.toString().substring(0, 10)}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    _buildInfoCard("العنوان", profile.address ?? "لا يوجد"),
+                    const SizedBox(height: 15),
+
+                    _buildInfoCard("اسم الشركة", profile.companyName ?? "لا يوجد"),
+                    const SizedBox(height: 15),
+
+                  ],
+                );
+              }),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+
+  Widget _buildInfoCard(String title, String value) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
