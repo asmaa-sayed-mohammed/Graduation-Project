@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:get/get.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:graduation_project/services/connectivity_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:graduation_project/services/connectivity_service.dart';
 
 // Model for meter reading blocks
 class MeterReading {
@@ -27,6 +28,7 @@ class MeterReading {
 
 class ReadingController extends GetxController {
   final connectivityService = ConnectivityService();
+  final supabase = Supabase.instance.client;
 
   var pickedImage = Rxn<File>();
   var recognizedText = ''.obs;
@@ -52,10 +54,6 @@ class ReadingController extends GetxController {
     oldReadingController = TextEditingController();
     newReadingController = TextEditingController();
 
-    if (savedOldReading != null && savedOldReading!.trim().isNotEmpty) {
-      oldReadingController.text = savedOldReading!;
-    }
-
     textRecognizer = TextRecognizer(
       script: TextRecognitionScript.values.firstWhere(
         (e) => e.name == 'arabic',
@@ -71,6 +69,52 @@ class ReadingController extends GetxController {
     newReadingController.dispose();
     textRecognizer.close();
     super.onClose();
+  }
+
+  // ------------------ Supabase ------------------
+
+  Future<void> loadLastReading(String userId) async {
+    final response = await supabase
+        .from('usage_record')
+        .select('reading')
+        .eq('user_id', userId)
+        .order('created_at', ascending: false)
+        .limit(1)
+        .maybeSingle();
+
+    if (response != null) {
+      oldReadingController.text = (response['reading'] as num).toString();
+    }
+  }
+
+  Future<void> saveReadingToSupabase({required String userId}) async {
+    final result = calculateManualResult();
+
+    if (result['error'] == true) return;
+
+    try {
+      await supabase.from('usage_record').insert({
+        'user_id': userId,
+        'created_at': DateTime.now().toIso8601String(),
+        'reading': (result['newReading'] as double).toInt(), // int8
+        'price': (result['totalPrice'] as double).toInt(), // int4
+      });
+      Get.snackbar(
+        'تم الحفظ',
+        'تم حفظ القراءة بنجاح',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'خطأ',
+        'فشل حفظ القراءة: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    }
   }
 
   // ------------------ Manual Reading Helpers ------------------
@@ -105,22 +149,22 @@ class ReadingController extends GetxController {
 
   double calculateCostFromKwh(double kwh) {
     double cost = 0.0;
-    if (kwh <= 50)
+    if (kwh <= 50) {
       cost = kwh * 0.68;
-    else if (kwh <= 100)
+    } else if (kwh <= 100) {
       cost = (50 * 0.68) + ((kwh - 50) * 0.78);
-    else if (kwh <= 200)
+    } else if (kwh <= 200) {
       cost = (50 * 0.68) + (50 * 0.78) + ((kwh - 100) * 0.95);
-    else if (kwh <= 350)
+    } else if (kwh <= 350) {
       cost = (50 * 0.68) + (50 * 0.78) + (100 * 0.95) + ((kwh - 200) * 1.55);
-    else if (kwh <= 650)
+    } else if (kwh <= 650) {
       cost =
           (50 * 0.68) +
           (50 * 0.78) +
           (100 * 0.95) +
           (150 * 1.55) +
           ((kwh - 350) * 1.95);
-    else if (kwh <= 1000)
+    } else if (kwh <= 1000) {
       cost =
           (50 * 0.68) +
           (50 * 0.78) +
@@ -128,7 +172,7 @@ class ReadingController extends GetxController {
           (150 * 1.55) +
           (300 * 1.95) +
           ((kwh - 650) * 2.10);
-    else
+    } else {
       cost =
           (50 * 0.68) +
           (50 * 0.78) +
@@ -137,6 +181,7 @@ class ReadingController extends GetxController {
           (300 * 1.95) +
           (350 * 2.10) +
           ((kwh - 1000) * 2.23);
+    }
 
     return double.parse(cost.toStringAsFixed(2));
   }
@@ -274,7 +319,7 @@ class ReadingController extends GetxController {
         mergedReadings.sort((a, b) => b.confidence.compareTo(a.confidence));
         final best = mergedReadings.first;
         final cleaned = removeLeadingZeros(best.value);
-        targetController.text = cleaned; // <- يملى الفيلد المناسب
+        targetController.text = cleaned;
         recognizedText.value = '$cleaned kWh';
         finalText.value = '$cleaned kWh';
       } else {
@@ -414,7 +459,7 @@ class ReadingController extends GetxController {
           if (result.finalResult) {
             final double number = _parseInput(recognizedVoiceText.value);
             final displayValue = _formatNumber(number);
-            targetController.text = displayValue; // <- يملى الفيلد الصحيح
+            targetController.text = displayValue;
             recognizedText.value = '$displayValue kWh';
             finalText.value = '$displayValue kWh';
           }
@@ -478,71 +523,16 @@ class ReadingController extends GetxController {
       final double number = _parseInput(input);
       final displayValue = _formatNumber(number);
       finalText.value = '$displayValue kWh';
-      pickedImage.value = null;
-      textController.clear();
-      recognizedVoiceText.value = '';
     }
   }
 
-  void clearImage() {
-    pickedImage.value = null;
-    recognizedText.value = '';
+  double extractArabicNumber(String text) {
+    final arabicDigits = RegExp(r'[٠-٩]');
+    final matches = arabicDigits.allMatches(text);
+    if (matches.isEmpty) return 0.0;
+    String numeric = '';
+    for (final m in matches)
+      numeric += (m.group(0)!.codeUnitAt(0) - 0x0660).toString();
+    return double.tryParse(numeric) ?? 0.0;
   }
-}
-
-// Arabic word to number conversion
-double extractArabicNumber(String text) {
-  text = text.replaceAll("و", " ").trim();
-  final Map<String, int> numbers = {
-    'صفر': 0,
-    'واحد': 1,
-    'واحدة': 1,
-    'اثنين': 2,
-    'اتنين': 2,
-    'ثلاثة': 3,
-    'تلاتة': 3,
-    'أربعة': 4,
-    'اربعة': 4,
-    'خمسة': 5,
-    'ستة': 6,
-    'سبعة': 7,
-    'ثمانية': 8,
-    'تمانية': 8,
-    'تسعة': 9,
-    'عشرة': 10,
-    'حداشر': 11,
-    'احد عشر': 11,
-    'اتناشر': 12,
-    'اثنا عشر': 12,
-    'تلتاشر': 13,
-    'ثلاثة عشر': 13,
-    'اربعتاشر': 14,
-    'أربعة عشر': 14,
-    'خمستاشر': 15,
-    'خمسة عشر': 15,
-    'ستاشر': 16,
-    'ستة عشر': 16,
-    'سبعتاشر': 17,
-    'سبعة عشر': 17,
-    'تمنتاشر': 18,
-    'ثمانية عشر': 18,
-    'تسعتاشر': 19,
-    'عشرين': 20,
-    'تلاتين': 30,
-    'ثلاثين': 30,
-    'اربعين': 40,
-    'أربعين': 40,
-    'خمسين': 50,
-    'ستين': 60,
-    'سبعين': 70,
-    'تمانين': 80,
-    'تسعين': 90,
-    'مئة': 100,
-  };
-
-  int sum = 0;
-  for (var word in text.split(' ')) {
-    if (numbers.containsKey(word)) sum += numbers[word]!;
-  }
-  return sum.toDouble();
 }
