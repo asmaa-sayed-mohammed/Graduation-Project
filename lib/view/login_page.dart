@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/main.dart';
-import 'package:graduation_project/view/home_screen.dart';
+import 'package:graduation_project/view/start_screen.dart';
 import 'package:graduation_project/view/homescreen.dart';
 import 'package:graduation_project/view/profile_screen.dart';
 import 'package:graduation_project/view/reading_screen.dart';
