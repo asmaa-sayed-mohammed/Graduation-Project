@@ -10,11 +10,6 @@ class HistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [IconButton(onPressed: (){
-          controller.syncWithCloud();
-        }, icon: Icon(Icons.refresh))],
-      ),
       body: Column(
         children: [
           Container(
@@ -28,7 +23,7 @@ class HistoryScreen extends StatelessWidget {
               ),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   "السجل",
@@ -78,7 +73,10 @@ class HistoryScreen extends StatelessWidget {
                 },
               );
             }),
-          )
+          ),
+          ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: AppColor.primary_color),onPressed: (){controller.syncWithCloud();
+          },  child:Text('تحديث',style: TextStyle(color: AppColor.white),)),
+          SizedBox(height: 40,)
         ],
       ),
     );
