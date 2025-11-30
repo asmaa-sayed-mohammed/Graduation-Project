@@ -6,6 +6,8 @@ import 'package:graduation_project/controllers/reading_controller.dart';
 import 'package:graduation_project/view/start_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/widgets/page_header.dart';
+
 class ReadingScreen extends StatefulWidget {
   const ReadingScreen({super.key});
 
@@ -34,35 +36,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
           child: Column(
             children: [
               // ===================== HEADER =====================
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 35,
-                  horizontal: 20,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColor.primary_color,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(70),
-                    bottomRight: Radius.circular(70),
-                  ),
-                ),
-                child: Column(
-                  children: const [
-                    SizedBox(height: 15),
-                    Icon(Icons.bolt, size: 60, color: Colors.black),
-                    SizedBox(height: 10),
-                    Text(
-                      'إدخال القراءة',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const PageHeader(title: "إدخال القراءة"),
               const SizedBox(height: 30),
 
               // ===================== INPUT OLD READING =====================

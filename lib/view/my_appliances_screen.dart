@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:graduation_project/controllers/appliances_controller.dart';
 import 'package:graduation_project/models/user_appliance_model.dart';
 import 'package:graduation_project/core/style/colors.dart';
+import '../../core/widgets/page_header.dart'; // استدعاء الهيدر الجديد
 
 class MyAppliancesScreen extends StatelessWidget {
   final AppliancesController controller = Get.find<AppliancesController>();
@@ -15,7 +16,10 @@ class MyAppliancesScreen extends StatelessWidget {
       backgroundColor: AppColor.white2,
       body: Column(
         children: [
-          _buildHeader(),
+          // ===== الهيدر القابل لإعادة الاستخدام =====
+          const PageHeader(title: 'أجهزتي'),
+
+          // ===== محتوى الصفحة =====
           Expanded(child: _buildBody()),
         ],
       ),
@@ -26,34 +30,6 @@ class MyAppliancesScreen extends StatelessWidget {
         backgroundColor: AppColor.primary_color,
         foregroundColor: AppColor.black,
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColor.primary_color,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(120),
-          bottomRight: Radius.circular(120),
-        ),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 15),
-          Text(
-            'أجهزتي',
-            style: TextStyle(
-              color: AppColor.black,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Tajawal',
-            ),
-          ),
-        ],
       ),
     );
   }

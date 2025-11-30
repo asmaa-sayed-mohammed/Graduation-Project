@@ -9,15 +9,23 @@ class ProfileService {
   final String _tableName = 'profile';
 
   // create
-  Future<bool> createProfile(ProfileModel profiles) async {
+  Future<bool> createProfile(ProfileModel profile) async {
     try {
-      final response = await cloud.from(_tableName).insert(profiles.toMap());
-      return response != null;
+      final response = await cloud.from(_tableName).insert(profile.toMap());
+
+      if (response == null) {
+        return false; // الإدخال فشل
+      }
+
+      return true;  // تم الإدخال بنجاح
     } catch (e) {
-      print('Error creating profile: $e');
+      print("Error creating profile: $e");
       return false;
     }
   }
+
+
+
 
   // read
   Future<ProfileModel?> getProfile(String id) async {

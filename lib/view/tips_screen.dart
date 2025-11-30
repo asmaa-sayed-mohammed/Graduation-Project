@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:graduation_project/controllers/tips_controller.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import '../models/energy_tip_model.dart';
+import '../../core/widgets/page_header.dart'; // استدعاء الهيدر
 
 class TipsScreen extends StatelessWidget {
   TipsScreen({super.key});
@@ -17,7 +18,13 @@ class TipsScreen extends StatelessWidget {
         textDirection: TextDirection.rtl,
         child: Column(
           children: [
-            _buildCustomHeader(),
+            // ===== الهيدر الثابت القابل لإعادة الاستخدام =====
+            const PageHeader(
+              title: 'نصائح التوفير الذكية',
+              subtitle: 'استفد من خبراتنا لتوفير الطاقة',
+            ),
+
+            // ===== محتوى النصائح =====
             Expanded(child: _buildTipsContent()),
           ],
         ),
@@ -25,47 +32,9 @@ class TipsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCustomHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColor.primary_color,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(120),
-          bottomRight: Radius.circular(120),
-        ),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 15),
-          Text(
-            'نصائح التوفير الذكية',
-            style: TextStyle(
-              color: AppColor.black,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'استفد من خبراتنا لتوفير الطاقة',
-            style: TextStyle(
-              color: AppColor.black,
-              fontSize: 16,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTipsContent() {
     return Obx(() {
-      if (controller.isLoading.value) {
-        return _buildLoadingState();
-      }
+      if (controller.isLoading.value) return _buildLoadingState();
 
       return CustomScrollView(
         slivers: [
@@ -147,11 +116,7 @@ class TipsScreen extends StatelessWidget {
                 color: AppColor.primary_color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: AppColor.primary_color,
-                size: 20,
-              ),
+              child: Icon(icon, color: AppColor.primary_color, size: 20),
             ),
             const SizedBox(width: 12),
             Text(
@@ -169,10 +134,7 @@ class TipsScreen extends StatelessWidget {
           padding: const EdgeInsets.only(right: 40),
           child: Text(
             subtitle,
-            style: TextStyle(
-              color: AppColor.gray,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppColor.gray, fontSize: 14),
           ),
         ),
       ],
@@ -183,19 +145,14 @@ class TipsScreen extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
-            colors: [
-              AppColor.white,
-              AppColor.white2,
-            ],
+            colors: [AppColor.white, AppColor.white2],
           ),
         ),
         child: Padding(
@@ -327,17 +284,11 @@ class TipsScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.primary_color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColor.primary_color.withOpacity(0.3),
-        ),
+        border: Border.all(color: AppColor.primary_color.withOpacity(0.3)),
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.add_circle_outline,
-            color: AppColor.primary_color,
-            size: 40,
-          ),
+          Icon(Icons.add_circle_outline, color: AppColor.primary_color, size: 40),
           const SizedBox(height: 12),
           Text(
             'أضف أجهزتك للحصول على نصائح مخصصة',
@@ -357,16 +308,12 @@ class TipsScreen extends StatelessWidget {
               backgroundColor: AppColor.primary_color,
               foregroundColor: AppColor.black,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 2,
             ),
             child: const Text(
               'إضافة أجهزتي',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -384,19 +331,11 @@ class TipsScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.info_outline,
-            color: AppColor.gray,
-            size: 40,
-          ),
+          Icon(Icons.info_outline, color: AppColor.gray, size: 40),
           const SizedBox(height: 12),
           Text(
             message,
-            style: TextStyle(
-              color: AppColor.gray,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(color: AppColor.gray, fontSize: 14, fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
           ),
         ],
@@ -413,10 +352,7 @@ class TipsScreen extends StatelessWidget {
           SizedBox(height: 16),
           Text(
             'جاري تحميل النصائح...',
-            style: TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
           ),
         ],
       ),

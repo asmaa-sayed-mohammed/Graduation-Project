@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
+import '../../core/widgets/page_header.dart'; // استدعاء الهيدر الجديد
 
 class CalculationResultScreen extends StatelessWidget {
   final double oldReading;
@@ -22,64 +23,57 @@ class CalculationResultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
-      appBar: AppBar(
-        backgroundColor: AppColor.primary_color,
-        centerTitle: true,
-        title: Text(
-          'نتيجة الحساب',
-          style: TextStyle(
-            color: AppColor.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-        
-              _buildItem("القراءة القديمة", oldReading.toString()),
-              _buildDivider(),
-        
-              _buildItem("القراءة الجديدة", newReading.toString()),
-              _buildDivider(),
-        
-              _buildItem("الاستهلاك (kWh)", consumption.toString()),
-              _buildDivider(),
-        
-              _buildItem("الشريحة", tier),
-              _buildDivider(),
-        
-              _buildItem("السعر النهائي (EGP)", totalPrice.toString()),
-              const SizedBox(height: 30),
-        
-              // زر رجوع
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.primary_color,
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  onPressed: () => Get.back(),
-                  child: Text(
-                    'رجوع',
-                    style: TextStyle(
-                      color: AppColor.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+      body: Column(
+        children: [
+          // ===== الهيدر القابل لإعادة الاستخدام =====
+          const PageHeader(title: 'نتيجة الحساب'),
+
+          // ===== محتوى الصفحة =====
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildItem("القراءة القديمة", oldReading.toString()),
+                    _buildDivider(),
+                    _buildItem("القراءة الجديدة", newReading.toString()),
+                    _buildDivider(),
+                    _buildItem("الاستهلاك (kWh)", consumption.toString()),
+                    _buildDivider(),
+                    _buildItem("الشريحة", tier),
+                    _buildDivider(),
+                    _buildItem("السعر النهائي (EGP)", totalPrice.toString()),
+                    const SizedBox(height: 30),
+
+                    // زر رجوع
+                    Center(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColor.primary_color,
+                          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        onPressed: () => Get.back(),
+                        child: Text(
+                          'رجوع',
+                          style: TextStyle(
+                            color: AppColor.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
-              )
-        
-            ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

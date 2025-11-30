@@ -1,114 +1,151 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:graduation_project/services/profile_hive_services.dart';
-import 'package:graduation_project/view/homescreen.dart';
-import '../core/style/colors.dart';
+import '../../core/style/colors.dart';
+import '../../controllers/signup_controller.dart';
+import '../services/profile_hive_services.dart';
 import '../main.dart';
-import '../services/auth_service.dart';
-import '../services/profile_services.dart';
-import '../models/profile_model_supabase.dart';
-import 'main_screen.dart';
-import '../models/profile_model_hive.dart';
+import '../../core/widgets/page_header.dart'; // استدعاء الـHeader
 
-class SignUpPage extends StatelessWidget {
-  SignUpPage({super.key});
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
 
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final nameController = TextEditingController();
-  final addressController = TextEditingController();
-  final companyController = TextEditingController();
-  final _profileService = ProfileService();
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
 
-  final AuthService _authService = AuthService();
-  final _profileHiveService = ProfileHiveService(profileBox);
+class _SignUpPageState extends State<SignUpPage> {
+  final controller = Get.put(SignUpController(ProfileHiveService(profileBox)));
+  final PageController pageController = PageController();
 
-  void _signUp(BuildContext context) async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-    final name = nameController.text.trim();
-    final address = addressController.text.trim();
-    final companyName = companyController.text.trim();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // ===== Header ثابت لكل الصفحات =====
+            Obx(() => PageHeader(
+              title: controller.isAccountCreated.value ? 'أكمل بياناتك' : 'إنشاء حساب',
+            )),
 
-    if (email.isEmpty || password.isEmpty || name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields')),
-      );
-      return;
-    }
-
-    final user = await _authService.register(email, password);
-
-    if (user != null) {
-      final profile = ProfileModel(
-        id: user.id,
-        name: name,
-        address: address,
-        company_Name: companyName,
-        created_at: DateTime.now(),
-      );
-
-      final hiveProfile = ProfileHive(id: user.id, name: name, createdAt: DateTime.now(), companyName: companyName, address: address);
-      await _profileHiveService.addProfile(hiveProfile);
-
-      final success = await _profileService.createProfile(profile);
-
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account created successfully!')),
-        );
-        Get.off(() => Homescreen());
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to create profile')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Signup failed!')),
-      );
-    }
-  }
-
-  Widget _buildRowField({
-    required String label,
-    required TextEditingController controller,
-    bool obscureText = false,
-    String? hint,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        textDirection: TextDirection.rtl, // القراءة من اليمين لليسار
-        children: [
-          SizedBox(
-            width: 140,
-            child: Text(
-              label,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                color: AppColor.primary_color,
-                fontSize: 16,
+            // ===== Content =====
+            Expanded(
+              child: PageView(
+                controller: pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _stepCreateAccount(),
+                  _stepCompleteProfile(),
+                ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _stepCreateAccount() {
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _textField(
+            label: "الإيميل",
+            onChanged: (v) => controller.model.email = v,
+            keyboardType: TextInputType.emailAddress,
           ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: AppColor.gray.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: TextField(
-                controller: controller,
-                obscureText: obscureText,
-                textAlign: TextAlign.right,
-                style: TextStyle(color: AppColor.black),
-                decoration: InputDecoration(
-                  hintText: hint,
-                  border: InputBorder.none,
-                ),
-              ),
+          const SizedBox(height: 16),
+          _textField(
+            label: "كلمة السر",
+            obscure: true,
+            onChanged: (v) => controller.model.password = v,
+          ),
+          const SizedBox(height: 30),
+          Obx(() => controller.isLoading.value
+              ? const CircularProgressIndicator()
+              : ElevatedButton(
+            onPressed: () async {
+              if (controller.model.email.isEmpty || controller.model.password.isEmpty) {
+                Get.snackbar("خطأ", "يرجى ملء جميع الحقول");
+                return;
+              }
+
+              await controller.registerAccount();
+
+              if (controller.isAccountCreated.value) {
+                pageController.animateToPage(
+                  1,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                );
+              }
+            },
+            child: const Text("إنشاء الحساب"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColor.primary_color,
+              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _stepCompleteProfile() {
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _textField(
+            label: "الاسم",
+            onChanged: (v) => controller.model.name = v,
+          ),
+          const SizedBox(height: 16),
+          _textField(
+            label: "العنوان",
+            onChanged: (v) => controller.model.address = v,
+          ),
+          const SizedBox(height: 16),
+          _textField(
+            label: "اسم الشركة",
+            onChanged: (v) => controller.model.company = v,
+          ),
+          const SizedBox(height: 30),
+          Obx(() => controller.isLoading.value
+              ? const CircularProgressIndicator()
+              : ElevatedButton(
+            onPressed: () async {
+              if (controller.model.name.isEmpty) {
+                Get.snackbar("خطأ", "يرجى ملء جميع البيانات");
+                return;
+              }
+
+              await controller.saveProfile();
+            },
+            child: const Text("حفظ البيانات"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColor.primary_color,
+              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            ),
+          )),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () {
+              pageController.animateToPage(
+                0,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+              );
+            },
+            child: Text(
+              "العودة",
+              style: TextStyle(color: AppColor.primary_color),
             ),
           ),
         ],
@@ -116,72 +153,38 @@ class SignUpPage extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 40),
-                decoration: BoxDecoration(
-                  color: AppColor.primary_color,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(120),
-                    bottomRight: Radius.circular(120),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    'انشيء حساب',
-                    style: TextStyle(
-                      color: AppColor.black,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Fields
-              _buildRowField(
-                  label: 'الإيميل:', controller: emailController, hint: 'email@gmail.com'),
-              _buildRowField(
-                  label: 'كلمة السر:', controller: passwordController, obscureText: true),
-              _buildRowField(label: 'الاسم:', controller: nameController, hint: 'اسمك'),
-              _buildRowField(label: 'العنوان:', controller: addressController, hint: 'المدينة'),
-              _buildRowField(label: 'اسم الشركة:', controller: companyController, hint: 'اختياري'),
-
-              const SizedBox(height: 30),
-
-              // Signup Button
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primary_color,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                onPressed: () => _signUp(context),
-                child: Text(
-                  'تسجيل',
-                  style: TextStyle(
-                    color: AppColor.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
+  Widget _textField({
+    required String label,
+    bool obscure = false,
+    required Function(String) onChanged,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Container(
+      height: 60,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: TextField(
+        obscureText: obscure,
+        textAlign: TextAlign.right,
+        textDirection: TextDirection.rtl,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          hintText: label,
+          filled: true,
+          fillColor: AppColor.gray.withOpacity(0.1),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide.none,
           ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
+        onChanged: onChanged,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
   }
 }

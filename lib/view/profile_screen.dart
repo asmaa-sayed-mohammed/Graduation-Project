@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:graduation_project/services/auth_service.dart';
 import '../core/style/colors.dart';
 import '../controllers/profile_controller.dart';
+import '../core/widgets/page_header.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
@@ -20,27 +21,7 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             children: [
 
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 40),
-                decoration: BoxDecoration(
-                  color: AppColor.primary_color,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(120),
-                    bottomRight: Radius.circular(120),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    'الملف الشخصي',
-                    style: TextStyle(
-                      color: AppColor.black,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+              const PageHeader(title: "الملف الشخصي"),
 
               const SizedBox(height: 40),
 
@@ -82,7 +63,7 @@ class ProfileScreen extends StatelessWidget {
                     _buildInfoCard("العنوان", profile.address ?? "لا يوجد"),
                     const SizedBox(height: 15),
 
-                    _buildInfoCard("اسم الشركة", profile.companyName ?? "لا يوجد"),
+                    _buildInfoCard("اسم الشركة", profile.company_Name ?? "لا يوجد"),
                     const SizedBox(height: 15),
 
                   ],

@@ -4,6 +4,7 @@ import 'package:graduation_project/view/calculation_result_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:graduation_project/controllers/reading_controller.dart';
 import 'package:graduation_project/core/style/colors.dart';
+import '../../core/widgets/page_header.dart';
 
 class CalculateOnceScreen extends StatelessWidget {
   final controller = Get.put(ReadingController());
@@ -41,33 +42,7 @@ class CalculateOnceScreen extends StatelessWidget {
           child: Column(
             children: [
               // ------------------- HEADER -------------------
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 30,
-                  horizontal: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColor.primary_color,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(120),
-                    bottomRight: Radius.circular(120),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 15),
-                    Text(
-                      'ادخل القراءة',
-                      style: TextStyle(
-                        color: AppColor.black,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const PageHeader(title: "إدخال القراءة"),
               const SizedBox(height: 25),
 
               // ------------------- OLD READING FIELD -------------------

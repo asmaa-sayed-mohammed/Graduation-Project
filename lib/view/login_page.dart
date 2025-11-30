@@ -10,6 +10,7 @@ import '../services/auth_service.dart';
 import '../services/profile_services.dart';
 import '../models/profile_model_supabase.dart';
 import 'main_screen.dart';
+import '../core/widgets/page_header.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -97,29 +98,7 @@ class LoginPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 40),
-                decoration: BoxDecoration(
-                  color: AppColor.primary_color,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(120),
-                    bottomRight: Radius.circular(120),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    'تسجيل الدخول',
-                    style: TextStyle(
-                      color: AppColor.black,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-
+              const PageHeader(title: "تسجيل الدخول"),
               // Fields
               _buildRowField(
                   label: 'الإيميل:', controller: emailController, hint: 'email@gmail.com'),

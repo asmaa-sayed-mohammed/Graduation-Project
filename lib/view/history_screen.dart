@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../controllers/history_controller.dart';
 import '../core/style/colors.dart';
+import '../core/widgets/page_header.dart';
 
 class HistoryScreen extends StatelessWidget {
   final controller = Get.put(HistoryController());
@@ -12,30 +13,7 @@ class HistoryScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-            decoration: BoxDecoration(
-              color: AppColor.primary_color,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(120),
-                bottomRight: Radius.circular(120),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "السجل",
-                  style: TextStyle(
-                    color: AppColor.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          const PageHeader(title: "السجل"),
            SizedBox(height: 20),
           Expanded(
             child: Obx(() {

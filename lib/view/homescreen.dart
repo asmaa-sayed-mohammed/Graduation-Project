@@ -5,6 +5,7 @@ import 'package:graduation_project/view/login_page.dart';
 import 'package:graduation_project/view/sign_up_page.dart';
 
 import '../core/style/colors.dart';
+import '../core/widgets/page_header.dart';
 import 'calculate_once_screen.dart';
 
 class Homescreen extends StatelessWidget {
@@ -18,33 +19,7 @@ class Homescreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColor.primary_color,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(120),
-                  bottomRight: Radius.circular(120),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  ),
-                  const SizedBox(height: 15),
-                  Text(
-                    'الصفحة الرئيسية',
-                    style: TextStyle(
-                      color: AppColor.black,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                ],
-              ),
-            ),
+            const PageHeader(title: "الصفحة الرئيسية"),
             const SizedBox(height: 50,),
             Center(
               child: Column(

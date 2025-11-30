@@ -15,14 +15,14 @@ class ProfileHive extends HiveObject {
   String? address;
 
   @HiveField(4)
-  String? companyName;
+  String? company_Name;
 
   ProfileHive({
     required this.id,
     required this.name,
     required this.createdAt,
     this.address,
-    this.companyName,
+    this.company_Name,
   });
 
 
