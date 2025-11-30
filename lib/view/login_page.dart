@@ -5,6 +5,7 @@ import 'package:graduation_project/view/start_screen.dart';
 import 'package:graduation_project/view/homescreen.dart';
 import 'package:graduation_project/view/profile_screen.dart';
 import 'package:graduation_project/view/reading_screen.dart';
+
 import '../core/style/colors.dart';
 import '../services/auth_service.dart';
 import '../services/profile_services.dart';
@@ -18,7 +19,6 @@ class LoginPage extends StatelessWidget {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
 
   final AuthService _authService = AuthService();
 
@@ -36,7 +36,7 @@ class LoginPage extends StatelessWidget {
     final loggedIn = await _authService.login(email, password);
 
     if (loggedIn) {
-      Get.off((()=> MainScreen()));
+      Get.off(() => MainScreen());
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('فشل تسجيل الدخول')),
@@ -53,7 +53,7 @@ class LoginPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
-        textDirection: TextDirection.rtl, // القراءة من اليمين لليسار
+        textDirection: TextDirection.rtl,
         children: [
           SizedBox(
             width: 140,
@@ -100,25 +100,26 @@ class LoginPage extends StatelessWidget {
           child: Column(
             children: [
               const PageHeader(title: "تسجيل الدخول"),
-              // Fields
               _buildRowField(
-                  label: 'الإيميل:', controller: emailController, hint: 'email@gmail.com'),
+                  label: 'الإيميل:',
+                  controller: emailController,
+                  hint: 'email@gmail.com'),
               _buildRowField(
-                  label: 'كلمة السر:', controller: passwordController, obscureText: true),
-
+                label: 'كلمة السر:',
+                controller: passwordController,
+                obscureText: true,
+              ),
               const SizedBox(height: 30),
-
-              // Signup Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColor.primary_color,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
                 onPressed: () => _logIn(context),
-
                 child: Text(
                   'تسجيل',
                   style: TextStyle(

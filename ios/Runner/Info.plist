@@ -45,5 +45,15 @@
     <true/>
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
+    
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>نحتاج إلى موقعك الجغرافي لتحديد شركة الكهرباء المسؤولة عن منطقتك تلقائيًا.</string>
+
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>googlechromes</string>
+        <string>comgooglemaps</string>
+        <string>iosamap</string>
+    </array>
   </dict>
 </plist>

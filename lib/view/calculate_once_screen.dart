@@ -6,6 +6,9 @@ import 'package:graduation_project/controllers/reading_controller.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import '../../core/widgets/page_header.dart';
 
+// 💡 تم تحديث الاستيراد لصفحة الكهرباء الجديدة
+import 'package:graduation_project/view/electricity_page.dart';
+
 class CalculateOnceScreen extends StatelessWidget {
   final controller = Get.put(ReadingController());
 
@@ -15,25 +18,13 @@ class CalculateOnceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: FloatingActionButton.extended(
-          backgroundColor: AppColor.primary_color,
-          onPressed: () {
-            // add any functionality here if needed
-          },
-          icon: Icon(Icons.location_on, color: AppColor.black),
-          label: Text(
-            'الموقع',
-            style: TextStyle(
-              color: AppColor.black,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
+      
+      // ⚠️ تم حذف الـ floatingActionButton لأنه تم نقله إلى محتوى الصفحة
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // floatingActionButton: Padding(
+      //   padding: const EdgeInsets.only(bottom: 10),
+      //   // ... محتوى الزر القديم
+      // ),
 
       body: SafeArea(
         top: true,
@@ -179,33 +170,43 @@ class CalculateOnceScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              
+              const SizedBox(height: 20), // مسافة بين زر "احسب" وزر "الموقع"
 
-              // ElevatedButton.icon(
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: AppColor.primary_color,
-              //     padding: const EdgeInsets.symmetric(
-              //       horizontal: 50,
-              //       vertical: 15,
-              //     ),
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(30),
-              //     ),
-              //   ),
-              //   onPressed: () {
-              //     // إضافة أي وظيفة للزرار هنا
-              //   },
-              //   icon: Icon(Icons.location_on, color: AppColor.black),
-              //   label: Text(
-              //     'الموقع',
-              //     style: TextStyle(
-              //       color: AppColor.black,
-              //       fontSize: 18,
-              //       fontWeight: FontWeight.bold,
-              //     ),
-              //   ),
-              // ),
-              const SizedBox(height: 200),
+              // ------------------- LOCATION BUTTON (الموقع الجديد) -------------------
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.primary_color,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                    vertical: 15,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                // الوظيفة: الانتقال إلى شاشة الكهرباء
+               onPressed: () {
+                 Get.to(() => ElectricityPage());}
+                 ,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, // لجعل الزر يأخذ حجم محتواه فقط
+                  children: [
+                    Icon(Icons.location_on, color: AppColor.black),
+                    const SizedBox(width: 8),
+                    Text(
+                      'الموقع',
+                      style: TextStyle(
+                        color: AppColor.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 50), // مسافة لأسفل الشاشة
             ],
           ),
         ),

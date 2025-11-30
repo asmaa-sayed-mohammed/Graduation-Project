@@ -63,12 +63,12 @@ dependencies:
   floor: ^1.5.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-
-
+  url_launcher: ^6.2.12
+  provider: ^6.1.1
   # Location Services
   geolocator: ^14.0.2
   geocoding: ^4.0.0
-
+  google_maps_flutter: ^2.14.0
   #   Internationalization
   flutter_localizations:
     sdk: flutter
