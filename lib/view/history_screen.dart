@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:graduation_project/view/main_screen.dart';
 
 import '../controllers/history_controller.dart';
 import '../core/style/colors.dart';
@@ -18,7 +19,7 @@ class HistoryScreen extends StatelessWidget {
              PageHeader(title: "السجل",
               leading: IconButton(
               onPressed: () {
-                Get.back();
+                Get.off(()=>MainScreen());
               },
               icon:  Icon(
                 Icons.arrow_back,

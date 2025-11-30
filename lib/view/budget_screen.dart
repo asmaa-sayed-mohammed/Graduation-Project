@@ -16,42 +16,44 @@ class BudgetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.white,
-      body: Column(
-        children: [
-          // الهيدر
-          const PageHeader(title: "الميزانية الشهرية"),
-          // محتوى الشاشة
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  // الميزانية الحالية
-                  Obx(() => controller.hasBudget.value
-                      ? _buildCurrentBudgetCard()
-                      : const SizedBox()),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColor.white,
+        body: Column(
+          children: [
+            // الهيدر
+            const PageHeader(title: "الميزانية الشهرية"),
+            // محتوى الشاشة
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    // الميزانية الحالية
+                    Obx(() => controller.hasBudget.value
+                        ? _buildCurrentBudgetCard()
+                        : const SizedBox()),
 
-                  const SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
-                  // قسم إدخال الميزانية
-                  _buildBudgetInputSection(),
+                    // قسم إدخال الميزانية
+                    _buildBudgetInputSection(),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  // الاقتراحات
-                  _buildBudgetSuggestions(),
+                    // الاقتراحات
+                    _buildBudgetSuggestions(),
 
-                  const SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
-                  // زر الحفظ
-                  _buildSaveButton(),
-                ],
+                    // زر الحفظ
+                    _buildSaveButton(),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

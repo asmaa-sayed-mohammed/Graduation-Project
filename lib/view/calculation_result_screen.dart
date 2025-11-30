@@ -23,59 +23,61 @@ class CalculationResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.white,
-      body: Column(
-        children: [
-          // ===== الهيدر القابل لإعادة الاستخدام =====
-          const PageHeader(title: 'نتيجة الحساب'),
-
-          // ===== محتوى الصفحة =====
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildItem("القراءة القديمة", oldReading.toString()),
-                    _buildDivider(),
-                    _buildItem("القراءة الجديدة", newReading.toString()),
-                    _buildDivider(),
-                    _buildItem("الاستهلاك (kWh)", consumption.toString()),
-                    _buildDivider(),
-                    _buildItem("الشريحة", tier),
-                    _buildDivider(),
-                    _buildItem("السعر النهائي (EGP)", totalPrice.toString()),
-                    const SizedBox(height: 30),
-
-                    // زر رجوع
-                    Center(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColor.primary_color,
-                          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColor.white,
+        body: Column(
+          children: [
+            // ===== الهيدر القابل لإعادة الاستخدام =====
+            const PageHeader(title: 'نتيجة الحساب'),
+      
+            // ===== محتوى الصفحة =====
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildItem("القراءة القديمة", oldReading.toString()),
+                      _buildDivider(),
+                      _buildItem("القراءة الجديدة", newReading.toString()),
+                      _buildDivider(),
+                      _buildItem("الاستهلاك (kWh)", consumption.toString()),
+                      _buildDivider(),
+                      _buildItem("الشريحة", tier),
+                      _buildDivider(),
+                      _buildItem("السعر النهائي (EGP)", totalPrice.toString()),
+                      const SizedBox(height: 30),
+      
+                      // زر رجوع
+                      Center(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor.primary_color,
+                            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          onPressed: () => Get.back(),
+                          child: Text(
+                            'رجوع',
+                            style: TextStyle(
+                              color: AppColor.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        onPressed: () => Get.back(),
-                        child: Text(
-                          'رجوع',
-                          style: TextStyle(
-                            color: AppColor.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

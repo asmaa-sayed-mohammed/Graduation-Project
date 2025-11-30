@@ -32,124 +32,126 @@ class _ReadingScreenState extends State<ReadingScreen> {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ===== PageHeader بدون أي padding =====
-                const PageHeader(title: "إدخال القراءة"),
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ===== PageHeader بدون أي padding =====
+                  const PageHeader(title: "إدخال القراءة"),
 
-                const SizedBox(height: 25),
+                  const SizedBox(height: 25),
 
-                // ===== باقي المحتوى داخل Padding من الجانبين =====
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Column(
-                    children: [
-                      _buildReadingInput(
-                        label: "القراءة القديمة",
-                        controller: controller.oldReadingController,
-                        onMicPressed: () => controller
-                            .recognizeVoice(controller.oldReadingController),
-                        onCameraPressed: () => controller.pickImage(
-                          ImageSource.camera,
-                          controller.oldReadingController,
+                  // ===== باقي المحتوى داخل Padding من الجانبين =====
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: Column(
+                      children: [
+                        _buildReadingInput(
+                          label: "القراءة القديمة",
+                          controller: controller.oldReadingController,
+                          onMicPressed: () => controller
+                              .recognizeVoice(controller.oldReadingController),
+                          onCameraPressed: () => controller.pickImage(
+                            ImageSource.camera,
+                            controller.oldReadingController,
+                          ),
+                          onGalleryPressed: () => controller.pickImage(
+                            ImageSource.gallery,
+                            controller.oldReadingController,
+                          ),
                         ),
-                        onGalleryPressed: () => controller.pickImage(
-                          ImageSource.gallery,
-                          controller.oldReadingController,
+
+                        _buildReadingInput(
+                          label: "القراءة الجديدة",
+                          controller: controller.newReadingController,
+                          onMicPressed: () => controller
+                              .recognizeVoice(controller.newReadingController),
+                          onCameraPressed: () => controller.pickImage(
+                            ImageSource.camera,
+                            controller.newReadingController,
+                          ),
+                          onGalleryPressed: () => controller.pickImage(
+                            ImageSource.gallery,
+                            controller.newReadingController,
+                          ),
                         ),
-                      ),
 
-                      _buildReadingInput(
-                        label: "القراءة الجديدة",
-                        controller: controller.newReadingController,
-                        onMicPressed: () => controller
-                            .recognizeVoice(controller.newReadingController),
-                        onCameraPressed: () => controller.pickImage(
-                          ImageSource.camera,
-                          controller.newReadingController,
-                        ),
-                        onGalleryPressed: () => controller.pickImage(
-                          ImageSource.gallery,
-                          controller.newReadingController,
-                        ),
-                      ),
+                        const SizedBox(height: 30),
 
-                      const SizedBox(height: 30),
-
-                      Center(
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(35),
-                          onTap: () async {
-                            final result = controller.calculateManualResult();
-                            if (result['error'] == true) {
-                              Get.snackbar(
-                                'خطأ',
-                                result['message'],
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.orangeAccent,
-                                colorText: Colors.white,
-                              );
-                            } else {
-                              final user =
-                                  Supabase.instance.client.auth.currentUser;
-                              if (user != null) {
-                                await controller.saveReadingToSupabase(
-                                    userId: user.id);
-
-                                final usage = result['consumption'];
-                                final price = result['totalPrice'];
-
-                                Get.off(
-                                      () => StartScreen(),
-                                  arguments: {'usage': usage, 'price': price},
-                                );
-                              } else {
+                        Center(
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(35),
+                            onTap: () async {
+                              final result = controller.calculateManualResult();
+                              if (result['error'] == true) {
                                 Get.snackbar(
                                   'خطأ',
-                                  'المستخدم غير مسجل الدخول',
+                                  result['message'],
                                   snackPosition: SnackPosition.BOTTOM,
-                                  backgroundColor: Colors.redAccent,
+                                  backgroundColor: Colors.orangeAccent,
                                   colorText: Colors.white,
                                 );
+                              } else {
+                                final user =
+                                    Supabase.instance.client.auth.currentUser;
+                                if (user != null) {
+                                  await controller.saveReadingToSupabase(
+                                      userId: user.id);
+
+                                  final usage = result['consumption'];
+                                  final price = result['totalPrice'];
+
+                                  Get.off(
+                                        () => StartScreen(),
+                                    arguments: {'usage': usage, 'price': price},
+                                  );
+                                } else {
+                                  Get.snackbar(
+                                    'خطأ',
+                                    'المستخدم غير مسجل الدخول',
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    backgroundColor: Colors.redAccent,
+                                    colorText: Colors.white,
+                                  );
+                                }
                               }
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 80, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: AppColor.primary_color,
-                              borderRadius: BorderRadius.circular(35),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                )
-                              ],
-                            ),
-                            child: const Text(
-                              "احسب",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 19,
-                                fontWeight: FontWeight.bold,
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 80, vertical: 16),
+                              decoration: BoxDecoration(
+                                color: AppColor.primary_color,
+                                borderRadius: BorderRadius.circular(35),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.15),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  )
+                                ],
+                              ),
+                              child: const Text(
+                                "احسب",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 40),
-                    ],
+                        const SizedBox(height: 40),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

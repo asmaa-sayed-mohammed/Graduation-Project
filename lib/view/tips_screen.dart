@@ -15,21 +15,23 @@ class TipsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.white,
-      body: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Column(
-          children: [
-            // ===== الهيدر الثابت القابل لإعادة الاستخدام =====
-            const PageHeader(
-              title: 'نصائح التوفير الذكية',
-              // subtitle: 'استفد من خبراتنا لتوفير الطاقة',
-            ),
-
-            // ===== محتوى النصائح =====
-            Expanded(child: _buildTipsContent()),
-          ],
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColor.white,
+        body: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Column(
+            children: [
+              // ===== الهيدر الثابت القابل لإعادة الاستخدام =====
+              const PageHeader(
+                title: 'نصائح التوفير الذكية',
+                // subtitle: 'استفد من خبراتنا لتوفير الطاقة',
+              ),
+      
+              // ===== محتوى النصائح =====
+              Expanded(child: _buildTipsContent()),
+            ],
+          ),
         ),
       ),
     );

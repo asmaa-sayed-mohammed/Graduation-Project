@@ -217,6 +217,15 @@ class ReadingController extends GetxController {
     };
   }
 
+  RxString consumption = ''.obs;
+
+  RxString electricityUsage(){
+    final oldVal = _parseReading(oldReadingController.text);
+    final newVal = _parseReading(newReadingController.text);
+    consumption.value = double.parse((newVal - oldVal).toStringAsFixed(3)).toString();
+    return consumption;
+  }
+
   void clearManualInputs() {
     oldReadingController.clear();
     newReadingController.clear();

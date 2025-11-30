@@ -77,42 +77,44 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.primary_color,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ScaleTransition(
-              scale: _logoAnimation,
-              child: Image.asset(
-                'assets/images/Splash_screen.png',
-                width: 200,
-                height: 200,
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(height: 40),
-            AnimatedBuilder(
-              animation: _textController,
-              builder: (context, child) {
-                double opacity = _textFadeIn.value * (1 - _textFadeOut.value);
-                return Opacity(
-                  opacity: opacity,
-                  child: child,
-                );
-              },
-              child: Text(
-                "Electricity",
-                style: TextStyle(
-                  fontSize: 42,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  letterSpacing: 2,
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColor.primary_color,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ScaleTransition(
+                scale: _logoAnimation,
+                child: Image.asset(
+                  'assets/images/Splash_screen.png',
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.contain,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 40),
+              AnimatedBuilder(
+                animation: _textController,
+                builder: (context, child) {
+                  double opacity = _textFadeIn.value * (1 - _textFadeOut.value);
+                  return Opacity(
+                    opacity: opacity,
+                    child: child,
+                  );
+                },
+                child: Text(
+                  "Electricity",
+                  style: TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -12,24 +12,26 @@ class MyAppliancesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.white2,
-      body: Column(
-        children: [
-          // ===== الهيدر القابل لإعادة الاستخدام =====
-          const PageHeader(title: 'أجهزتي'),
-
-          // ===== محتوى الصفحة =====
-          Expanded(child: _buildBody()),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.toNamed('/select-appliances'); // Navigate to SelectAppliancesScreen
-        },
-        backgroundColor: AppColor.primary_color,
-        foregroundColor: AppColor.black,
-        child: const Icon(Icons.add),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColor.white2,
+        body: Column(
+          children: [
+            // ===== الهيدر القابل لإعادة الاستخدام =====
+            const PageHeader(title: 'أجهزتي'),
+      
+            // ===== محتوى الصفحة =====
+            Expanded(child: _buildBody()),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Get.toNamed('/select-appliances'); // Navigate to SelectAppliancesScreen
+          },
+          backgroundColor: AppColor.primary_color,
+          foregroundColor: AppColor.black,
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

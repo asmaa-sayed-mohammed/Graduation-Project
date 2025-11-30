@@ -11,27 +11,29 @@ class AppliancesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.white2,
-      body: Column(
-        children: [
-          PageHeader(
-            title: 'اختر أجهزتك',
-            leading: IconButton(
-              onPressed: () {
-                Get.back();
-              },
-              icon:  Icon(
-                Icons.arrow_back,
-                color: AppColor.black,
-                size: 28,
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColor.white2,
+        body: Column(
+          children: [
+            PageHeader(
+              title: 'اختر أجهزتك',
+              leading: IconButton(
+                onPressed: () {
+                  Get.back();
+                },
+                icon:  Icon(
+                  Icons.arrow_back,
+                  color: AppColor.black,
+                  size: 28,
+                ),
               ),
             ),
-          ),
-          Expanded(child: _buildBody()),
-        ],
+            Expanded(child: _buildBody()),
+          ],
+        ),
+        floatingActionButton: _buildFloatingActionButton(),
       ),
-      floatingActionButton: _buildFloatingActionButton(),
     );
   }
 
