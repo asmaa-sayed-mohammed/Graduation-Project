@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/controllers/tips_controller.dart';
 import 'package:graduation_project/core/style/colors.dart';
+import 'package:graduation_project/view/appliance_screen.dart';
 import '../controllers/bottom_navbar_controller.dart';
 import '../core/widgets/bottom_navbar.dart';
 import '../models/energy_tip_model.dart';
@@ -304,7 +305,7 @@ class TipsScreen extends StatelessWidget {
           const SizedBox(height: 12),
           ElevatedButton(
             onPressed: () {
-              Get.toNamed('/appliances');
+              Get.to(AppliancesScreen());
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColor.primary_color,

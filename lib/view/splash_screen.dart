@@ -7,6 +7,7 @@ import 'package:graduation_project/services/auth_service.dart';
 import 'package:graduation_project/view/homescreen.dart';
 import 'package:graduation_project/view/login_page.dart';
 import 'package:graduation_project/view/onBoarding_screen.dart';
+import 'package:graduation_project/view/start_screen.dart';
 
 import 'main_screen.dart';
 
@@ -58,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen>
       final bool isLoggedIn = _authService.isLoggedIn();
 
       if (isLoggedIn) {
-        Get.off(() => Homescreen());
+        Get.off(() => StartScreen());
       } else if (isOnboardingComplete) {
         Get.off(() => LoginPage());
       } else {
