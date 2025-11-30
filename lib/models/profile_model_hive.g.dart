@@ -19,9 +19,9 @@ class ProfileHiveAdapter extends TypeAdapter<ProfileHive> {
     return ProfileHive(
       id: fields[0] as String,
       name: fields[1] as String,
-      createdAt: fields[2] as DateTime,
+      createdAt: fields[2] as String,
       address: fields[3] as String?,
-      company_Name: fields[4] as String?,
+      companyName: fields[4] as String?,
     );
   }
 
@@ -38,7 +38,7 @@ class ProfileHiveAdapter extends TypeAdapter<ProfileHive> {
       ..writeByte(3)
       ..write(obj.address)
       ..writeByte(4)
-      ..write(obj.company_Name);
+      ..write(obj.companyName);
   }
 
   @override

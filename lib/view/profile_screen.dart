@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:graduation_project/services/auth_service.dart';
-import '../core/style/colors.dart';
 import '../controllers/profile_controller.dart';
+import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
-  final _authService = AuthService();
 
   final ProfileController controller = Get.put(ProfileController());
 
@@ -20,9 +18,7 @@ class ProfileScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             children: [
-
               const PageHeader(title: "الملف الشخصي"),
-
               const SizedBox(height: 40),
 
               Obx(() {
@@ -47,9 +43,7 @@ class ProfileScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 10),
-
                     Text(
                       "تاريخ الإنشاء: ${profile.createdAt.toString().substring(0, 10)}",
                       style: const TextStyle(
@@ -57,15 +51,11 @@ class ProfileScreen extends StatelessWidget {
                         color: Colors.grey,
                       ),
                     ),
-
                     const SizedBox(height: 40),
-
                     _buildInfoCard("العنوان", profile.address ?? "لا يوجد"),
                     const SizedBox(height: 15),
-
-                    _buildInfoCard("اسم الشركة", profile.company_Name ?? "لا يوجد"),
+                    _buildInfoCard("اسم الشركة", profile.companyName ?? "لا يوجد"),
                     const SizedBox(height: 15),
-
                   ],
                 );
               }),
@@ -75,7 +65,6 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _buildInfoCard(String title, String value) {
     return Container(

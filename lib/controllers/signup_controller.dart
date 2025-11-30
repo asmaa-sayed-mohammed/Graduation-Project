@@ -97,7 +97,7 @@ class SignUpController extends GetxController {
         final hiveProfile = ProfileHive(
           id: userId!,
           name: model.name,
-          createdAt: DateTime.now(),
+          createdAt: DateTime.now().toIso8601String(),
           company_Name: model.company,
           address: model.address,
         );
