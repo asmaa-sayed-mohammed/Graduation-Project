@@ -3,7 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart'; // 💡 استبدال ChangeNotifier بـ GetX
+import 'package:graduation_project/controllers/profile_controller.dart';
 import 'package:graduation_project/models/company_data.dart';
+import 'package:graduation_project/models/profile_model_hive.dart';
+import 'package:graduation_project/services/profile_hive_services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,12 +14,15 @@ import 'package:geocoding/geocoding.dart';
 import 'dart:async';
 
 // 💡 تم إصلاح خطأ الاستيراد: استخدام الاستيراد العادي (يجب التأكد من تعريف companiesData كمتغير عام في الملف)
-import '../models/electricity_data.dart'; 
+import '../main.dart';
+import '../models/electricity_data.dart';
 
 // 💡 وراثة المتحكم من GetxController
 class ElectricityController extends GetxController {
   // --- تهيئة Supabase ---
   final SupabaseClient _supabase = Supabase.instance.client;
+  final ProfileHiveService profile_service = ProfileHiveService(profileBox);
+  late final ProfileHive profile;
 
   // --- حالة Controller باستخدام المتغيرات القابلة للملاحظة (Rx) ---
   final RxString input = ''.obs;
@@ -26,7 +32,7 @@ class ElectricityController extends GetxController {
 
   // 💡 حالة المستخدم والشركة المفضلة
   final Rxn<User> currentUser = Rxn<User>();
-  final Rxn<String> preferredCompany = Rxn<String>(); 
+  final Rxn<String> preferredCompany = Rxn<String>();
 
   // 💡 Getter محسوب
   TextDirection get textDirection =>
@@ -36,11 +42,11 @@ class ElectricityController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    
+
     // الاستماع لحالة المصادقة في Supabase
     _supabase.auth.onAuthStateChange.listen((data) {
       currentUser.value = data.session?.user;
-      loadPreferredCompany(); 
+      loadPreferredCompany();
     });
 
     // تحميل أولي للشركة المفضلة
@@ -64,7 +70,7 @@ class ElectricityController extends GetxController {
   // 1. دوال إدارة التخزين (Supabase و Local) -------------------------
 
   Future<void> loadPreferredCompany() async {
-    final user = currentUser.value; 
+    final user = currentUser.value;
 
     if (user != null) {
       // 1. محاولة الجلب من Supabase
@@ -76,7 +82,7 @@ class ElectricityController extends GetxController {
             .single();
 
         preferredCompany.value = response['company_Name'] as String?;
-        return; 
+        return;
       } catch (error) {
         debugPrint('Supabase profile not found or error, falling back to local storage: $error');
       }
@@ -88,32 +94,50 @@ class ElectricityController extends GetxController {
   }
 
   Future<void> saveCompany(String companyName) async {
-    // 1. الحفظ في التخزين المحلي (Hive) كـ Cache
+    // 1. الحفظ في التخزين المحلي (Hive)
     final settingsBox = Hive.box('settings');
     await settingsBox.put('saved_company', companyName);
 
     final user = currentUser.value;
 
-    if (user != null) {
-      // 2. الحفظ في Supabase (فقط إذا كان المستخدم مسجلاً دخوله)
-      final Map<String, dynamic> dataToSave = {
-        'id': user.id,
-        'company_Name': companyName,
-      };
-
-      try {
-        await _supabase.from('profile').upsert(dataToSave);
-        _showGetSnackBar('تم حفظ "${companyName}" في السحابة والتخزين المحلي بنجاح.'); 
-      } catch (e) {
-        debugPrint('Error saving to Supabase: $e');
-        _showGetSnackBar('فشل في حفظ الشركة في السحابة. تم حفظها محلياً فقط.'); 
-      }
-    } else {
-       _showGetSnackBar('تم حفظ الشركة "${companyName}" محلياً. يرجى تسجيل الدخول للحفظ في السحابة.'); 
+    // ⚠️ لو مفيش مستخدم → احفظ محلي فقط
+    if (user == null) {
+      _showGetSnackBar('تم حفظ الشركة "$companyName" محلياً. يرجى تسجيل الدخول للحفظ في السحابة.');
+      preferredCompany.value = companyName;
+      return;
     }
 
-    preferredCompany.value = companyName; // تحديث قيمة Rx
+    // 2. جلب بروفايل Hive لو موجود
+    ProfileHive? localProfile = profile_service.getOneProfile(user.id);
+
+    // 3. استخراج الاسم من 3 أماكن (Hive → Auth Metadata → fallback)
+    final String userName =
+        localProfile?.name ??
+            user.userMetadata?['full_name'] ??
+            user.email?.split('@').first ??
+            "User";
+
+    // 4. تجهيز البيانات للحفظ
+    final Map<String, dynamic> dataToSave = {
+      'id': user.id,
+      'name': userName,
+      'company_Name': companyName,
+    };
+
+    try {
+      // 5. الحفظ في Supabase
+      await _supabase.from('profile').upsert(dataToSave);
+
+      _showGetSnackBar('تم حفظ "$companyName" في السحابة والتخزين المحلي.');
+    } catch (e) {
+      debugPrint('Error saving to Supabase: $e');
+      _showGetSnackBar('فشل الحفظ في السحابة. تم الحفظ محلياً فقط.');
+    }
+
+    // تحديث القيمة المعروضة
+    preferredCompany.value = companyName;
   }
+
 
   // 2. دوال معالجة النص والبحث ----------------------------------------
 
@@ -138,7 +162,7 @@ class ElectricityController extends GetxController {
   // دالة لاكتشاف وجود أحرف عربية
   bool _detectArabic(String text) {
     if (text.isEmpty) {
-      return isArabicInput.value; 
+      return isArabicInput.value;
     }
     final arabicRegex = RegExp(r'[\u0600-\u06FF]');
     return arabicRegex.hasMatch(text);
@@ -158,7 +182,7 @@ class ElectricityController extends GetxController {
 
     String? company;
     // 💡 استخدام companiesData مباشرة
-    for (var c in companiesData) { 
+    for (var c in companiesData) {
       final searchList = [
         ...(c['governorates'] as List<String>? ?? []),
         ...(c['areas'] as List<String>? ?? [])
@@ -195,13 +219,13 @@ class ElectricityController extends GetxController {
       await saveCompany(company);
     }
   }
-  
+
   // 💡 دالة جديدة: لحفظ الشركة الحالية بناءً على طلب المستخدم (زر الحفظ)
   Future<void> saveCurrentCompany() async {
     final currentCompany = companyName.value;
 
     // التحقق من وجود شركة صالحة للحفظ
-    if (currentCompany == null || 
+    if (currentCompany == null ||
         currentCompany.contains('لم يتم العثور') ||
         currentCompany.contains('No company found')) {
       _showGetSnackBar(isArabicInput.value
@@ -209,9 +233,9 @@ class ElectricityController extends GetxController {
           : 'Cannot save an undefined company.');
       return;
     }
-    
+
     // استدعاء دالة الحفظ الموحدة (التي تدير Hive و Supabase)
-    await saveCompany(currentCompany); 
+    await saveCompany(currentCompany);
   }
 
   Future<void> getLocationAndFindCompany() async {
@@ -237,7 +261,7 @@ class ElectricityController extends GetxController {
     }
 
     loading.value = true; // تحديث قيمة Rx
-    
+
     const LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.medium,
       distanceFilter: 100,
@@ -278,7 +302,7 @@ class ElectricityController extends GetxController {
           input.value = placeName;
         }
 
-        isArabicInput.value = _detectArabic(input.value); 
+        isArabicInput.value = _detectArabic(input.value);
 
         await findCompany();
       } else {
