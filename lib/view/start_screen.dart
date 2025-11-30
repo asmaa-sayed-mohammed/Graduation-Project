@@ -103,81 +103,121 @@ class StartScreen extends StatelessWidget {
               const SizedBox(height: 25),
 
               // Bar Chart
-              Container(
-                height: screenHeight * 0.55,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Obx(() => SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SizedBox(
-                      width: controller.price12Months.length * 60,
-                      child: BarChart(
-                        BarChartData(
-                          maxY: controller.maxPriceValue() + 50,
-                          minY: 0,
-                          alignment: BarChartAlignment.spaceAround,
-                          borderData: FlBorderData(show: false),
-                          gridData: FlGridData(
-                            show: true,
-                            drawHorizontalLine: true,
-                            horizontalInterval: controller.priceStep(),
-                          ),
-                          titlesData: FlTitlesData(
-                            show: true,
-                            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 45,
-                                interval: controller.priceStep(),
+             // =================== BAR CHART ===================
+              Padding(
+                padding: const EdgeInsets.all(15),
+                child: Obx(
+                  () => Container(
+                    height: screenHeight * 0.55,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Stack(
+                      children: [
+                        // ===== الشبكة الأفقية =====
+                        Column(
+                          children: List.generate(6, (index) {
+                            return Expanded(
+                              child: Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.grey.shade300,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 30,
-                                getTitlesWidget: (value, meta) {
-                                  int i = value.toInt();
-                                  if (i < 0 || i >= controller.months.length) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: Text(
-                                      controller.months[i],
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
+                            );
+                          }),
+                        ),
+                        // ===== البارات + الشبكة الرأسية + الخط الرأسي الأول =====
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              // الخط الرأسي الأول قبل أول بار
+                              Container(
+                                width: 1.5,
+                                height: double.infinity,
+                                color: Colors.grey.shade300,
+                              ),
+                              // البارات والشبكة الرأسية لكل شهر
+                              ...List.generate(controller.price12Months.length, (
+                                i,
+                              ) {
+                                double barHeight = controller.price12Months[i];
+                                return Stack(
+                                  children: [
+                                    // الخط الرأسي لكل شهر
+                                    Container(
+                                      width: 50, // المسافة بين البارات
+                                      height: double.infinity,
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          right: BorderSide(
+                                            color: Colors.grey.shade300,
+                                            width: 1,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          barGroups: List.generate(
-                            controller.price12Months.length,
-                                (i) => BarChartGroupData(
-                              x: i,
-                              barRods: [
-                                BarChartRodData(
-                                  toY: controller.price12Months[i],
-                                  width: 30,
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: AppColor.primary_color,
-                                ),
-                              ],
-                            ),
+                                    // البار والرقم والشهر
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "${barHeight.toStringAsFixed(0)} EGP",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColor.black,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Container(
+                                          width: 35,
+                                          height:
+                                              (barHeight /
+                                                  controller.maxPriceValue()) *
+                                              (screenHeight * 0.45),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                AppColor.primary_color
+                                                    .withOpacity(0.7),
+                                                AppColor.primary_color,
+                                              ],
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          controller.months[i],
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColor.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              }),
+                            ],
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  )),
+                  ),
                 ),
               ),
-
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // History Button
               SizedBox(
