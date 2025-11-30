@@ -180,7 +180,7 @@ class ReadingController extends GetxController {
           (150 * 1.55) +
           (300 * 1.95) +
           (350 * 2.10) +
-          ((kwh - 1000) * 2.23);
+          ((kwh - 1000) * 2.23) + 20;
     }
 
     return double.parse(cost.toStringAsFixed(2));
