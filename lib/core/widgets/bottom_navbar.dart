@@ -16,24 +16,25 @@ class BottomNavBar extends StatelessWidget {
       onTap: (index) => controller.changePage(index),
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home),
+          icon: Icon(Icons.home_outlined,),
+          activeIcon: Icon(Icons.home,),
           label: 'الرئيسية',
+
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.camera_alt_outlined),
+          icon: Icon(Icons.camera_alt_outlined,),
           activeIcon: Icon(Icons.camera_alt),
           label: 'قراءة',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.attach_money_outlined),
+          icon: Icon(Icons.attach_money_outlined,),
           activeIcon: Icon(Icons.attach_money),
           label: 'الميزانية',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.devices_outlined),
-          activeIcon: Icon(Icons.devices),
-          label: 'الأجهزة',
+          icon: Icon(Icons.location_on_outlined,),
+          activeIcon: Icon(Icons.location_on),
+          label: 'موقع الشركة',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.lightbulb_outline),
@@ -43,7 +44,7 @@ class BottomNavBar extends StatelessWidget {
       ],
       backgroundColor: AppColor.white,
       selectedItemColor: AppColor.primary_color,
-      unselectedItemColor: AppColor.gray,
+      unselectedItemColor: AppColor.black,
       type: BottomNavigationBarType.fixed,
       showSelectedLabels: true,
       showUnselectedLabels: true,

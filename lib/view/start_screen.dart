@@ -5,6 +5,7 @@ import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/view/history_screen.dart';
 import 'package:graduation_project/view/profile_screen.dart';
 import '../controllers/home_controller.dart';
+import '../core/widgets/page_header.dart';
 
 class StartScreen extends StatelessWidget {
   final HomeController controller = Get.put(HomeController());
@@ -17,8 +18,7 @@ class StartScreen extends StatelessWidget {
     if (Get.arguments != null &&
         Get.arguments['usage'] != null &&
         Get.arguments['price'] != null &&
-        controller.didReceiveData.isFalse) 
-    {
+        controller.didReceiveData.isFalse) {
       final usage = Get.arguments['usage'];
       final price = Get.arguments['price'];
 
@@ -35,73 +35,61 @@ class StartScreen extends StatelessWidget {
           child: Column(
             children: [
               // =========================== HEADER ===========================
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(22),
-                decoration: BoxDecoration(color: AppColor.primary_color),
+              PageHeader(
+                title: "استهلاك الكهرباء",
+                leading: IconButton(
+                  icon: Icon(Icons.account_circle_sharp, size: 32, color: AppColor.black),
+                  onPressed: () {
+                    Get.to(() => ProfileScreen());
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              // =========================== Usage Box =========================
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(onPressed: (){Get.to(()=>ProfileScreen());}, icon: Icon(Icons.menu, size: 32, color: AppColor.black),),
-                        Icon(Icons.notifications_none, size: 32, color: AppColor.black),
-                      ],
-                    ),
-
-                    SizedBox(height: 22),
-
-                    Text(
-                      "Electricity usage",
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w900,
-                        color: AppColor.black,
-                      ),
-                    ),
-                    SizedBox(height: 18),
-
-                    // usage box
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 25),
+                      padding: const EdgeInsets.symmetric(vertical: 25),
                       decoration: BoxDecoration(
                         color: AppColor.black,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Obx(
-                        () => Center(
+                            () => Center(
                           child: Text(
                             "${controller.currentUsage.value} KWh",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 42,
                               fontWeight: FontWeight.bold,
-                              color: AppColor.white,
+                              color: Colors.white,
                             ),
                           ),
                         ),
                       ),
                     ),
+                    const SizedBox(height: 14),
 
-                    SizedBox(height: 14),
-
-                    // price box
+                    // =========================== Price Box =========================
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 18),
+                      padding: const EdgeInsets.symmetric(vertical: 18),
                       decoration: BoxDecoration(
                         color: AppColor.primary_color,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Obx(
-                        () => Text(
+                            () => Text(
                           "${controller.currentPrice.value} EGP",
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: AppColor.black,
+                            color: Colors.black,
                           ),
                         ),
                       ),
@@ -110,14 +98,14 @@ class StartScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Monthly cost",
+                    "التكلفة الشهرية",
                     style: TextStyle(
                       color: AppColor.black,
                       fontSize: 22,
@@ -127,7 +115,7 @@ class StartScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
               // ======================= BAR CHART =======================
               Container(
@@ -151,10 +139,10 @@ class StartScreen extends StatelessWidget {
                           ),
                           titlesData: FlTitlesData(
                             show: true,
-                            topTitles: AxisTitles(
-                                sideTitles: SideTitles(showTitles: false)),
-                            rightTitles: AxisTitles(
-                                sideTitles: SideTitles(showTitles: false)),
+                            topTitles:
+                            AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            rightTitles:
+                            AxisTitles(sideTitles: SideTitles(showTitles: false)),
                             leftTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
@@ -169,14 +157,14 @@ class StartScreen extends StatelessWidget {
                                 getTitlesWidget: (value, meta) {
                                   int i = value.toInt();
                                   if (i < 0 || i >= controller.months.length)
-                                    return SizedBox.shrink();
+                                    return const SizedBox.shrink();
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 8.0),
                                     child: Text(
                                       controller.months[i],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: AppColor.black,
+                                        color: Colors.black,
                                       ),
                                     ),
                                   );
@@ -186,7 +174,7 @@ class StartScreen extends StatelessWidget {
                           ),
                           barGroups: List.generate(
                             controller.price12Months.length,
-                            (i) => BarChartGroupData(
+                                (i) => BarChartGroupData(
                               x: i,
                               barRods: [
                                 BarChartRodData(
@@ -205,14 +193,14 @@ class StartScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               SizedBox(
                 width: 260,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColor.primary_color,
-                    padding: EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -221,7 +209,7 @@ class StartScreen extends StatelessWidget {
                     Get.to(HistoryScreen());
                   },
                   child: Text(
-                    "See your readings",
+                    "شاهد قراءاتك السابقة",
                     style: TextStyle(
                       color: AppColor.black,
                       fontWeight: FontWeight.bold,
@@ -231,7 +219,7 @@ class StartScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
             ],
           ),
         ),

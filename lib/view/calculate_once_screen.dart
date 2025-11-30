@@ -7,7 +7,7 @@ import 'package:graduation_project/core/style/colors.dart';
 import '../../core/widgets/page_header.dart';
 
 // 💡 تم تحديث الاستيراد لصفحة الكهرباء الجديدة
-import 'package:graduation_project/view/electricity_page.dart';
+import 'package:graduation_project/view/company_screen.dart';
 
 class CalculateOnceScreen extends StatelessWidget {
   final controller = Get.put(ReadingController());
@@ -187,7 +187,7 @@ class CalculateOnceScreen extends StatelessWidget {
                 ),
                 // الوظيفة: الانتقال إلى شاشة الكهرباء
                onPressed: () {
-                 Get.to(() => ElectricityPage());}
+                 Get.to(() => CompanyScreen());}
                  ,
                 child: Row(
                   mainAxisSize: MainAxisSize.min, // لجعل الزر يأخذ حجم محتواه فقط

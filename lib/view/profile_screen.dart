@@ -15,12 +15,10 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             children: [
               const PageHeader(title: "الملف الشخصي"),
               const SizedBox(height: 40),
-
               Obx(() {
                 final profile = controller.profile.value;
 
@@ -82,6 +80,7 @@ class ProfileScreen extends StatelessWidget {
         ],
       ),
       child: Row(
+        textDirection: TextDirection.rtl,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(

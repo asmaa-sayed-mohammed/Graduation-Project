@@ -70,12 +70,12 @@ class ElectricityController extends GetxController {
       // 1. محاولة الجلب من Supabase
       try {
         final response = await _supabase
-            .from('user_profiles')
-            .select('company_name')
+            .from('profile')
+            .select('company_Name')
             .eq('id', user.id)
             .single();
 
-        preferredCompany.value = response['company_name'] as String?; 
+        preferredCompany.value = response['company_Name'] as String?;
         return; 
       } catch (error) {
         debugPrint('Supabase profile not found or error, falling back to local storage: $error');
@@ -98,11 +98,11 @@ class ElectricityController extends GetxController {
       // 2. الحفظ في Supabase (فقط إذا كان المستخدم مسجلاً دخوله)
       final Map<String, dynamic> dataToSave = {
         'id': user.id,
-        'company_name': companyName,
+        'company_Name': companyName,
       };
 
       try {
-        await _supabase.from('user_profiles').upsert(dataToSave);
+        await _supabase.from('profile').upsert(dataToSave);
         _showGetSnackBar('تم حفظ "${companyName}" في السحابة والتخزين المحلي بنجاح.'); 
       } catch (e) {
         debugPrint('Error saving to Supabase: $e');

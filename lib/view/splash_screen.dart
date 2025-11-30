@@ -59,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen>
       final bool isLoggedIn = _authService.isLoggedIn();
 
       if (isLoggedIn) {
-        Get.off(() => StartScreen());
+        Get.off(() => MainScreen());
       } else if (isOnboardingComplete) {
         Get.off(() => LoginPage());
       } else {

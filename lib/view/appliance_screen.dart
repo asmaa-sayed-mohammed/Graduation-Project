@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/controllers/appliances_controller.dart';
-import 'package:graduation_project/controllers/bottom_navbar_controller.dart';
-import '../core/style/colors.dart';
-import '../core/widgets/bottom_navbar.dart';
+import 'package:graduation_project/core/style/colors.dart';
+import '../core/widgets/page_header.dart';
 
 class AppliancesScreen extends StatelessWidget {
   final AppliancesController controller = Get.find<AppliancesController>();
@@ -16,13 +15,26 @@ class AppliancesScreen extends StatelessWidget {
       backgroundColor: AppColor.white2,
       body: Column(
         children: [
-          _buildHeader(),
+          PageHeader(
+            title: 'اختر أجهزتك',
+            leading: IconButton(
+              onPressed: () {
+                Get.back();
+              },
+              icon:  Icon(
+                Icons.arrow_back,
+                color: AppColor.black,
+                size: 28,
+              ),
+            ),
+          ),
           Expanded(child: _buildBody()),
         ],
       ),
       floatingActionButton: _buildFloatingActionButton(),
     );
   }
+
   Widget _buildAppliancesRow() {
     return Obx(() {
       return Wrap(
@@ -86,7 +98,6 @@ class AppliancesScreen extends StatelessWidget {
     });
   }
 
-// دالة لتحديد أيقونة الجهاز حسب اسمه
   IconData _getApplianceIcon(String name) {
     final lowerName = name.toLowerCase();
     if (lowerName.contains('ثلاجة')) return Icons.kitchen;
@@ -104,34 +115,6 @@ class AppliancesScreen extends StatelessWidget {
     if (lowerName.contains('مضخة')) return Icons.water;
     if (lowerName.contains('صحون')) return Icons.dining;
     return Icons.devices_other;
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColor.primary_color,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(120),
-          bottomRight: Radius.circular(120),
-        ),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 15),
-          Text(
-            'اختر أجهزتك',
-            style: TextStyle(
-              color: AppColor.black,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Tajawal',
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildBody() {
@@ -176,7 +159,6 @@ class AppliancesScreen extends StatelessWidget {
     });
   }
 
-  // الفئات صغيرة جداً على طول النص
   Widget _buildCategoriesRow() {
     return Obx(() {
       return Wrap(
@@ -224,7 +206,7 @@ class AppliancesScreen extends StatelessWidget {
           controller.isSaving.value
               ? 'جاري الحفظ...'
               : 'حفظ ${controller.selectedAppliancesCount} جهاز',
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'Tajawal',
             fontWeight: FontWeight.w600,
           ),

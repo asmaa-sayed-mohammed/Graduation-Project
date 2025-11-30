@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/controllers/budget_controller.dart';
+import 'package:graduation_project/core/widgets/page_header.dart';
 
 import '../controllers/bottom_navbar_controller.dart';
 import '../core/widgets/bottom_navbar.dart';
@@ -20,31 +21,7 @@ class BudgetScreen extends StatelessWidget {
       body: Column(
         children: [
           // الهيدر
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-            decoration: BoxDecoration(
-              color: AppColor.primary_color,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(120),
-                bottomRight: Radius.circular(120),
-              ),
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 15),
-                Text(
-                  'الميزانية الشهرية',
-                  style: TextStyle(
-                    color: AppColor.black,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
+          const PageHeader(title: "الميزانية الشهرية"),
           // محتوى الشاشة
           Expanded(
             child: SingleChildScrollView(

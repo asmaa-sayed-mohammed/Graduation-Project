@@ -83,7 +83,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 );
               }
             },
-            child: const Text("إنشاء الحساب"),
+            child: const Text("إنشاء الحساب",style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColor.primary_color,
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
@@ -127,7 +127,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
               await controller.saveProfile();
             },
-            child: const Text("حفظ البيانات"),
+            child: const Text("حفظ البيانات",style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColor.primary_color,
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),

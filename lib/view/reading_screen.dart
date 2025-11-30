@@ -5,7 +5,6 @@ import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/controllers/reading_controller.dart';
 import 'package:graduation_project/view/start_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../controllers/bottom_navbar_controller.dart';
 import '../core/widgets/bottom_navbar.dart';
 import '../core/widgets/page_header.dart';
@@ -20,119 +19,138 @@ class ReadingScreen extends StatefulWidget {
 class _ReadingScreenState extends State<ReadingScreen> {
   final ReadingController controller = Get.put(ReadingController());
 
-
   @override
   void initState() {
     super.initState();
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null) {
-      controller.loadLastReading(user.id); // تحميل آخر قراءة تلقائيًا
+      controller.loadLastReading(user.id);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // ===================== HEADER =====================
-              const PageHeader(title: "إدخال القراءة"),
-              const SizedBox(height: 30),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ===== PageHeader بدون أي padding =====
+                const PageHeader(title: "إدخال القراءة"),
 
-              // ===================== INPUT OLD READING =====================
-              _buildReadingInput(
-                label: 'القراءة القديمة',
-                controller: controller.oldReadingController,
-                onMicPressed: () =>
-                    controller.recognizeVoice(controller.oldReadingController),
-                onCameraPressed: () => controller.pickImage(
-                  ImageSource.camera,
-                  controller.oldReadingController,
-                ),
-                onGalleryPressed: () => controller.pickImage(
-                  ImageSource.gallery,
-                  controller.oldReadingController,
-                ),
-              ),
+                const SizedBox(height: 25),
 
-              // ===================== INPUT NEW READING =====================
-              _buildReadingInput(
-                label: 'القراءة الجديدة',
-                controller: controller.newReadingController,
-                onMicPressed: () =>
-                    controller.recognizeVoice(controller.newReadingController),
-                onCameraPressed: () => controller.pickImage(
-                  ImageSource.camera,
-                  controller.newReadingController,
-                ),
-                onGalleryPressed: () => controller.pickImage(
-                  ImageSource.gallery,
-                  controller.newReadingController,
-                ),
-              ),
+                // ===== باقي المحتوى داخل Padding من الجانبين =====
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Column(
+                    children: [
+                      _buildReadingInput(
+                        label: "القراءة القديمة",
+                        controller: controller.oldReadingController,
+                        onMicPressed: () => controller
+                            .recognizeVoice(controller.oldReadingController),
+                        onCameraPressed: () => controller.pickImage(
+                          ImageSource.camera,
+                          controller.oldReadingController,
+                        ),
+                        onGalleryPressed: () => controller.pickImage(
+                          ImageSource.gallery,
+                          controller.oldReadingController,
+                        ),
+                      ),
 
-              const SizedBox(height: 35),
+                      _buildReadingInput(
+                        label: "القراءة الجديدة",
+                        controller: controller.newReadingController,
+                        onMicPressed: () => controller
+                            .recognizeVoice(controller.newReadingController),
+                        onCameraPressed: () => controller.pickImage(
+                          ImageSource.camera,
+                          controller.newReadingController,
+                        ),
+                        onGalleryPressed: () => controller.pickImage(
+                          ImageSource.gallery,
+                          controller.newReadingController,
+                        ),
+                      ),
 
-              // ===================== BUTTON =====================
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primary_color,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 70,
-                    vertical: 16,
+                      const SizedBox(height: 30),
+
+                      Center(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(35),
+                          onTap: () async {
+                            final result = controller.calculateManualResult();
+                            if (result['error'] == true) {
+                              Get.snackbar(
+                                'خطأ',
+                                result['message'],
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.orangeAccent,
+                                colorText: Colors.white,
+                              );
+                            } else {
+                              final user =
+                                  Supabase.instance.client.auth.currentUser;
+                              if (user != null) {
+                                await controller.saveReadingToSupabase(
+                                    userId: user.id);
+
+                                final usage = result['consumption'];
+                                final price = result['totalPrice'];
+
+                                Get.off(
+                                      () => StartScreen(),
+                                  arguments: {'usage': usage, 'price': price},
+                                );
+                              } else {
+                                Get.snackbar(
+                                  'خطأ',
+                                  'المستخدم غير مسجل الدخول',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.redAccent,
+                                  colorText: Colors.white,
+                                );
+                              }
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 80, vertical: 16),
+                            decoration: BoxDecoration(
+                              color: AppColor.primary_color,
+                              borderRadius: BorderRadius.circular(35),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                )
+                              ],
+                            ),
+                            child: const Text(
+                              "احسب",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 19,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 40),
+                    ],
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  elevation: 4,
                 ),
-                onPressed: () async {
-                  final result = controller.calculateManualResult();
-                  if (result['error'] == true) {
-                    Get.snackbar(
-                      'خطأ',
-                      result['message'],
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.orangeAccent,
-                      colorText: Colors.white,
-                    );
-                  } else {
-                    // استخدام UUID الحقيقي من Supabase Auth
-                    final user = Supabase.instance.client.auth.currentUser;
-                    if (user != null) {
-                      await controller.saveReadingToSupabase(userId: user.id);
-
-                      final usage = result['consumption'];
-                      final price = result['totalPrice'];
-                      Get.off(
-                        () => StartScreen(),
-                        arguments: {'usage': usage, 'price': price},
-                      );
-                    } else {
-                      Get.snackbar(
-                        'خطأ',
-                        'المستخدم غير مسجل الدخول',
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Colors.redAccent,
-                        colorText: Colors.white,
-                      );
-                    }
-                  }
-                },
-                child: const Text(
-                  'احسب',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 19,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -147,24 +165,29 @@ class _ReadingScreenState extends State<ReadingScreen> {
     required VoidCallback onGalleryPressed,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withOpacity(0.07),
                   blurRadius: 10,
-                  offset: const Offset(0, 5),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -172,31 +195,41 @@ class _ReadingScreenState extends State<ReadingScreen> {
               children: [
                 Expanded(
                   child: TextField(
-                    cursorColor: AppColor.black,
+                    textDirection: TextDirection.rtl,
                     controller: controller,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: 'ادخل القراءة',
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16,
+                    cursorColor: AppColor.primary_color,
+                    decoration: InputDecoration(
+                      hintText: "ادخل القراءة",
+                      hintTextDirection: TextDirection.rtl,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
                         vertical: 14,
                       ),
-                      border: InputBorder.none,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
                     ),
-                    style: TextStyle(color: AppColor.black, fontSize: 16),
                   ),
                 ),
-                IconButton(
-                  onPressed: onMicPressed,
-                  icon: const Icon(Icons.mic),
-                ),
-                IconButton(
-                  onPressed: onCameraPressed,
-                  icon: const Icon(Icons.camera_alt),
-                ),
-                IconButton(
-                  onPressed: onGalleryPressed,
-                  icon: const Icon(Icons.upload_file),
+
+                // icons
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.mic, color: Colors.black),
+                      onPressed: onMicPressed,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.camera_alt, color: Colors.black),
+                      onPressed: onCameraPressed,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.upload_rounded, color: Colors.black),
+                      onPressed: onGalleryPressed,
+                    ),
+                  ],
                 ),
               ],
             ),
