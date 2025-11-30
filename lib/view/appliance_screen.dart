@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/controllers/appliances_controller.dart';
-import 'package:graduation_project/models/appliance_category_model.dart';
-import 'package:graduation_project/models/appliance_model.dart';
+import 'package:graduation_project/controllers/bottom_navbar_controller.dart';
 import '../core/style/colors.dart';
+import '../core/widgets/bottom_navbar.dart';
 
 class AppliancesScreen extends StatelessWidget {
   final AppliancesController controller = Get.find<AppliancesController>();

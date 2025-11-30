@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/controllers/budget_controller.dart';
 
+import '../controllers/bottom_navbar_controller.dart';
+import '../core/widgets/bottom_navbar.dart';
+
 class BudgetScreen extends StatelessWidget {
   BudgetScreen({super.key});
 

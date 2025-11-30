@@ -9,6 +9,7 @@ import '../core/style/colors.dart';
 import '../services/auth_service.dart';
 import '../services/profile_services.dart';
 import '../models/profile_model_supabase.dart';
+import 'budget_screen.dart';
 import 'main_screen.dart';
 import '../core/widgets/page_header.dart';
 
@@ -35,7 +36,7 @@ class LoginPage extends StatelessWidget {
     final loggedIn = await _authService.login(email, password);
 
     if (loggedIn) {
-      Get.off((()=> StartScreen()));
+      Get.off((()=> MainScreen()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('فشل تسجيل الدخول')),

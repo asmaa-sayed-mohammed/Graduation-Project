@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:graduation_project/view/main_screen.dart';
 import '../../services/auth_service.dart';
 import '../../services/profile_services.dart';
 import '../../services/profile_hive_services.dart';
@@ -126,7 +127,7 @@ class SignUpController extends GetxController {
         final allProfiles = _hiveService.getProfiles();
         Get.snackbar("التحقق", "عدد البروفايلات في Hive: ${allProfiles.length}", duration: 3.seconds);
 
-        Get.offAllNamed("/home");
+        Get.off(MainScreen());
       }
 
     } catch (e) {
