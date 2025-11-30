@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:graduation_project/view/profile_screen.dart';
-import 'package:graduation_project/view/reading_screen.dart';
-import 'package:graduation_project/view/start_screen.dart';
 import '../../services/auth_service.dart';
 import '../../services/profile_services.dart';
 import '../../services/profile_hive_services.dart';

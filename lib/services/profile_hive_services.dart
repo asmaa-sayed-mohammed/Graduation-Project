@@ -1,5 +1,4 @@
 import 'package:graduation_project/models/profile_model_hive.dart';
-import 'package:graduation_project/models/profile_model_supabase.dart';
 import 'package:hive/hive.dart';
 
 class ProfileHiveService {
