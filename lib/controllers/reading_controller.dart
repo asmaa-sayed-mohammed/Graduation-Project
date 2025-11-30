@@ -56,7 +56,7 @@ class ReadingController extends GetxController {
 
     textRecognizer = TextRecognizer(
       script: TextRecognitionScript.values.firstWhere(
-        (e) => e.name == 'arabic',
+            (e) => e.name == 'arabic',
         orElse: () => TextRecognitionScript.latin,
       ),
     );
@@ -130,8 +130,7 @@ class ReadingController extends GetxController {
     final oldVal = _parseReading(oldReadingController.text);
     final newVal = _parseReading(newReadingController.text);
 
-    if (oldReadingController.text.trim().isEmpty ||
-        newReadingController.text.trim().isEmpty) {
+    if (oldReadingController.text.trim().isEmpty || newReadingController.text.trim().isEmpty) {
       return 'الرجاء إدخال القراءة القديمة والقراءة الجديدة';
     }
     if (newVal <= oldVal) {
@@ -148,52 +147,66 @@ class ReadingController extends GetxController {
   }
 
   double calculateCostFromKwh(double kwh) {
+    if (kwh == 0) return 9; // رسوم قراءة صفر
+    double remaining = kwh;
     double cost = 0.0;
-    if (kwh <= 50) {
-      cost = kwh * 0.68;
-    } else if (kwh <= 100) {
-      cost = (50 * 0.68) + ((kwh - 50) * 0.78);
-    } else if (kwh <= 200) {
-      cost = (50 * 0.68) + (50 * 0.78) + ((kwh - 100) * 0.95);
-    } else if (kwh <= 350) {
-      cost = (50 * 0.68) + (50 * 0.78) + (100 * 0.95) + ((kwh - 200) * 1.55);
-    } else if (kwh <= 650) {
-      cost =
-          (50 * 0.68) +
-          (50 * 0.78) +
-          (100 * 0.95) +
-          (150 * 1.55) +
-          ((kwh - 350) * 1.95);
-    } else if (kwh <= 1000) {
-      cost =
-          (50 * 0.68) +
-          (50 * 0.78) +
-          (100 * 0.95) +
-          (150 * 1.55) +
-          (300 * 1.95) +
-          ((kwh - 650) * 2.10);
-    } else {
-      cost =
-          (50 * 0.68) +
-          (50 * 0.78) +
-          (100 * 0.95) +
-          (150 * 1.55) +
-          (300 * 1.95) +
-          (350 * 2.10) +
-          ((kwh - 1000) * 2.23) + 20;
+    double accumulatedFees = 0.0;
+
+    // الشريحة الأولى: 0–50
+    if (remaining > 0) {
+      double tier = remaining > 50 ? 50 : remaining;
+      accumulatedFees += 1;
+      cost += tier * 0.68 + accumulatedFees;
+      remaining -= tier;
+    }
+
+    // الشريحة الثانية: 51–100
+    if (remaining > 0) {
+      double tier = remaining > 50 ? 50 : remaining;
+      accumulatedFees += 2;
+      cost += tier * 0.78 + accumulatedFees;
+      remaining -= tier;
+    }
+
+    // الشريحة الثالثة: 101–200
+    if (remaining > 0) {
+      double tier = remaining > 100 ? 100 : remaining;
+      accumulatedFees += 6;
+      cost += tier * 0.95 + accumulatedFees;
+      remaining -= tier;
+    }
+
+    // الشريحة الرابعة: 201–350
+    if (remaining > 0) {
+      double tier = remaining > 150 ? 150 : remaining;
+      accumulatedFees += 11;
+      cost += tier * 1.55 + accumulatedFees;
+      remaining -= tier;
+    }
+
+    // الشريحة الخامسة: 351–650
+    if (remaining > 0) {
+      double tier = remaining > 300 ? 300 : remaining;
+      accumulatedFees += 15;
+      cost += tier * 1.95 + accumulatedFees;
+      remaining -= tier;
+    }
+
+    // الشريحة السادسة: 651–1000
+    if (remaining > 0) {
+      double tier = remaining > 350 ? 350 : remaining;
+      accumulatedFees += 25;
+      cost += tier * 2.10 + accumulatedFees;
+      remaining -= tier;
+    }
+
+    // الشريحة السابعة: أكثر من 1000
+    if (remaining > 0) {
+      accumulatedFees += 40;
+      cost += remaining * 2.23 + accumulatedFees;
     }
 
     return double.parse(cost.toStringAsFixed(2));
-  }
-
-  Map<String, dynamic> _determineTier(double kwh) {
-    if (kwh <= 50) return {'tier': 1, 'pricePerKwh': 0.68};
-    if (kwh <= 100) return {'tier': 2, 'pricePerKwh': 0.78};
-    if (kwh <= 200) return {'tier': 3, 'pricePerKwh': 0.95};
-    if (kwh <= 350) return {'tier': 4, 'pricePerKwh': 1.55};
-    if (kwh <= 650) return {'tier': 5, 'pricePerKwh': 1.95};
-    if (kwh <= 1000) return {'tier': 6, 'pricePerKwh': 2.10};
-    return {'tier': 7, 'pricePerKwh': 2.23};
   }
 
   Map<String, dynamic> calculateManualResult() {
@@ -204,26 +217,14 @@ class ReadingController extends GetxController {
     final newVal = _parseReading(newReadingController.text);
     final consumption = double.parse((newVal - oldVal).toStringAsFixed(3));
     final totalPrice = calculateCostFromKwh(consumption);
-    final tierInfo = _determineTier(consumption);
 
     return {
       'error': false,
       'oldReading': oldVal,
       'newReading': newVal,
       'consumption': consumption,
-      'pricePerKwh': tierInfo['pricePerKwh'],
-      'tier': tierInfo['tier'],
       'totalPrice': totalPrice,
     };
-  }
-
-  RxString consumption = ''.obs;
-
-  RxString electricityUsage(){
-    final oldVal = _parseReading(oldReadingController.text);
-    final newVal = _parseReading(newReadingController.text);
-    consumption.value = double.parse((newVal - oldVal).toStringAsFixed(3)).toString();
-    return consumption;
   }
 
   void clearManualInputs() {
@@ -234,9 +235,9 @@ class ReadingController extends GetxController {
   // ------------------ OCR / Image ------------------
 
   Future<void> pickImage(
-    ImageSource source,
-    TextEditingController targetController,
-  ) async {
+      ImageSource source,
+      TextEditingController targetController,
+      ) async {
     try {
       final pickedFile = await picker.pickImage(
         source: source,
@@ -259,9 +260,9 @@ class ReadingController extends GetxController {
   }
 
   Future<void> recognizeText(
-    File image,
-    TextEditingController targetController,
-  ) async {
+      File image,
+      TextEditingController targetController,
+      ) async {
     isLoading.value = true;
     recognizedText.value = '';
 
@@ -300,7 +301,7 @@ class ReadingController extends GetxController {
 
             double confidence = 0.0;
             confidence +=
-                (blockX - (imageWidth * 0.5)).abs() < (imageWidth * 0.3)
+            (blockX - (imageWidth * 0.5)).abs() < (imageWidth * 0.3)
                 ? 0.2
                 : 0;
             confidence += blockY < imageHeight * 0.5 ? 0.2 : 0.1;
@@ -348,9 +349,9 @@ class ReadingController extends GetxController {
   }
 
   List<MeterReading> _mergeDigitBlocks(
-    List<MeterReading> blocks,
-    double imageWidth,
-  ) {
+      List<MeterReading> blocks,
+      double imageWidth,
+      ) {
     if (blocks.isEmpty) return [];
     List<MeterReading> merged = [];
     List<MeterReading> current = [blocks.first];
@@ -421,9 +422,9 @@ class ReadingController extends GetxController {
   // ------------------ Voice ------------------
 
   Future<void> recognizeVoice(
-    TextEditingController targetController, {
-    bool append = false,
-  }) async {
+      TextEditingController targetController, {
+        bool append = false,
+      }) async {
     bool hasInternet = await connectivityService.connected();
     if (!hasInternet) {
       Get.snackbar(
@@ -523,9 +524,9 @@ class ReadingController extends GetxController {
     else if (recognizedText.value.isNotEmpty)
       input = recognizedText.value
           .replaceAll(
-            RegExp(r'\s*(kWh|kW|كيلو وات ساعة|وات ساعة|ساعة|kwh|kw|وات)'),
-            '',
-          )
+        RegExp(r'\s*(kWh|kW|كيلو وات ساعة|وات ساعة|ساعة|kwh|kw|وات)'),
+        '',
+      )
           .trim();
 
     if (input.isNotEmpty) {
