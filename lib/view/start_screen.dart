@@ -14,7 +14,8 @@ class StartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -26,7 +27,11 @@ class StartScreen extends StatelessWidget {
               PageHeader(
                 title: "استهلاك الكهرباء",
                 leading: IconButton(
-                  icon: Icon(Icons.account_circle_sharp, size: 32, color: AppColor.black),
+                  icon: Icon(
+                    Icons.account_circle_sharp,
+                    size: 32,
+                    color: AppColor.black,
+                  ),
                   onPressed: () {
                     Get.to(() => ProfileScreen());
                   },
@@ -47,16 +52,18 @@ class StartScreen extends StatelessWidget {
                         color: AppColor.black,
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Obx(() => Center(
-                        child: Text(
-                          "${controller.latestUsageDifference.value} KWh",
-                          style: const TextStyle(
-                            fontSize: 42,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                      child: Obx(
+                        () => Center(
+                          child: Text(
+                            "${controller.latestUsageDifference.value} KWh",
+                            style: const TextStyle(
+                              fontSize: 42,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      )),
+                      ),
                     ),
                     const SizedBox(height: 14),
 
@@ -68,15 +75,17 @@ class StartScreen extends StatelessWidget {
                         color: AppColor.primary_color,
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Obx(() => Text(
-                        "${controller.currentPrice.value} EGP",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black,
+                      child: Obx(
+                        () => Text(
+                          "${controller.currentPrice.value} EGP",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                          ),
                         ),
-                      )),
+                      ),
                     ),
                   ],
                 ),
@@ -103,13 +112,15 @@ class StartScreen extends StatelessWidget {
               const SizedBox(height: 25),
 
               // Bar Chart
-             // =================== BAR CHART ===================
+              // =================== BAR CHART ===================
               Padding(
-                padding: const EdgeInsets.all(15),
+                padding: EdgeInsets.all(screenWidth * 0.04), // بدل 15
                 child: Obx(
                   () => Container(
                     height: screenHeight * 0.55,
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.02, // بدل 16
+                    ),
                     child: Stack(
                       children: [
                         // ===== الشبكة الأفقية =====
@@ -122,7 +133,7 @@ class StartScreen extends StatelessWidget {
                                   border: Border(
                                     bottom: BorderSide(
                                       color: Colors.grey.shade300,
-                                      width: 1,
+                                      width: screenWidth * 0.002, // بدل 1
                                     ),
                                   ),
                                 ),
@@ -130,6 +141,7 @@ class StartScreen extends StatelessWidget {
                             );
                           }),
                         ),
+
                         // ===== البارات + الشبكة الرأسية + الخط الرأسي الأول =====
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
@@ -137,45 +149,53 @@ class StartScreen extends StatelessWidget {
                             children: [
                               // الخط الرأسي الأول قبل أول بار
                               Container(
-                                width: 1.5,
+                                width: screenWidth * 0.003, // بدل 1.5
                                 height: double.infinity,
                                 color: Colors.grey.shade300,
                               ),
+
                               // البارات والشبكة الرأسية لكل شهر
                               ...List.generate(controller.price12Months.length, (
                                 i,
                               ) {
                                 double barHeight = controller.price12Months[i];
+
                                 return Stack(
                                   children: [
                                     // الخط الرأسي لكل شهر
                                     Container(
-                                      width: 50, // المسافة بين البارات
+                                      width: screenWidth * 0.12, // بدل 50
                                       height: double.infinity,
                                       decoration: BoxDecoration(
                                         border: Border(
                                           right: BorderSide(
                                             color: Colors.grey.shade300,
-                                            width: 1,
+                                            width: screenWidth * 0.002,
                                           ),
                                         ),
                                       ),
                                     ),
+
                                     // البار والرقم والشهر
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
+                                        // السعر فوق البار
                                         Text(
                                           "${barHeight.toStringAsFixed(0)} EGP",
                                           style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize:
+                                                screenWidth * 0.03, // بدل 12
                                             fontWeight: FontWeight.bold,
                                             color: AppColor.black,
                                           ),
                                         ),
-                                        SizedBox(height: 4),
+
+                                        SizedBox(height: screenHeight * 0.005),
+
+                                        // البار نفسه
                                         Container(
-                                          width: 35,
+                                          width: screenWidth * 0.08, // بدل 35
                                           height:
                                               (barHeight /
                                                   controller.maxPriceValue()) *
@@ -195,11 +215,15 @@ class StartScreen extends StatelessWidget {
                                             ),
                                           ),
                                         ),
-                                        SizedBox(height: 8),
+
+                                        SizedBox(height: screenHeight * 0.01),
+
+                                        // اسم الشهر
                                         Text(
                                           controller.months[i],
                                           style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize:
+                                                screenWidth * 0.03, // بدل 12
                                             fontWeight: FontWeight.bold,
                                             color: AppColor.black,
                                           ),
