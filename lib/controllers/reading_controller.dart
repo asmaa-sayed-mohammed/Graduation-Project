@@ -56,7 +56,7 @@ class ReadingController extends GetxController {
 
     textRecognizer = TextRecognizer(
       script: TextRecognitionScript.values.firstWhere(
-            (e) => e.name == 'arabic',
+        (e) => e.name == 'arabic',
         orElse: () => TextRecognitionScript.latin,
       ),
     );
@@ -130,7 +130,8 @@ class ReadingController extends GetxController {
     final oldVal = _parseReading(oldReadingController.text);
     final newVal = _parseReading(newReadingController.text);
 
-    if (oldReadingController.text.trim().isEmpty || newReadingController.text.trim().isEmpty) {
+    if (oldReadingController.text.trim().isEmpty ||
+        newReadingController.text.trim().isEmpty) {
       return 'الرجاء إدخال القراءة القديمة والقراءة الجديدة';
     }
     if (newVal <= oldVal) {
@@ -209,6 +210,17 @@ class ReadingController extends GetxController {
     return double.parse(cost.toStringAsFixed(2));
   }
 
+  // دالة لتحديد الشريحة بناءً على الاستهلاك
+  String _determineTier(double consumption) {
+    if (consumption <= 50) return 'الأولى';
+    if (consumption <= 100) return 'الثانية';
+    if (consumption <= 200) return 'الثالثة';
+    if (consumption <= 350) return 'الرابعة';
+    if (consumption <= 650) return 'الخامسة';
+    if (consumption <= 1000) return 'السادسة';
+    return 'السابعة';
+  }
+
   Map<String, dynamic> calculateManualResult() {
     final error = validateManualInputs();
     if (error != null) return {'error': true, 'message': error};
@@ -217,6 +229,7 @@ class ReadingController extends GetxController {
     final newVal = _parseReading(newReadingController.text);
     final consumption = double.parse((newVal - oldVal).toStringAsFixed(3));
     final totalPrice = calculateCostFromKwh(consumption);
+    final tier = _determineTier(consumption);
 
     return {
       'error': false,
@@ -224,6 +237,7 @@ class ReadingController extends GetxController {
       'newReading': newVal,
       'consumption': consumption,
       'totalPrice': totalPrice,
+      'tier': tier, // الآن الشريحة موجودة
     };
   }
 
@@ -235,9 +249,9 @@ class ReadingController extends GetxController {
   // ------------------ OCR / Image ------------------
 
   Future<void> pickImage(
-      ImageSource source,
-      TextEditingController targetController,
-      ) async {
+    ImageSource source,
+    TextEditingController targetController,
+  ) async {
     try {
       final pickedFile = await picker.pickImage(
         source: source,
@@ -260,9 +274,9 @@ class ReadingController extends GetxController {
   }
 
   Future<void> recognizeText(
-      File image,
-      TextEditingController targetController,
-      ) async {
+    File image,
+    TextEditingController targetController,
+  ) async {
     isLoading.value = true;
     recognizedText.value = '';
 
@@ -301,7 +315,7 @@ class ReadingController extends GetxController {
 
             double confidence = 0.0;
             confidence +=
-            (blockX - (imageWidth * 0.5)).abs() < (imageWidth * 0.3)
+                (blockX - (imageWidth * 0.5)).abs() < (imageWidth * 0.3)
                 ? 0.2
                 : 0;
             confidence += blockY < imageHeight * 0.5 ? 0.2 : 0.1;
@@ -349,9 +363,9 @@ class ReadingController extends GetxController {
   }
 
   List<MeterReading> _mergeDigitBlocks(
-      List<MeterReading> blocks,
-      double imageWidth,
-      ) {
+    List<MeterReading> blocks,
+    double imageWidth,
+  ) {
     if (blocks.isEmpty) return [];
     List<MeterReading> merged = [];
     List<MeterReading> current = [blocks.first];
@@ -422,9 +436,9 @@ class ReadingController extends GetxController {
   // ------------------ Voice ------------------
 
   Future<void> recognizeVoice(
-      TextEditingController targetController, {
-        bool append = false,
-      }) async {
+    TextEditingController targetController, {
+    bool append = false,
+  }) async {
     bool hasInternet = await connectivityService.connected();
     if (!hasInternet) {
       Get.snackbar(
@@ -524,9 +538,9 @@ class ReadingController extends GetxController {
     else if (recognizedText.value.isNotEmpty)
       input = recognizedText.value
           .replaceAll(
-        RegExp(r'\s*(kWh|kW|كيلو وات ساعة|وات ساعة|ساعة|kwh|kw|وات)'),
-        '',
-      )
+            RegExp(r'\s*(kWh|kW|كيلو وات ساعة|وات ساعة|ساعة|kwh|kw|وات)'),
+            '',
+          )
           .trim();
 
     if (input.isNotEmpty) {

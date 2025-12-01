@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:graduation_project/controllers/home_controller.dart';
+import 'package:graduation_project/controllers/start_controller.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/view/history_screen.dart';
 import 'package:graduation_project/view/profile_screen.dart';

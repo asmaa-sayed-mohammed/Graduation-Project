@@ -18,14 +18,13 @@ class CalculateOnceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
-      
+
       // ⚠️ تم حذف الـ floatingActionButton لأنه تم نقله إلى محتوى الصفحة
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       // floatingActionButton: Padding(
       //   padding: const EdgeInsets.only(bottom: 10),
       //   // ... محتوى الزر القديم
       // ),
-
       body: SafeArea(
         top: true,
         bottom: false,
@@ -54,6 +53,7 @@ class CalculateOnceScreen extends StatelessWidget {
                       child: TextField(
                         cursorColor: AppColor.black,
                         controller: controller.oldReadingController,
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           hintText: 'ادخل القراءة القديمة',
                           border: InputBorder.none,
@@ -97,6 +97,7 @@ class CalculateOnceScreen extends StatelessWidget {
                       child: TextField(
                         cursorColor: AppColor.black,
                         controller: controller.newReadingController,
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           hintText: 'ادخل القراءة الجديدة',
                           border: InputBorder.none,
@@ -170,9 +171,8 @@ class CalculateOnceScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              
-              const SizedBox(height: 20), // مسافة بين زر "احسب" وزر "الموقع"
 
+              const SizedBox(height: 20), // مسافة بين زر "احسب" وزر "الموقع"
               // ------------------- LOCATION BUTTON (الموقع الجديد) -------------------
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -186,11 +186,12 @@ class CalculateOnceScreen extends StatelessWidget {
                   ),
                 ),
                 // الوظيفة: الانتقال إلى شاشة الكهرباء
-               onPressed: () {
-                 Get.to(() => CompanyScreen());}
-                 ,
+                onPressed: () {
+                  Get.to(() => CompanyScreen());
+                },
                 child: Row(
-                  mainAxisSize: MainAxisSize.min, // لجعل الزر يأخذ حجم محتواه فقط
+                  mainAxisSize:
+                      MainAxisSize.min, // لجعل الزر يأخذ حجم محتواه فقط
                   children: [
                     Icon(Icons.location_on, color: AppColor.black),
                     const SizedBox(width: 8),
@@ -205,7 +206,7 @@ class CalculateOnceScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 50), // مسافة لأسفل الشاشة
             ],
           ),

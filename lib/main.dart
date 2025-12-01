@@ -15,7 +15,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 // استيراد المتحكم المطلوب وإضافته (Get.put)
 import 'controllers/electricity_controller.dart';
-
 import 'models/history_model.dart';
 import 'models/usage_report_adapter.dart';
 
