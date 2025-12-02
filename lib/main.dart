@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/models/profile_model_hive.dart';
+import 'package:graduation_project/models/reading_model_hive.dart';
 import 'package:graduation_project/services/notification/notification_permission.dart';
 import 'package:graduation_project/services/notification/notification_service.dart';
 import 'package:graduation_project/services/notification/workmanager_service.dart';
@@ -23,6 +24,7 @@ import 'models/usage_report_adapter.dart';
 // تعريف الـ Boxes العالمية
 late Box<ProfileHive> profileBox;
 late Box<bool> onboarding;
+late Box<ReadingModelHive>ReadingBox;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,14 +57,22 @@ void main() async {
   if (!Hive.isAdapterRegistered(1)) {
     Hive.registerAdapter(ProfileHiveAdapter());
   }
+  
+  if(!Hive.isAdapterRegistered(3)){
+    Hive.registerAdapter(ReadingModelHiveAdapter());
+  }
 
   // فتح الصناديق
   await Hive.openBox<UsageRecord>('history');
   profileBox = await Hive.openBox<ProfileHive>('profileBox');
   onboarding = await Hive.openBox<bool>('onboarding');
+  ReadingBox = await Hive.openBox('ReadingBox');
+
 
   // فتح صندوق settings
   await Hive.openBox('settings');
+
+
 
   // حقن المتحكم في GetX
   Get.put(ElectricityController());

@@ -8,6 +8,7 @@ class UserAppliancesScreen extends StatelessWidget {
 
   final AppliancesController controller = Get.find<AppliancesController>();
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

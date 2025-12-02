@@ -105,7 +105,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                   final usage = result['consumption'];
                                   final price = result['totalPrice'];
 
-                                  Get.off(
+                                  Get.to(
                                         () => StartScreen(),
                                     arguments: {'usage': usage, 'price': price},
                                   );

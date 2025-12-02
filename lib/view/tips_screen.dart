@@ -27,10 +27,9 @@ class _TipsScreenState extends State<TipsScreen>
 
     _scaleAnimation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.elasticOut, // Bounce Effect
+      curve: Curves.elasticOut,
     );
 
-    // Start animation
     _controller.forward();
   }
 
@@ -55,61 +54,70 @@ class _TipsScreenState extends State<TipsScreen>
           const SizedBox(height: 10),
 
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _buildAnimatedTip(
-                  icon: Icons.power_settings_new,
-                  title: "افصل الأجهزة بعد الاستخدام",
-                  content:
-                  "بعض الأجهزة تستهلك كهرباء حتى وهي مغلقة. افصلها من الكهرباء بعد الاستخدام.",
-                ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                bool isLargeScreen = constraints.maxWidth > 600;
 
-                _buildAnimatedTip(
-                  icon: Icons.ac_unit,
-                  title: "اضبط التكييف على 25 درجة",
-                  content:
-                  "كل درجة أقل من 25 تزيد استهلاك الكهرباء بنسبة كبيرة.",
-                ),
+                final tips = [
+                  _buildAnimatedTip(
+                    icon: Icons.power_settings_new,
+                    title: "افصل الأجهزة بعد الاستخدام",
+                    content:
+                    "بعض الأجهزة تستهلك كهرباء حتى وهي مغلقة. افصلها من الكهرباء بعد الاستخدام.",
+                  ),
+                  _buildAnimatedTip(
+                    icon: Icons.ac_unit,
+                    title: "اضبط التكييف على 25 درجة",
+                    content:
+                    "كل درجة أقل من 25 تزيد استهلاك الكهرباء بنسبة كبيرة.",
+                  ),
+                  _buildAnimatedTip(
+                    icon: Icons.lightbulb,
+                    title: "استخدم اللمبات الموفّرة LED",
+                    content: "استهلاكها أقل بنسبة 70% مقارنة باللمبات العادية.",
+                  ),
+                  _buildAnimatedTip(
+                    icon: Icons.kitchen,
+                    title: "نظّف جوانب الثلاجة",
+                    content:
+                    "اتّساخ الملفات الخلفية للثلاجة يزود استهلاك الكهرباء.",
+                  ),
+                  _buildAnimatedTip(
+                    icon: Icons.water_drop,
+                    title: "قلّل من استخدام السخان",
+                    content: "شغّله وقت الحاجة فقط، وسيبه على درجة حرارة متوسطة.",
+                  ),
+                  _buildAnimatedTip(
+                    icon: Icons.timer,
+                    title: "استخدم Timer للأجهزة",
+                    content: "لتحديد وقت تشغيل التكييف أو السخان وتقليل استهلاك الكهرباء.",
+                  ),
+                ];
 
-                _buildAnimatedTip(
-                  icon: Icons.lightbulb,
-                  title: "استخدم اللمبات الموفّرة LED",
-                  content:
-                  "استهلاكها أقل بنسبة 70% مقارنة باللمبات العادية.",
-                ),
-
-                _buildAnimatedTip(
-                  icon: Icons.kitchen,
-                  title: "نظّف جوانب الثلاجة",
-                  content:
-                  "اتّساخ الملفات الخلفية للثلاجة يزود استهلاك الكهرباء.",
-                ),
-
-                _buildAnimatedTip(
-                  icon: Icons.water_drop,
-                  title: "قلّل من استخدام السخان",
-                  content:
-                  "شغّله وقت الحاجة فقط، وسيبه على درجة حرارة متوسطة.",
-                ),
-
-                _buildAnimatedTip(
-                  icon: Icons.timer,
-                  title: "استخدم Timer للأجهزة",
-                  content:
-                  "لتحديد وقت تشغيل التكييف أو السخان وتقليل استهلاك الكهرباء.",
-                ),
-              ],
+                // ---------- Grid OR List ----------
+                return isLargeScreen
+                    ? GridView.count(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.2,   // 👈 ضبط حجم الكروت
+                  children: tips,
+                )
+                    : ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: tips,
+                );
+              },
             ),
           ),
         ],
       ),
-      // bottomNavigationBar محذوف
     );
   }
 
   // ---------------------------------------------------
-  // Animated Card Builder (Bounce Style)
+  // Tip Animated Card
   // ---------------------------------------------------
   Widget _buildAnimatedTip({
     required IconData icon,
@@ -119,7 +127,7 @@ class _TipsScreenState extends State<TipsScreen>
     return ScaleTransition(
       scale: _scaleAnimation,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(bottom: 16), // 👈 المسافة بين الكروت
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: AppColor.white,
@@ -135,7 +143,6 @@ class _TipsScreenState extends State<TipsScreen>
         ),
         child: Row(
           children: [
-            // Icon
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -147,9 +154,9 @@ class _TipsScreenState extends State<TipsScreen>
 
             const SizedBox(width: 14),
 
-            // Text
             Expanded(
               child: Column(
+                spacing: 8,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
