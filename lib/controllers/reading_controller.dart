@@ -148,67 +148,79 @@ class ReadingController extends GetxController {
   }
 
   double calculateCostFromKwh(double kwh) {
-    if (kwh == 0) return 9; // رسوم قراءة صفر
-    double remaining = kwh;
-    double cost = 0.0;
-    double accumulatedFees = 0.0;
+  if (kwh == 0) return 9; // رسوم قراءة العداد
 
-    // الشريحة الأولى: 0–50
-    if (remaining > 0) {
-      double tier = remaining > 50 ? 50 : remaining;
-      accumulatedFees += 1;
-      cost += tier * 0.68 + accumulatedFees;
-      remaining -= tier;
-    }
+  double cost = 0.0;
 
-    // الشريحة الثانية: 51–100
-    if (remaining > 0) {
-      double tier = remaining > 50 ? 50 : remaining;
-      accumulatedFees += 2;
-      cost += tier * 0.78 + accumulatedFees;
-      remaining -= tier;
-    }
-
-    // الشريحة الثالثة: 101–200
-    if (remaining > 0) {
-      double tier = remaining > 100 ? 100 : remaining;
-      accumulatedFees += 6;
-      cost += tier * 0.95 + accumulatedFees;
-      remaining -= tier;
-    }
-
-    // الشريحة الرابعة: 201–350
-    if (remaining > 0) {
-      double tier = remaining > 150 ? 150 : remaining;
-      accumulatedFees += 11;
-      cost += tier * 1.55 + accumulatedFees;
-      remaining -= tier;
-    }
-
-    // الشريحة الخامسة: 351–650
-    if (remaining > 0) {
-      double tier = remaining > 300 ? 300 : remaining;
-      accumulatedFees += 15;
-      cost += tier * 1.95 + accumulatedFees;
-      remaining -= tier;
-    }
-
-    // الشريحة السادسة: 651–1000
-    if (remaining > 0) {
-      double tier = remaining > 350 ? 350 : remaining;
-      accumulatedFees += 25;
-      cost += tier * 2.10 + accumulatedFees;
-      remaining -= tier;
-    }
-
-    // الشريحة السابعة: أكثر من 1000
-    if (remaining > 0) {
-      accumulatedFees += 40;
-      cost += remaining * 2.23 + accumulatedFees;
-    }
-
-    return double.parse(cost.toStringAsFixed(2));
+  // -----------------------------
+  // شريحة 1: من 0 لـ 50 — 68 قرش
+  if (kwh <= 50) {
+    cost = kwh * 0.68;
   }
+
+  // -----------------------------
+  // شريحة 2: من 0 لـ 50 على 0.68
+  //          من 51 لـ 100 على 0.78
+  else if (kwh <= 100) {
+    cost = (50 * 0.68) +
+           ((kwh - 50) * 0.78);
+  }
+
+  // -----------------------------
+  // شريحة 3: من 0 لـ kwh كله على 0.95
+  else if (kwh <= 200) {
+    cost = kwh * 0.95;
+  }
+
+  // -----------------------------
+  // شريحة 4:
+  // - من 0 لـ 200 على 0.95
+  // - من 201 لـ kwh على 1.55
+  else if (kwh <= 350) {
+    cost = (200 * 0.95) +
+           ((kwh - 200) * 1.55);
+  }
+
+  // -----------------------------
+  // شريحة 5:
+  // - من 0 لـ 200 على 0.95
+  // - من 201 لـ 350 على 1.55
+  // - من 351 لـ kwh على 1.95
+  else if (kwh <= 650) {
+    cost = (200 * 0.95) +
+           (150 * 1.55) +
+           ((kwh - 350) * 1.95);
+  }
+
+  // -----------------------------
+  // شريحة 6: Reset كامل
+  // كل الاستهلاك من 0 على 2.10
+  else if (kwh <= 1000) {
+    cost = kwh * 2.10;
+  }
+
+  // -----------------------------
+  // شريحة 7: Reset كامل
+  // كل الاستهلاك من 0 على 2.23
+  else {
+    cost = kwh * 2.23;
+  }
+
+  // -----------------------------
+  // خدمة العملاء
+  double service = 0;
+
+  if (kwh <= 50) service = 1;
+  else if (kwh <= 100) service = 2;
+  else if (kwh <= 200) service = 6;
+  else if (kwh <= 350) service = 11;
+  else if (kwh <= 650) service = 15;
+  else if (kwh <= 1000) service = 25;
+  else service = 40;
+
+  return double.parse((cost + service).toStringAsFixed(2));
+}
+
 
   // دالة لتحديد الشريحة بناءً على الاستهلاك
   String _determineTier(double consumption) {

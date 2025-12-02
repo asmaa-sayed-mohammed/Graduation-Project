@@ -8,6 +8,8 @@ import 'package:graduation_project/models/profile_model_hive.dart';
 import 'package:graduation_project/services/notification/notification_permission.dart';
 import 'package:graduation_project/services/notification/notification_service.dart';
 import 'package:graduation_project/services/notification/workmanager_service.dart';
+import 'package:graduation_project/view/calculate_once_screen.dart';
+import 'package:graduation_project/view/reading_screen.dart';
 import 'package:graduation_project/view/splash_screen.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
