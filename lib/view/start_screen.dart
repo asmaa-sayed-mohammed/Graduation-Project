@@ -87,6 +87,27 @@ class StartScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 18),
+                    
+                     Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      decoration: BoxDecoration(
+                        color: AppColor.primary_color,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Obx(
+                        () => Text(
+                          " الشريحة ${controller.getCurrentTier()} ",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

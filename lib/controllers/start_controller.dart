@@ -9,15 +9,26 @@ class HomeController extends GetxController {
   RxList<double> price12Months = List<double>.filled(12, 0.0).obs;
 
   List<String> months = [
-    "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
 
   @override
   void onInit() {
     super.onInit();
     fetchLatestTwoReadings(); // لحساب الفرق بين آخر قراءتين
-    fetchLatestPrice();       // لجلب آخر سعر فعلي
-    fetchMonthlyTotals();     // مجموع الأسعار لكل شهر
+    fetchLatestPrice(); // لجلب آخر سعر فعلي
+    fetchMonthlyTotals(); // مجموع الأسعار لكل شهر
   }
 
   // جلب آخر قراءتين وحساب الفرق
@@ -128,5 +139,18 @@ class HomeController extends GetxController {
   double priceStep() {
     double step = (maxPriceValue() / 5).ceilToDouble();
     return step == 0 ? 1 : step;
+  }
+
+  // ========================== حساب الشريحة ==========================
+  String getCurrentTier() {
+    double consumption = double.tryParse(latestUsageDifference.value) ?? 0.0;
+
+    if (consumption <= 50) return 'الأولى';
+    if (consumption <= 100) return 'الثانية';
+    if (consumption <= 200) return 'الثالثة';
+    if (consumption <= 350) return 'الرابعة';
+    if (consumption <= 650) return 'الخامسة';
+    if (consumption <= 1000) return 'السادسة';
+    return 'السابعة';
   }
 }
