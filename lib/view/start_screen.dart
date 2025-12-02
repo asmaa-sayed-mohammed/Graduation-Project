@@ -113,135 +113,120 @@ class StartScreen extends StatelessWidget {
 
               // Bar Chart
               // =================== BAR CHART ===================
-              Padding(
-                padding: EdgeInsets.all(screenWidth * 0.04), // بدل 15
-                child: Obx(
-                  () => Container(
-                    height: screenHeight * 0.55,
-                    padding: EdgeInsets.symmetric(
-                      vertical: screenHeight * 0.02, // بدل 16
-                    ),
-                    child: Stack(
-                      children: [
-                        // ===== الشبكة الأفقية =====
-                        Column(
-                          children: List.generate(6, (index) {
-                            return Expanded(
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      width: screenWidth * 0.002, // بدل 1
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
+         Padding(
+  padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
+  child: Obx(
+    () {
+      final maxBarHeight = MediaQuery.of(context).size.height * 0.45;
+      final containerHeight = MediaQuery.of(context).size.height * 0.55;
+
+      return Container(
+        height: containerHeight,
+        padding: EdgeInsets.symmetric(vertical: containerHeight * 0.02),
+        child: Stack(
+          children: [
+            // ===== الشبكة الأفقية =====
+            Column(
+              children: List.generate(6, (index) {
+                return Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: MediaQuery.of(context).size.width * 0.002,
                         ),
-
-                        // ===== البارات + الشبكة الرأسية + الخط الرأسي الأول =====
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              // الخط الرأسي الأول قبل أول بار
-                              Container(
-                                width: screenWidth * 0.003, // بدل 1.5
-                                height: double.infinity,
-                                color: Colors.grey.shade300,
-                              ),
-
-                              // البارات والشبكة الرأسية لكل شهر
-                              ...List.generate(controller.price12Months.length, (
-                                i,
-                              ) {
-                                double barHeight = controller.price12Months[i];
-
-                                return Stack(
-                                  children: [
-                                    // الخط الرأسي لكل شهر
-                                    Container(
-                                      width: screenWidth * 0.12, // بدل 50
-                                      height: double.infinity,
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          right: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: screenWidth * 0.002,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    // البار والرقم والشهر
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        // السعر فوق البار
-                                        Text(
-                                          "${barHeight.toStringAsFixed(0)} EGP",
-                                          style: TextStyle(
-                                            fontSize:
-                                                screenWidth * 0.03, // بدل 12
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColor.black,
-                                          ),
-                                        ),
-
-                                        SizedBox(height: screenHeight * 0.005),
-
-                                        // البار نفسه
-                                        Container(
-                                          width: screenWidth * 0.08, // بدل 35
-                                          height:
-                                              (barHeight /
-                                                  controller.maxPriceValue()) *
-                                              (screenHeight * 0.45),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                AppColor.primary_color
-                                                    .withOpacity(0.7),
-                                                AppColor.primary_color,
-                                              ],
-                                              begin: Alignment.bottomCenter,
-                                              end: Alignment.topCenter,
-                                            ),
-                                          ),
-                                        ),
-
-                                        SizedBox(height: screenHeight * 0.01),
-
-                                        // اسم الشهر
-                                        Text(
-                                          controller.months[i],
-                                          style: TextStyle(
-                                            fontSize:
-                                                screenWidth * 0.03, // بدل 12
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColor.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                );
+              }),
+            ),
+
+            // ===== البارات =====
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: List.generate(controller.price12Months.length, (i) {
+                  double barHeight = controller.price12Months[i];
+                  double calculatedHeight =
+                      (barHeight / controller.maxPriceValue()) * maxBarHeight;
+
+                  return Container(
+                    margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.01),
+                    width: MediaQuery.of(context).size.width * 0.08,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: containerHeight),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          // السعر فوق البار
+                          Flexible(
+                            child: FittedBox(
+                              child: Text(
+                                "${barHeight.toStringAsFixed(0)} EGP",
+                                style: TextStyle(
+                                  fontSize: MediaQuery.of(context).size.width * 0.03,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColor.black,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(height: containerHeight * 0.005),
+
+                          // البار نفسه
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.08,
+                              height: barHeight > 0 ? calculatedHeight : 4,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColor.primary_color.withOpacity(0.7),
+                                    AppColor.primary_color,
+                                  ],
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(height: containerHeight * 0.01),
+
+                          // اسم الشهر
+                          Flexible(
+                            child: FittedBox(
+                              child: Text(
+                                controller.months[i],
+                                style: TextStyle(
+                                  fontSize: MediaQuery.of(context).size.width * 0.03,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColor.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
               ),
-              SizedBox(height: 20),
+            ),
+          ],
+        ),
+      );
+    },
+  ),
+)
+,     SizedBox(height: 20),
 
               // History Button
               SizedBox(
