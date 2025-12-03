@@ -14,51 +14,62 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const PageHeader(title: "الملف الشخصي"),
-              const SizedBox(height: 40),
-              Obx(() {
-                final profile = controller.profile.value;
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // 👇 عرض المحتوى: محدود للشاشات الكبيرة
+            double maxWidth = constraints.maxWidth > 600 ? 600 : constraints.maxWidth * 1;
 
-                if (profile == null) {
-                  return const Text(
-                    "لا توجد بيانات للعرض",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  );
-                }
+            return SizedBox(
 
-                return Column(
+              width: maxWidth,
+              child: SingleChildScrollView(
+                child: Column(
                   children: [
-                    Text(
-                      profile.name,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "تاريخ الإنشاء: ${profile.createdAt.toString().substring(0, 10)}",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    _buildInfoCard("العنوان", profile.address ?? "لا يوجد"),
-                    const SizedBox(height: 15),
-                    _buildInfoCard("اسم الشركة", profile.companyName ?? "لا يوجد"),
-                    const SizedBox(height: 15),
+                    const PageHeader(title: "الملف الشخصي"),
+                    const SizedBox(height: 30),
+                    Obx(() {
+                      final profile = controller.profile.value;
+
+                      if (profile == null) {
+                        return const Text(
+                          "لا توجد بيانات للعرض",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }
+
+                      return Column(
+                        children: [
+                          Text(
+                            profile.name,
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            "تاريخ الإنشاء: ${profile.createdAt.toString().substring(0, 10)}",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                          _buildInfoCard("العنوان", profile.address ?? "لا يوجد"),
+                          const SizedBox(height: 15),
+                          _buildInfoCard("اسم الشركة", profile.companyName ?? "لا يوجد"),
+                          const SizedBox(height: 15),
+                        ],
+                      );
+                    }),
                   ],
-                );
-              }),
-            ],
-          ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

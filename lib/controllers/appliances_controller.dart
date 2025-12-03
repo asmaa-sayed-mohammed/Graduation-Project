@@ -60,8 +60,10 @@ class AppliancesController extends GetxController {
 
 
   Future<void> updateUserAppliance(UserAppliance ua) async {
+    if (ua.id == null) return; // لو الـ id مش موجود، ما نعملش update
+
     await _service.updateUserAppliance(
-      ua.id,
+      ua.id!, // force unwrap لأن الـ id موجود
       hoursPerDay: ua.hoursPerDay,
       quantity: ua.quantity,
       priority: ua.priority,
@@ -74,7 +76,12 @@ class AppliancesController extends GetxController {
   }
 
   Future<void> deleteUserAppliance(UserAppliance ua) async {
-    await _service.deleteUserAppliance(ua.id);
+    if (ua.id == null) return; // لو الـ id مش موجود، ما نعملش delete
+
+    await _service.deleteUserAppliance(ua.id!);
     userAppliances.removeWhere((e) => e.id == ua.id);
   }
+
+
+
 }

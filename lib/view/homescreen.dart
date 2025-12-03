@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/view/login_page.dart';
+import 'package:graduation_project/view/main_screen.dart';
 import 'package:graduation_project/view/sign_up_page.dart';
 import 'package:graduation_project/view/calculate_once_screen.dart';
 import 'package:graduation_project/view/tips_screen.dart';
@@ -16,7 +17,6 @@ class Homescreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               const PageHeader(title: "الصفحة الرئيسية"),
