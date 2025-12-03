@@ -1,5 +1,5 @@
 class UserAppliance {
-  final int id;
+  final int? id; // دلوقتي nullable
   final int applianceId;
   final String name;
   final String brand;
@@ -9,36 +9,37 @@ class UserAppliance {
   final String priority;
 
   UserAppliance({
-    required this.id,
+    this.id, // مش required
     required this.applianceId,
     required this.name,
     required this.brand,
     required this.watt,
     required this.hoursPerDay,
-    required this.quantity,
-    required this.priority,
+    this.quantity = 1,
+    this.priority = "not_important",
   });
 
   factory UserAppliance.fromJson(Map<String, dynamic> json) {
     return UserAppliance(
-      id: json['id'],
+      id: json['id'], // لو موجود هيمرر، لو مش موجود هتبقى null
       applianceId: json['appliance_id'],
-      name: json['appliances']['name'],
-      brand: json['appliances']['brand'],
-      watt: json['appliances']['watt'],
-      hoursPerDay: json['hours_per_day'].toDouble(),
+      name: json['appliances']?['name'] ?? '',
+      brand: json['appliances']?['brand'] ?? '',
+      watt: json['appliances']?['watt'] ?? 0,
+      hoursPerDay: (json['hours_per_day'] ?? 0).toDouble(),
       quantity: json['quantity'] ?? 1,
       priority: json['priority'] ?? "not_important",
     );
   }
 
   UserAppliance copyWith({
+    int? id, // لو عايز تحدثها
     double? hoursPerDay,
     int? quantity,
     String? priority,
   }) {
     return UserAppliance(
-      id: id,
+      id: id ?? this.id,
       applianceId: applianceId,
       name: name,
       brand: brand,

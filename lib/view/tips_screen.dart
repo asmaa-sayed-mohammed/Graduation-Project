@@ -27,9 +27,10 @@ class _TipsScreenState extends State<TipsScreen>
 
     _scaleAnimation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.elasticOut,
+      curve: Curves.elasticOut, // تأثير bounce
     );
 
+    // بدء الأنيميشن
     _controller.forward();
   }
 
@@ -41,24 +42,24 @@ class _TipsScreenState extends State<TipsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          const PageHeader(
-            title: "نصائح عامة",
-            subtitle: "استهلاك أقل .. توفير أكبر 💡",
-            leading: Icon(Icons.lightbulb, color: Colors.black, size: 28),
-          ),
+    return Directionality(
+      textDirection: TextDirection.rtl, // اجعل كل شيء من اليمين لليسار
+      child: Scaffold(
+        backgroundColor: AppColor.white2,
+        body: Column(
+          children: [
+            const PageHeader(
+              title: "نصائح عامة",
+              subtitle: "استهلاك أقل .. توفير أكبر 💡",
+              leading: Icon(Icons.lightbulb, color: Colors.black, size: 28),
+            ),
 
-          const SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                bool isLargeScreen = constraints.maxWidth > 600;
-
-                final tips = [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                children: [
                   _buildAnimatedTip(
                     icon: Icons.power_settings_new,
                     title: "افصل الأجهزة بعد الاستخدام",
@@ -74,7 +75,8 @@ class _TipsScreenState extends State<TipsScreen>
                   _buildAnimatedTip(
                     icon: Icons.lightbulb,
                     title: "استخدم اللمبات الموفّرة LED",
-                    content: "استهلاكها أقل بنسبة 70% مقارنة باللمبات العادية.",
+                    content:
+                    "استهلاكها أقل بنسبة 70% مقارنة باللمبات العادية.",
                   ),
                   _buildAnimatedTip(
                     icon: Icons.kitchen,
@@ -85,39 +87,26 @@ class _TipsScreenState extends State<TipsScreen>
                   _buildAnimatedTip(
                     icon: Icons.water_drop,
                     title: "قلّل من استخدام السخان",
-                    content: "شغّله وقت الحاجة فقط، وسيبه على درجة حرارة متوسطة.",
+                    content:
+                    "شغّله وقت الحاجة فقط، وسيبه على درجة حرارة متوسطة.",
                   ),
                   _buildAnimatedTip(
                     icon: Icons.timer,
                     title: "استخدم Timer للأجهزة",
-                    content: "لتحديد وقت تشغيل التكييف أو السخان وتقليل استهلاك الكهرباء.",
+                    content:
+                    "لتحديد وقت تشغيل التكييف أو السخان وتقليل استهلاك الكهرباء.",
                   ),
-                ];
-
-                // ---------- Grid OR List ----------
-                return isLargeScreen
-                    ? GridView.count(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 1.2,   // 👈 ضبط حجم الكروت
-                  children: tips,
-                )
-                    : ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: tips,
-                );
-              },
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // ---------------------------------------------------
-  // Tip Animated Card
+  // بطاقة النصيحة مع تأثير الـ bounce
   // ---------------------------------------------------
   Widget _buildAnimatedTip({
     required IconData icon,
@@ -127,7 +116,7 @@ class _TipsScreenState extends State<TipsScreen>
     return ScaleTransition(
       scale: _scaleAnimation,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16), // 👈 المسافة بين الكروت
+        margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: AppColor.white,
@@ -142,7 +131,9 @@ class _TipsScreenState extends State<TipsScreen>
           ],
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // أيقونة
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -154,9 +145,9 @@ class _TipsScreenState extends State<TipsScreen>
 
             const SizedBox(width: 14),
 
+            // النصوص
             Expanded(
               child: Column(
-                spacing: 8,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
