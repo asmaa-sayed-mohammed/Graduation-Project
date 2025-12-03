@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:graduation_project/controllers/start_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/controllers/reading_controller.dart';
@@ -53,8 +54,9 @@ class _ReadingScreenState extends State<ReadingScreen> {
                         _buildReadingInput(
                           label: "القراءة القديمة",
                           controller: controller.oldReadingController,
-                          onMicPressed: () => controller
-                              .recognizeVoice(controller.oldReadingController),
+                          onMicPressed: () => controller.recognizeVoice(
+                            controller.oldReadingController,
+                          ),
                           onCameraPressed: () => controller.pickImage(
                             ImageSource.camera,
                             controller.oldReadingController,
@@ -68,8 +70,9 @@ class _ReadingScreenState extends State<ReadingScreen> {
                         _buildReadingInput(
                           label: "القراءة الجديدة",
                           controller: controller.newReadingController,
-                          onMicPressed: () => controller
-                              .recognizeVoice(controller.newReadingController),
+                          onMicPressed: () => controller.recognizeVoice(
+                            controller.newReadingController,
+                          ),
                           onCameraPressed: () => controller.pickImage(
                             ImageSource.camera,
                             controller.newReadingController,
@@ -81,7 +84,6 @@ class _ReadingScreenState extends State<ReadingScreen> {
                         ),
 
                         const SizedBox(height: 30),
-
                         Center(
                           child: InkWell(
                             borderRadius: BorderRadius.circular(35),
@@ -100,15 +102,24 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                     Supabase.instance.client.auth.currentUser;
                                 if (user != null) {
                                   await controller.saveReadingToSupabase(
-                                      userId: user.id);
-
-                                  final usage = result['consumption'];
-                                  final price = result['totalPrice'];
-
-                                  Get.off(
-                                        () => StartScreen(),
-                                    arguments: {'usage': usage, 'price': price},
+                                    userId: user.id,
                                   );
+
+                                  // 🔥 تحديث بيانات الصفحة الرئيسية فورًا
+                                  final home = Get.find<HomeController>();
+                                  await home.fetchLatestTwoReadings();
+                                  await home.fetchLatestPrice();
+                                  await home.fetchMonthlyTotals();
+
+                                  // تحديث القيم التي تظهر مباشرة (بدون انتظار Supabase)
+                                  home.manualUsage.value =
+                                      result['consumption'];
+                                  home.manualPrice.value = result['totalPrice'];
+
+                                  // 🔙 رجوع للصفحة الرئيسية مع الحفاظ على الـ BottomNavBar
+                                  final navController =
+                                      Get.find<NavigationController>();
+                                  navController.currentIndex.value = 0;
                                 } else {
                                   Get.snackbar(
                                     'خطأ',
@@ -122,7 +133,9 @@ class _ReadingScreenState extends State<ReadingScreen> {
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 80, vertical: 16),
+                                horizontal: 80,
+                                vertical: 16,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColor.primary_color,
                                 borderRadius: BorderRadius.circular(35),
@@ -131,7 +144,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                     color: Colors.black.withOpacity(0.15),
                                     blurRadius: 8,
                                     offset: const Offset(0, 4),
-                                  )
+                                  ),
                                 ],
                               ),
                               child: const Text(
@@ -145,7 +158,6 @@ class _ReadingScreenState extends State<ReadingScreen> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 40),
                       ],
                     ),
@@ -228,7 +240,10 @@ class _ReadingScreenState extends State<ReadingScreen> {
                       onPressed: onCameraPressed,
                     ),
                     IconButton(
-                      icon: const Icon(Icons.upload_rounded, color: Colors.black),
+                      icon: const Icon(
+                        Icons.upload_rounded,
+                        color: Colors.black,
+                      ),
                       onPressed: onGalleryPressed,
                     ),
                   ],

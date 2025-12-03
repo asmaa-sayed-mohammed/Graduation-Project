@@ -55,7 +55,7 @@ class StartScreen extends StatelessWidget {
                       child: Obx(
                         () => Center(
                           child: Text(
-                            "${controller.latestUsageDifference.value} KWh",
+                            "${controller.manualUsage.value > 0 ? controller.manualUsage.value.toStringAsFixed(3) : controller.latestUsageDifference.value} KWh",
                             style: const TextStyle(
                               fontSize: 42,
                               fontWeight: FontWeight.bold,
@@ -77,7 +77,7 @@ class StartScreen extends StatelessWidget {
                       ),
                       child: Obx(
                         () => Text(
-                          "${controller.currentPrice.value} EGP",
+                          "${controller.manualPrice.value > 0 ? controller.manualPrice.value.toStringAsFixed(2) : controller.currentPrice.value} EGP",
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 28,
