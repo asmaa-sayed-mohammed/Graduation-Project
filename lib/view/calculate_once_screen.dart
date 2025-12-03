@@ -8,6 +8,7 @@ import '../../core/widgets/page_header.dart';
 
 // 💡 تم تحديث الاستيراد لصفحة الكهرباء الجديدة
 import 'package:graduation_project/view/company_screen.dart';
+import 'package:graduation_project/models/manual_calculation_result.dart';
 
 class CalculateOnceScreen extends StatelessWidget {
   final controller = Get.put(ReadingController());
@@ -18,13 +19,6 @@ class CalculateOnceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
-
-      // ⚠️ تم حذف الـ floatingActionButton لأنه تم نقله إلى محتوى الصفحة
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      // floatingActionButton: Padding(
-      //   padding: const EdgeInsets.only(bottom: 10),
-      //   // ... محتوى الزر القديم
-      // ),
       body: SafeArea(
         top: true,
         bottom: false,
@@ -54,7 +48,7 @@ class CalculateOnceScreen extends StatelessWidget {
                         cursorColor: AppColor.black,
                         controller: controller.oldReadingController,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'ادخل القراءة القديمة',
                           border: InputBorder.none,
                         ),
@@ -98,7 +92,7 @@ class CalculateOnceScreen extends StatelessWidget {
                         cursorColor: AppColor.black,
                         controller: controller.newReadingController,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'ادخل القراءة الجديدة',
                           border: InputBorder.none,
                         ),
@@ -136,32 +130,39 @@ class CalculateOnceScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  final result = controller.calculateManualResult();
+                  // تحويل النصوص لقيم رقمية
+                  double oldReading =
+                      double.tryParse(controller.oldReadingController.text) ??
+                      0.0;
+                  double newReading =
+                      double.tryParse(controller.newReadingController.text) ??
+                      0.0;
 
-                  if (result['error'] == true) {
-                    // لو في خطأ فقط نظهر Snackbar
+                  // استدعاء الكلاس الجديد
+                  final ManualCalculationResult result = controller
+                      .calculateManualResult();
+
+                  if (result.hasError) {
                     Get.snackbar(
                       'خطأ',
-                      result['message'],
+                      result.message ?? 'حدث خطأ غير معروف',
                       snackPosition: SnackPosition.BOTTOM,
                       backgroundColor: Colors.redAccent,
                       colorText: Colors.white,
                       duration: const Duration(seconds: 4),
                     );
                   } else {
-                    // لو مفيش خطأ نروح لصفحة النتيجة مباشرة
                     Get.to(
                       () => CalculationResultScreen(
-                        oldReading: (result['oldReading'] as num).toDouble(),
-                        newReading: (result['newReading'] as num).toDouble(),
-                        consumption: (result['consumption'] as num).toDouble(),
-                        totalPrice: (result['totalPrice'] as num).toDouble(),
-                        tier: result['tier'].toString(), // مهم جداً
+                        oldReading: oldReading,
+                        newReading: newReading,
+                        consumption: result.consumption,
+                        totalPrice: result.totalPrice,
+                        tier: result.tier.toString(),
                       ),
                     );
                   }
                 },
-
                 child: Text(
                   'احسب',
                   style: TextStyle(
@@ -172,7 +173,8 @@ class CalculateOnceScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20), // مسافة بين زر "احسب" وزر "الموقع"
+              const SizedBox(height: 20),
+
               // ------------------- LOCATION BUTTON (الموقع الجديد) -------------------
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -185,13 +187,11 @@ class CalculateOnceScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                // الوظيفة: الانتقال إلى شاشة الكهرباء
                 onPressed: () {
                   Get.to(() => CompanyScreen());
                 },
                 child: Row(
-                  mainAxisSize:
-                      MainAxisSize.min, // لجعل الزر يأخذ حجم محتواه فقط
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.location_on, color: AppColor.black),
                     const SizedBox(width: 8),
@@ -207,7 +207,7 @@ class CalculateOnceScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 50), // مسافة لأسفل الشاشة
+              const SizedBox(height: 50),
             ],
           ),
         ),

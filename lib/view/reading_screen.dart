@@ -89,10 +89,11 @@ class _ReadingScreenState extends State<ReadingScreen> {
                             borderRadius: BorderRadius.circular(35),
                             onTap: () async {
                               final result = controller.calculateManualResult();
-                              if (result['error'] == true) {
+
+                              if (result.hasError) {
                                 Get.snackbar(
                                   'خطأ',
-                                  result['message'],
+                                  result.errorMessage!,
                                   snackPosition: SnackPosition.BOTTOM,
                                   backgroundColor: Colors.orangeAccent,
                                   colorText: Colors.white,
@@ -111,12 +112,11 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                   await home.fetchLatestPrice();
                                   await home.fetchMonthlyTotals();
 
-                                  // تحديث القيم التي تظهر مباشرة (بدون انتظار Supabase)
-                                  home.manualUsage.value =
-                                      result['consumption'];
-                                  home.manualPrice.value = result['totalPrice'];
+                                  // تحديث القيم مباشرة
+                                  home.manualUsage.value = result.consumption;
+                                  home.manualPrice.value = result.totalPrice;
 
-                                  // 🔙 رجوع للصفحة الرئيسية مع الحفاظ على الـ BottomNavBar
+                                  // 🔙 الرجوع للصفحة الرئيسية مع الحفاظ على BottomNavBar
                                   final navController =
                                       Get.find<NavigationController>();
                                   navController.currentIndex.value = 0;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:get/get.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:graduation_project/models/manual_calculation_result.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -90,14 +91,14 @@ class ReadingController extends GetxController {
   Future<void> saveReadingToSupabase({required String userId}) async {
     final result = calculateManualResult();
 
-    if (result['error'] == true) return;
+    if (result.hasError) return;
 
     try {
       await supabase.from('usage_record').insert({
         'user_id': userId,
         'created_at': DateTime.now().toIso8601String(),
-        'reading': (result['newReading'] as double).toInt(), // int8
-        'price': (result['totalPrice'] as double).toInt(), // int4
+        'reading': (double.parse(newReadingController.text)).toInt(),
+        'price': (result.totalPrice).toInt(),
       });
       Get.snackbar(
         'تم الحفظ',
@@ -152,54 +153,23 @@ class ReadingController extends GetxController {
 
     double cost = 0.0;
 
-    // -----------------------------
-    // شريحة 1: من 0 لـ 50 — 68 قرش
     if (kwh <= 50) {
       cost = kwh * 0.68;
-    }
-    // -----------------------------
-    // شريحة 2: من 0 لـ 50 على 0.68
-    //          من 51 لـ 100 على 0.78
-    else if (kwh <= 100) {
+    } else if (kwh <= 100) {
       cost = (50 * 0.68) + ((kwh - 50) * 0.78);
-    }
-    // -----------------------------
-    // شريحة 3: من 0 لـ kwh كله على 0.95
-    else if (kwh <= 200) {
+    } else if (kwh <= 200) {
       cost = kwh * 0.95;
-    }
-    // -----------------------------
-    // شريحة 4:
-    // - من 0 لـ 200 على 0.95
-    // - من 201 لـ kwh على 1.55
-    else if (kwh <= 350) {
+    } else if (kwh <= 350) {
       cost = (200 * 0.95) + ((kwh - 200) * 1.55);
-    }
-    // -----------------------------
-    // شريحة 5:
-    // - من 0 لـ 200 على 0.95
-    // - من 201 لـ 350 على 1.55
-    // - من 351 لـ kwh على 1.95
-    else if (kwh <= 650) {
+    } else if (kwh <= 650) {
       cost = (200 * 0.95) + (150 * 1.55) + ((kwh - 350) * 1.95);
-    }
-    // -----------------------------
-    // شريحة 6: Reset كامل
-    // كل الاستهلاك من 0 على 2.10
-    else if (kwh <= 1000) {
+    } else if (kwh <= 1000) {
       cost = kwh * 2.10;
-    }
-    // -----------------------------
-    // شريحة 7: Reset كامل
-    // كل الاستهلاك من 0 على 2.23
-    else {
+    } else {
       cost = kwh * 2.23;
     }
 
-    // -----------------------------
-    // خدمة العملاء
     double service = 0;
-
     if (kwh <= 50)
       service = 1;
     else if (kwh <= 100)
@@ -218,20 +188,19 @@ class ReadingController extends GetxController {
     return double.parse((cost + service).toStringAsFixed(2));
   }
 
-  // دالة لتحديد الشريحة بناءً على الاستهلاك
-  String _determineTier(double consumption) {
-    if (consumption <= 50) return 'الأولى';
-    if (consumption <= 100) return 'الثانية';
-    if (consumption <= 200) return 'الثالثة';
-    if (consumption <= 350) return 'الرابعة';
-    if (consumption <= 650) return 'الخامسة';
-    if (consumption <= 1000) return 'السادسة';
-    return 'السابعة';
+  int _determineTier(double consumption) {
+    if (consumption <= 50) return 1;
+    if (consumption <= 100) return 2;
+    if (consumption <= 200) return 3;
+    if (consumption <= 350) return 4;
+    if (consumption <= 650) return 5;
+    if (consumption <= 1000) return 6;
+    return 7;
   }
 
-  Map<String, dynamic> calculateManualResult() {
+  ManualCalculationResult calculateManualResult() {
     final error = validateManualInputs();
-    if (error != null) return {'error': true, 'message': error};
+    if (error != null) return ManualCalculationResult.error(error);
 
     final oldVal = _parseReading(oldReadingController.text);
     final newVal = _parseReading(newReadingController.text);
@@ -239,14 +208,11 @@ class ReadingController extends GetxController {
     final totalPrice = calculateCostFromKwh(consumption);
     final tier = _determineTier(consumption);
 
-    return {
-      'error': false,
-      'oldReading': oldVal,
-      'newReading': newVal,
-      'consumption': consumption,
-      'totalPrice': totalPrice,
-      'tier': tier, // الآن الشريحة موجودة
-    };
+    return ManualCalculationResult(
+      consumption: consumption,
+      totalPrice: totalPrice,
+      tier: tier,
+    );
   }
 
   void clearManualInputs() {
