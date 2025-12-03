@@ -25,11 +25,11 @@ class MainScreen extends StatelessWidget {
   final SmartRecommendationController recommendationController = Get.put(SmartRecommendationController());
 
   final List<Widget> _screens = [
-     StartScreen(),
+    StartScreen(),
     ReadingScreen(),
-    BudgetScreen(),
+    BudgetAndAppliancesScreen(),
     CompanyScreen(),
-    RecommendationsScreen(),
+    RecommendationsScreen() ,
   ];
 
   @override
