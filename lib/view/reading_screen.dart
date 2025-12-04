@@ -106,7 +106,10 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                     userId: user.id,
                                   );
 
-                                  // 🔥 تحديث بيانات الصفحة الرئيسية فورًا
+                                  //  هنا بنمسح القراءة الجديدة بعد ما اتحفظت
+                                  controller.newReadingController.clear();
+
+                                  //  تحديث بيانات الصفحة الرئيسية فورًا
                                   final home = Get.find<HomeController>();
                                   await home.fetchLatestTwoReadings();
                                   await home.fetchLatestPrice();
