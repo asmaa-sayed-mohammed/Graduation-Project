@@ -58,9 +58,7 @@ class HistoryController extends GetxController {
       final cloudData = await supa.getHistory(userId);
       history.value = cloudData;
       await hive.saveHistory(cloudData);
-      Get.snackbar("Success", "History synced with cloud.");
     } catch (e) {
-      Get.snackbar("Error", "Failed to sync history.");
       print("Error syncing history: $e");
     } finally {
       isLoading.value = false;

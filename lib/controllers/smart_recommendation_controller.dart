@@ -16,6 +16,12 @@ class SmartRecommendationController extends GetxController {
     ever(budgetController.monthlyBudget, (_) => generateRecommendations());
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+    generateRecommendations();
+  }
+
   double calculateCostFromKwh(double kwh) {
     if (kwh == 0) return 9;
     double cost = 0.0;

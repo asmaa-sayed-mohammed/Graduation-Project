@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:graduation_project/controllers/history_controller.dart';
 import 'package:graduation_project/controllers/start_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:graduation_project/core/style/colors.dart';
@@ -19,6 +20,7 @@ class ReadingScreen extends StatefulWidget {
 
 class _ReadingScreenState extends State<ReadingScreen> {
   final ReadingController controller = Get.put(ReadingController());
+  final history = Get.find<HistoryController>();
 
   @override
   void initState() {
@@ -88,7 +90,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                             borderRadius: BorderRadius.circular(35),
                             onTap: () async {
                               final result = controller.calculateManualResult();
-
+                            history.syncWithCloud();
                               if (result.hasError) {
                                 Get.snackbar(
                                   'خطأ',
