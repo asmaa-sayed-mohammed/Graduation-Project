@@ -3,14 +3,14 @@
 class ManualCalculationResult {
   final double consumption;
   final double totalPrice;
-  final int tier;
+  final int chip;
   final bool hasError;
   final String? message;
 
   ManualCalculationResult({
     required this.consumption,
     required this.totalPrice,
-    required this.tier,
+    required this.chip,
     this.hasError = false,
     this.message,
   });
@@ -20,7 +20,7 @@ class ManualCalculationResult {
     return ManualCalculationResult(
       consumption: 0.0,
       totalPrice: 0.0,
-      tier: 0,
+      chip: 0,
       hasError: true,
       message: msg,
     );
@@ -33,7 +33,7 @@ class ManualCalculationResult {
     return {
       'consumption': consumption,
       'totalPrice': totalPrice,
-      'tier': tier,
+      'tier': chip,
       'hasError': hasError,
       'message': message,
     };
@@ -43,7 +43,7 @@ class ManualCalculationResult {
     return ManualCalculationResult(
       consumption: (map['consumption'] as num?)?.toDouble() ?? 0.0,
       totalPrice: (map['totalPrice'] as num?)?.toDouble() ?? 0.0,
-      tier: (map['tier'] as int?) ?? 0,
+      chip: (map['tier'] as int?) ?? 0,
       hasError: map['hasError'] as bool? ?? false,
       message: map['message'] as String?,
     );

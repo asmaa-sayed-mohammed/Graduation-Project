@@ -146,18 +146,16 @@ class HomeController extends GetxController {
 
   // ========================== حساب الشريحة ==========================
   String getCurrentTier() {
-  double consumption = manualUsage.value > 0
-      ? manualUsage.value
-      : double.tryParse(latestUsageDifference.value) ?? 0.0;
+    double consumption = manualUsage.value > 0
+        ? manualUsage.value
+        : double.tryParse(latestUsageDifference.value) ?? 0.0;
 
-  if (consumption <= 50) return 'الأولى';
-  if (consumption <= 100) return 'الثانية';
-  if (consumption <= 200) return 'الثالثة';
-  if (consumption <= 350) return 'الرابعة';
-  if (consumption <= 650) return 'الخامسة';
-  if (consumption <= 1000) return 'السادسة';
-  return 'السابعة';
-}
-
-
+    if (consumption <= 50) return 'الأولى';
+    if (consumption <= 100) return 'الثانية';
+    if (consumption <= 200) return 'الثالثة';
+    if (consumption <= 350) return 'الرابعة';
+    if (consumption <= 650) return 'الخامسة';
+    if (consumption <= 1000) return 'السادسة';
+    return 'السابعة';
+  }
 }

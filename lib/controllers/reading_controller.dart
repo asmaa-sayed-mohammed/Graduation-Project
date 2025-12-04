@@ -51,9 +51,9 @@ class ReadingController extends GetxController {
 
   String? savedOldReading;
 
-  final readingHiveService = ReadingHiveService(Hive.box<ReadingModelHive>('ReadingBox'));
-
-
+  final readingHiveService = ReadingHiveService(
+    Hive.box<ReadingModelHive>('ReadingBox'),
+  );
 
   @override
   void onInit() {
@@ -101,12 +101,21 @@ class ReadingController extends GetxController {
     if (result.hasError) return;
 
     try {
+      final oldVal = _parseReading(oldReadingController.text);
+      final newVal = _parseReading(
+        newReadingController.text,
+      ).round();
+      final difference = newVal - oldVal.toInt();
+
       await supabase.from('usage_record').insert({
         'user_id': userId,
         'created_at': DateTime.now().toIso8601String(),
-        'reading': (double.parse(newReadingController.text)).toInt(),
-        'price': (result.totalPrice).toInt(),
+        'reading': newVal,
+        'price': result.totalPrice.toInt(),
+        'chip': result.chip,
+        'difference_readings': difference,
       });
+
       Get.snackbar(
         'تم الحفظ',
         'تم حفظ القراءة بنجاح',
@@ -156,9 +165,9 @@ class ReadingController extends GetxController {
   }
 
   double calculateCostFromKwh(double kwh) {
-  if (kwh == 0) return 9; // رسوم قراءة العداد
+    if (kwh == 0) return 9; // رسوم قراءة العداد
 
-  double cost = 0.0;
+    double cost = 0.0;
 
     if (kwh <= 50) {
       cost = kwh * 0.68;
@@ -213,12 +222,12 @@ class ReadingController extends GetxController {
     final newVal = _parseReading(newReadingController.text);
     final consumption = double.parse((newVal - oldVal).toStringAsFixed(3));
     final totalPrice = calculateCostFromKwh(consumption);
-    final tier = _determineTier(consumption);
+    final chip = _determineTier(consumption);
 
     return ManualCalculationResult(
       consumption: consumption,
       totalPrice: totalPrice,
-      tier: tier,
+      chip: chip,
     );
   }
 
@@ -541,78 +550,78 @@ class ReadingController extends GetxController {
     return double.tryParse(numeric) ?? 0.0;
   }
 
-// ========== Save in Hive ==================
-// ========== Save in Hive ==================
-Future<void> saveReadingToHive(String userId) async {
-  try {
-    // احسب القراءة من خلال الفانكشن بتاعتك
-    final result = calculateManualResult();
+  // ========== Save in Hive ==================
+  // ========== Save in Hive ==================
+  Future<void> saveReadingToHive(String userId) async {
+    try {
+      // احسب القراءة من خلال الفانكشن بتاعتك
+      final result = calculateManualResult();
 
-    // لو في مشكلة في الإدخال
-    if (result.hasError) {
+      // لو في مشكلة في الإدخال
+      if (result.hasError) {
+        Get.snackbar(
+          'خطأ',
+          result.errorMessage!,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // تحويل القيم
+      final oldR = int.tryParse(oldReadingController.text);
+      final newR = int.tryParse(newReadingController.text);
+
+      if (oldR == null || newR == null) {
+        Get.snackbar(
+          'خطأ',
+          'صيغة القراءة غير صحيحة',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // حساب الفرق
+      final difference = (newR - oldR).toDouble();
+
+      // إنشاء موديل القراءة
+      final reading = ReadingModelHive(
+        userId: userId,
+        consumption: result.consumption,
+        price: result.totalPrice,
+        date: DateTime.now().toIso8601String(),
+        difference_readings: difference,
+        chip: '', // ممكن تعدلي الاسم حسب الجهاز أو المستخدم
+        createdAt: DateTime.now().toIso8601String(),
+        new_reading: newR,
+        old_reading: oldR,
+      );
+
+      // حفظ في Hive (والسيرفس هتعمل Sync لوحدها لو فيه نت)
+      await readingHiveService.saveReadings(reading);
+
+      // مسح القراءة الجديدة بعد الحفظ
+      newReadingController.clear();
+
+      Get.snackbar(
+        'تم الحفظ',
+        'تم حفظ القراءة في الجهاز بنجاح',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
       Get.snackbar(
         'خطأ',
-        result.errorMessage!,
+        'حدثت مشكلة أثناء حفظ القراءة',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
       );
-      return;
+      print("Hive Save Error: $e");
     }
-
-    // تحويل القيم
-    final oldR = int.tryParse(oldReadingController.text);
-    final newR = int.tryParse(newReadingController.text);
-
-    if (oldR == null || newR == null) {
-      Get.snackbar(
-        'خطأ',
-        'صيغة القراءة غير صحيحة',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    // حساب الفرق
-    final difference = (newR - oldR).toDouble();
-
-    // إنشاء موديل القراءة
-    final reading = ReadingModelHive(
-      userId: userId,
-      consumption: result.consumption,
-      price: result.totalPrice,
-      date: DateTime.now().toIso8601String(),
-      difference_readings: difference,
-      chip: '', // ممكن تعدلي الاسم حسب الجهاز أو المستخدم
-      createdAt: DateTime.now().toIso8601String(),
-      new_reading: newR,
-      old_reading: oldR,
-    );
-
-    // حفظ في Hive (والسيرفس هتعمل Sync لوحدها لو فيه نت)
-    await readingHiveService.saveReadings(reading);
-
-    // مسح القراءة الجديدة بعد الحفظ
-    newReadingController.clear();
-
-    Get.snackbar(
-      'تم الحفظ',
-      'تم حفظ القراءة في الجهاز بنجاح',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
-  } catch (e) {
-    Get.snackbar(
-      'خطأ',
-      'حدثت مشكلة أثناء حفظ القراءة',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-    );
-    print("Hive Save Error: $e");
   }
-}
 }

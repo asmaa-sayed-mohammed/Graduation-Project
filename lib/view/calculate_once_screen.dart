@@ -158,7 +158,7 @@ class CalculateOnceScreen extends StatelessWidget {
                         newReading: newReading,
                         consumption: result.consumption,
                         totalPrice: result.totalPrice,
-                        tier: result.tier.toString(),
+                        tier: result.chip.toString(),
                       ),
                     );
                   }

@@ -41,12 +41,11 @@ class _ReadingScreenState extends State<ReadingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ===== PageHeader بدون أي padding =====
+                  // ===== PageHeader =====
                   const PageHeader(title: "إدخال القراءة"),
 
                   const SizedBox(height: 25),
 
-                  // ===== باقي المحتوى داخل Padding من الجانبين =====
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     child: Column(
@@ -119,7 +118,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                   home.manualUsage.value = result.consumption;
                                   home.manualPrice.value = result.totalPrice;
 
-                                  // 🔙 الرجوع للصفحة الرئيسية مع الحفاظ على BottomNavBar
+                                  //  الرجوع للصفحة الرئيسية مع الحفاظ على BottomNavBar
                                   final navController =
                                       Get.find<NavigationController>();
                                   navController.currentIndex.value = 0;
@@ -167,7 +166,8 @@ class _ReadingScreenState extends State<ReadingScreen> {
                           child: InkWell(
                             borderRadius: BorderRadius.circular(35),
                             onTap: () async {
-                              final user = Supabase.instance.client.auth.currentUser;
+                              final user =
+                                  Supabase.instance.client.auth.currentUser;
                               if (user == null) {
                                 Get.snackbar(
                                   'خطأ',
@@ -216,8 +216,6 @@ class _ReadingScreenState extends State<ReadingScreen> {
                             ),
                           ),
                         ),
-
-
                       ],
                     ),
                   ),
