@@ -47,7 +47,7 @@ class ProfileHiveAdapter extends TypeAdapter<ProfileHive> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ProfileHiveAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is ProfileHiveAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

@@ -161,7 +161,63 @@ class _ReadingScreenState extends State<ReadingScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 20),
+
+                        Center(
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(35),
+                            onTap: () async {
+                              final user = Supabase.instance.client.auth.currentUser;
+                              if (user == null) {
+                                Get.snackbar(
+                                  'خطأ',
+                                  'المستخدم غير مسجل الدخول',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.redAccent,
+                                  colorText: Colors.white,
+                                );
+                                return;
+                              }
+
+                              await controller.saveReadingToHive(user.id);
+
+                              Get.snackbar(
+                                'تم الحفظ',
+                                'تم حفظ القراءة في Hive',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.blueAccent,
+                                colorText: Colors.white,
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 80,
+                                vertical: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.primary_color,
+                                borderRadius: BorderRadius.circular(35),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.15),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Text(
+                                "حفظ القراءة",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+
                       ],
                     ),
                   ),

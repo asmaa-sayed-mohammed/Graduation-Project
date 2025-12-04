@@ -20,7 +20,7 @@ class ReadingModelHive{
   @HiveField(4)
   String createdAt;
 
-  ReadingModelHive({required this.userId, required this.difference_readings, required this.price, required this.chip, required this.createdAt});
+  ReadingModelHive({required this.userId, required this.difference_readings, required this.price, required this.chip, required this.createdAt, int new_reading = 0, int old_reading = 0, double consumption = 0.0, String date = ''});
 
   factory ReadingModelHive.fromMap(Map<String, dynamic> map) {
     return ReadingModelHive(

@@ -5,6 +5,9 @@ import 'package:flutter/painting.dart';
 import 'package:get/get.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:graduation_project/models/manual_calculation_result.dart';
+import 'package:graduation_project/models/reading_model_hive.dart';
+import 'package:graduation_project/services/reading_hive_service.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -47,6 +50,10 @@ class ReadingController extends GetxController {
   late final TextRecognizer textRecognizer;
 
   String? savedOldReading;
+
+  final readingHiveService = ReadingHiveService(Hive.box<ReadingModelHive>('ReadingBox'));
+
+
 
   @override
   void onInit() {
@@ -533,4 +540,79 @@ class ReadingController extends GetxController {
       numeric += (m.group(0)!.codeUnitAt(0) - 0x0660).toString();
     return double.tryParse(numeric) ?? 0.0;
   }
+
+// ========== Save in Hive ==================
+// ========== Save in Hive ==================
+Future<void> saveReadingToHive(String userId) async {
+  try {
+    // احسب القراءة من خلال الفانكشن بتاعتك
+    final result = calculateManualResult();
+
+    // لو في مشكلة في الإدخال
+    if (result.hasError) {
+      Get.snackbar(
+        'خطأ',
+        result.errorMessage!,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // تحويل القيم
+    final oldR = int.tryParse(oldReadingController.text);
+    final newR = int.tryParse(newReadingController.text);
+
+    if (oldR == null || newR == null) {
+      Get.snackbar(
+        'خطأ',
+        'صيغة القراءة غير صحيحة',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // حساب الفرق
+    final difference = (newR - oldR).toDouble();
+
+    // إنشاء موديل القراءة
+    final reading = ReadingModelHive(
+      userId: userId,
+      consumption: result.consumption,
+      price: result.totalPrice,
+      date: DateTime.now().toIso8601String(),
+      difference_readings: difference,
+      chip: '', // ممكن تعدلي الاسم حسب الجهاز أو المستخدم
+      createdAt: DateTime.now().toIso8601String(),
+      new_reading: newR,
+      old_reading: oldR,
+    );
+
+    // حفظ في Hive (والسيرفس هتعمل Sync لوحدها لو فيه نت)
+    await readingHiveService.saveReadings(reading);
+
+    // مسح القراءة الجديدة بعد الحفظ
+    newReadingController.clear();
+
+    Get.snackbar(
+      'تم الحفظ',
+      'تم حفظ القراءة في الجهاز بنجاح',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+  } catch (e) {
+    Get.snackbar(
+      'خطأ',
+      'حدثت مشكلة أثناء حفظ القراءة',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.redAccent,
+      colorText: Colors.white,
+    );
+    print("Hive Save Error: $e");
+  }
+}
 }
