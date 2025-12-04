@@ -4,6 +4,7 @@ import '../controllers/appliances_controller.dart';
 import '../models/user_appliance_model.dart';
 import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
+import 'main_screen.dart';
 
 class AppliancesScreen extends StatelessWidget {
   AppliancesScreen({super.key});
@@ -47,6 +48,7 @@ class AppliancesScreen extends StatelessWidget {
             PageHeader(
               title: "كل الأجهزة",
               subtitle: "أضف أو حدث بيانات الأجهزة الخاصة بك",
+              leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black, size: 26,), onPressed: ()=>Get.to(MainScreen()),),
             ),
             Obx(() {
               if (controller.isLoading.value) {

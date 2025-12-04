@@ -29,8 +29,40 @@ class SignUpController extends GetxController {
     company: "",
   );
 
+  bool isValidEmail(String email) {
+    return GetUtils.isEmail(email);
+  }
+
+  bool isValidPassword(String password) {
+    return password.length >= 6;
+  }
+
+
   Future<void> registerAccount() async {
     try {
+      // التحقق من البيانات قبل أي شيء
+      if (!isValidEmail(model.email)) {
+        Get.snackbar(
+          "خطأ",
+          "من فضلك ادخل بريد إلكتروني صحيح",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      if (!isValidPassword(model.password)) {
+        Get.snackbar(
+          "خطأ",
+          "يجب أن تكون كلمة المرور 6 حروف على الأقل",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
       hasInternet = await connectivityService.connected();
       if(!hasInternet){
         Get.snackbar(
@@ -41,7 +73,8 @@ class SignUpController extends GetxController {
           colorText: Colors.white,
         );
         return;
-      }else{
+      } else {
+
         isLoading.value = true;
 
         final user = await auth.register(model.email, model.password);
@@ -70,6 +103,7 @@ class SignUpController extends GetxController {
       isLoading.value = false;
     }
   }
+
 
   Future<void> saveProfile() async {
     try {
