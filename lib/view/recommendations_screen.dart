@@ -11,8 +11,6 @@ class RecommendationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    controller.generateRecommendations();
-
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
