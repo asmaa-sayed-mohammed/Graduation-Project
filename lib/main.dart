@@ -44,7 +44,7 @@ void main() async {
   if (!kIsWeb && Platform.isAndroid) {
     final workManagerService = WorkManagerService();
     await workManagerService.initialize();
-    workManagerService.registerPeriodicNotification();
+    workManagerService.registerPeriodicNotificationAtTime();
   }
 
   // 3. تهيئة Hive

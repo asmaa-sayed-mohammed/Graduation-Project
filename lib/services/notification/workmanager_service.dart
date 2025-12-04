@@ -17,11 +17,28 @@ class WorkManagerService {
     await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   }
 
-  void registerPeriodicNotification() {
+  void registerPeriodicNotificationAtTime() {
+    const targetHour = 13;
+
+    DateTime now = DateTime.now();
+    DateTime nextRun = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      targetHour,
+    );
+
+    if (nextRun.isBefore(now)) {
+      nextRun = nextRun.add( Duration(days: 1));
+    }
+
+    Duration initialDelay = nextRun.difference(now);
+
     Workmanager().registerPeriodicTask(
-        DateTime.now().second.toString(),
-      "3 Days Reminder",
-      frequency: const Duration(days: 3),
+      "reminder_at_specific_time",
+      "3_Day_Reminder_Task",
+      frequency:  Duration(days: 3),
+      initialDelay: initialDelay,
     );
   }
 }
