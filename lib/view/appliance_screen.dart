@@ -18,6 +18,7 @@ class PriorityDropdown extends StatelessWidget {
     return Obx(() {
       return DropdownButton<String>(
         value: priority.value,
+        dropdownColor: Colors.white,
         items: const [
           DropdownMenuItem(value: "important", child: Text("مهم")),
           DropdownMenuItem(value: "not_important", child: Text("غير مهم")),

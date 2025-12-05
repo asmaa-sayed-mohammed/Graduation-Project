@@ -268,19 +268,23 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                                         const Text("الأولوية: ",
                                             style: TextStyle(fontSize: 16)),
                                         Obx(() => DropdownButton<String>(
-                                          value: priority.value,
-                                          items: const [
-                                            DropdownMenuItem(
-                                                value: "important",
-                                                child: Text("مهم")),
-                                            DropdownMenuItem(
-                                                value: "not_important",
-                                                child: Text("غير مهم")),
-                                          ],
-                                          onChanged: (v) {
-                                            if (v != null) priority.value = v;
-                                          },
-                                        )),
+                                              value: priority.value,
+                                              dropdownColor: Colors.white, // الخلفية البيضا
+                                              items: const [
+                                                DropdownMenuItem(
+                                                  value: "important",
+                                                  child: Text("مهم"),
+                                                ),
+                                                DropdownMenuItem(
+                                                  value: "not_important",
+                                                  child: Text("غير مهم"),
+                                                ),
+                                              ],
+                                              onChanged: (v) {
+                                                if (v != null) priority.value = v;
+                                              },
+                                            ),
+                                        ),
                                         const Spacer(),
                                         IconButton(
                                           icon: const Icon(Icons.delete,
