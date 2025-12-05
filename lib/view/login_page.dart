@@ -29,8 +29,14 @@ class LoginPage extends StatelessWidget {
     if (loggedIn) {
       Get.off(() => MainScreen());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('فشل تسجيل الدخول')),
+      await Get.defaultDialog(
+        title: " خطأ في تسجيل الدخول",
+        middleText: "يرجى التحقق من بريدك الإلكتروني و كلمة السر مرة اخرى.",
+        barrierDismissible: false,
+        textConfirm: "حسنا",
+        onConfirm: () {
+          Get.back();
+        },
       );
     }
   }
