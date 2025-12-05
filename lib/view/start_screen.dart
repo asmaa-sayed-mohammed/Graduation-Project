@@ -5,10 +5,13 @@ import 'package:graduation_project/controllers/start_controller.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/view/history_screen.dart';
 import 'package:graduation_project/view/profile_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../controllers/reading_controller.dart';
 import '../core/widgets/page_header.dart';
 
 class StartScreen extends StatelessWidget {
   final HomeController controller = Get.put(HomeController());
+  final ReadingController reading_controller = Get.put(ReadingController());
 
   StartScreen({super.key});
 
@@ -114,11 +117,66 @@ class StartScreen extends StatelessWidget {
 
               const SizedBox(height: 25),
 
+              Center(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(35),
+                  onTap: () async {
+                    final user =
+                        Supabase.instance.client.auth.currentUser;
+                    if (user == null) {
+                      Get.snackbar(
+                        'خطأ',
+                        'المستخدم غير مسجل الدخول',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.redAccent,
+                        colorText: Colors.white,
+                      );
+                      return;
+                    }
+
+                    await reading_controller.saveReadingToHive(user.id);
+
+                    Get.snackbar(
+                      'تم الحفظ',
+                      'تم حفظ القراءة محليا ',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.blueAccent,
+                      colorText: Colors.white,
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 80,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColor.primary_color,
+                      borderRadius: BorderRadius.circular(35),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Text(
+                      "حفظ القراءة",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
               // Monthly Title
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.centerRight,
                   child: Text(
                     "التكلفة الشهرية",
                     style: TextStyle(
