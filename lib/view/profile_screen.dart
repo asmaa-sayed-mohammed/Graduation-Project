@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:graduation_project/services/auth_service.dart';
 import '../controllers/profile_controller.dart';
 import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
+import 'main_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
 
   final ProfileController controller = Get.put(ProfileController());
+  final _authService = new AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +28,9 @@ class ProfileScreen extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const PageHeader(title: "الملف الشخصي"),
+                    PageHeader(title: "الملف الشخصي",
+                      leading: IconButton(icon: const Icon(Icons.arrow_forward, color: Colors.black, size: 26,), onPressed: ()=>Get.to(MainScreen()),),
+                    ),
                     const SizedBox(height: 30),
                     Obx(() {
                       final profile = controller.profile.value;
@@ -62,14 +67,39 @@ class ProfileScreen extends StatelessWidget {
                           const SizedBox(height: 15),
                           _buildInfoCard("اسم الشركة", profile.companyName ?? "لا يوجد"),
                           const SizedBox(height: 15),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ElevatedButton(
+                              onPressed: () => _authService.logOut(),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColor.red,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 50, vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              child: Text(
+                                ' تسجيل الخروج',
+                                style: TextStyle(
+                                  color: AppColor.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 30),
                         ],
                       );
                     }),
                   ],
+
                 ),
               ),
             );
           },
+
         ),
       ),
     );
@@ -111,5 +141,6 @@ class ProfileScreen extends StatelessWidget {
         ],
       ),
     );
+
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
+import 'main_screen.dart';
 
 class TipsScreen extends StatefulWidget {
   const TipsScreen({super.key});
@@ -48,10 +49,11 @@ class _TipsScreenState extends State<TipsScreen>
         backgroundColor: AppColor.white2,
         body: Column(
           children: [
-            const PageHeader(
+            PageHeader(
               title: "نصائح عامة",
               subtitle: "استهلاك أقل .. توفير أكبر 💡",
-              leading: Icon(Icons.lightbulb, color: Colors.black, size: 28),
+              leading: IconButton(icon:  const Icon(Icons.arrow_forward, color: Colors.black, size: 26,), onPressed: ()=>Get.to(MainScreen()),),
+              trailing: const Icon(Icons.lightbulb, color: Colors.black, size: 28),
             ),
 
             const SizedBox(height: 10),

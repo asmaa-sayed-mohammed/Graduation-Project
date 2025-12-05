@@ -1,4 +1,7 @@
 // services/auth_service.dart
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:graduation_project/view/homescreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../main.dart';
@@ -41,6 +44,7 @@ class AuthService {
   Future<bool> logOut() async {
     try {
       await cloud.auth.signOut();
+      Get.off(()=>Homescreen());
       return true;
     } catch (e) {
       print(e);
