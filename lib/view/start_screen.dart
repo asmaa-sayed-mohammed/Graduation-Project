@@ -172,6 +172,8 @@ class StartScreen extends StatelessWidget {
                 ),
               ),
 
+              const SizedBox(height: 20,),
+
               // Monthly Title
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),

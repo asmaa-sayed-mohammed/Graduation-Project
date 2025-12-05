@@ -11,7 +11,7 @@ class CompanyScreen extends GetView<ElectricityController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final isArabic = controller.isArabicInput.value;
+      var isArabic = controller.isArabicInput.value;
       return Directionality(
         textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
         child: SafeArea(
@@ -22,7 +22,7 @@ class CompanyScreen extends GetView<ElectricityController> {
                 children: [
                   // استخدام الهيدر الموحد زي باقي الصفحات
                   PageHeader(
-                    title: isArabic ? 'شركة الكهرباء' : 'Electricity Company',
+                    title: 'شركة الكهرباء',
                     subtitle: null,
                     leading: null,
                   ),
@@ -40,7 +40,7 @@ class CompanyScreen extends GetView<ElectricityController> {
                       textAlign: isArabic ? TextAlign.right : TextAlign.left,
                       style: const TextStyle(fontSize: 16),
                       decoration: InputDecoration(
-                        hintText: isArabic ? 'أدخل اسم المنطقة أو المحافظة' : 'faisal.giza',
+                        hintText: 'أدخل اسم المنطقة أو المحافظة',
                         hintStyle: const TextStyle(color: Colors.grey),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.location_searching, color: Colors.black54),
@@ -68,7 +68,7 @@ class CompanyScreen extends GetView<ElectricityController> {
                     ),
                     onPressed: controller.findCompany,
                     child: Text(
-                      isArabic ? 'ابحث عن الشركة' : 'Find the company',
+                       'ابحث عن الشركة',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -114,7 +114,7 @@ class CompanyScreen extends GetView<ElectricityController> {
                                   ElevatedButton.icon(
                                     onPressed: controller.openMap,
                                     icon: const Icon(Icons.map_outlined),
-                                    label: Text(isArabic ? 'الخريطة' : 'Map'),
+                                    label: Text('الخريطة' ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: primaryYellowColor,
                                       foregroundColor: Colors.black,
@@ -127,7 +127,7 @@ class CompanyScreen extends GetView<ElectricityController> {
                                   ElevatedButton.icon(
                                     onPressed: controller.saveCurrentCompany,
                                     icon: const Icon(Icons.favorite),
-                                    label: Text(isArabic ? 'حفظ' : 'Save'),
+                                    label: Text( 'حفظ' ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: primaryYellowColor,
                                       foregroundColor: Colors.black,
