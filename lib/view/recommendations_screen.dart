@@ -23,7 +23,7 @@ class RecommendationsScreen extends StatelessWidget {
                 title: "توصيات استهلاك الكهرباء",
                 subtitle: "راجع استهلاكك واقتراحات التوفير",
 
-                leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black, size: 26,), onPressed: ()=>Get.to(MainScreen()),),
+                // leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black, size: 26,), onPressed: ()=>Get.to(MainScreen()),),
                 trailing: IconButton(
                   icon: const Icon(Icons.refresh, color: Colors.black),
                   onPressed: () {

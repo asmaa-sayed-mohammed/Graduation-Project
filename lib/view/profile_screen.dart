@@ -29,7 +29,7 @@ class ProfileScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     PageHeader(title: "الملف الشخصي",
-                      leading: IconButton(icon: const Icon(Icons.arrow_forward, color: Colors.black, size: 26,), onPressed: ()=>Get.to(MainScreen()),),
+                      leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black, size: 26,), onPressed: ()=>Get.to(MainScreen()),),
                     ),
                     const SizedBox(height: 30),
                     Obx(() {

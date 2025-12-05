@@ -38,7 +38,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
               PageHeader(
                 title: "إدارة الأجهزة والميزانية",
                 subtitle: "راجع ميزانيتك الشهرية وأجهزتك المضافة",
-                leading: IconButton(icon: const Icon(Icons.arrow_forward, color: Colors.black, size: 26,), onPressed: ()=>Get.back()),
+                // leading: IconButton(icon: const Icon(Icons.arrow_forward, color: Colors.black, size: 26,), onPressed: ()=>Get.back()),
               ),
               Expanded(
                 child: SingleChildScrollView(
