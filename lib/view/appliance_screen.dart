@@ -6,12 +6,37 @@ import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
 import 'main_screen.dart';
 
+// =====================
+// Dropdown Widget منفصل
+// =====================
+class PriorityDropdown extends StatelessWidget {
+  final RxString priority;
+  const PriorityDropdown({required this.priority, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      return DropdownButton<String>(
+        value: priority.value,
+        items: const [
+          DropdownMenuItem(value: "important", child: Text("مهم")),
+          DropdownMenuItem(value: "not_important", child: Text("غير مهم")),
+        ],
+        onChanged: (v) {
+          if (v != null) priority.value = v;
+        },
+      );
+    });
+  }
+}
+
+// =====================
+// Screen الرئيسي
+// =====================
 class AppliancesScreen extends StatelessWidget {
   AppliancesScreen({super.key});
-
   final controller = Get.find<AppliancesController>();
 
-  // Helper to extract category from name
   String getCategory(String name) {
     if (name.contains("تكييف")) return "تكييف";
     if (name.contains("ثلاجة")) return "ثلاجات";
@@ -39,6 +64,9 @@ class AppliancesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedCategory = "كل الأجهزة".obs;
+    final int initialVisible = 3; // عدد الأجهزة اللي تظهر أولًا
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -48,8 +76,12 @@ class AppliancesScreen extends StatelessWidget {
             PageHeader(
               title: "كل الأجهزة",
               subtitle: "أضف أو حدث بيانات الأجهزة الخاصة بك",
-              leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black, size: 26,), onPressed: ()=>Get.to(MainScreen()),),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_forward, color: Colors.black, size: 26),
+                onPressed: () => Get.back(),
+              ),
             ),
+
             Obx(() {
               if (controller.isLoading.value) {
                 return const Expanded(
@@ -59,40 +91,41 @@ class AppliancesScreen extends StatelessWidget {
 
               if (controller.appliances.isEmpty) {
                 return const Expanded(
-                    child: Center(
-                        child: Text("لا توجد أجهزة",
-                            style: TextStyle(fontSize: 16))));
+                  child: Center(
+                    child: Text("لا توجد أجهزة", style: TextStyle(fontSize: 16)),
+                  ),
+                );
               }
 
-              // Group appliances by category
+              // ============================
+              // Group Appliances
+              // ============================
               final Map<String, List<dynamic>> grouped = {};
-              for (var appliance in controller.appliances) {
-                final cat = getCategory(appliance.name);
-                grouped.putIfAbsent(cat, () => []).add(appliance);
+              for (var a in controller.appliances) {
+                final cat = getCategory(a.name);
+                grouped.putIfAbsent(cat, () => []).add(a);
               }
 
               final categories = grouped.keys.toList();
-              final selectedCategory = RxString("كل الأجهزة");
 
               return Expanded(
                 child: Column(
                   children: [
-                    // شريط أزرار الفئات
+                    // ============================
+                    // Category Buttons
+                    // ============================
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       child: Row(
                         children: [
                           ...["كل الأجهزة", ...categories].map(
                                 (cat) => Obx(
                                   () => Padding(
-                                padding:
-                                const EdgeInsets.symmetric(horizontal: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                    selectedCategory.value == cat
+                                    backgroundColor: selectedCategory.value == cat
                                         ? AppColor.primary_color
                                         : Colors.grey.shade300,
                                   ),
@@ -100,244 +133,248 @@ class AppliancesScreen extends StatelessWidget {
                                   child: Text(
                                     cat,
                                     style: TextStyle(
-                                        color: selectedCategory.value == cat
-                                            ? Colors.white
-                                            : Colors.black),
+                                      color: selectedCategory.value == cat
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
 
-                    // ListView للأجهزة
-                    Expanded(
-                      child: Obx(() {
-                        return ListView(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 8),
-                          children: grouped.entries
-                              .where((entry) =>
-                          selectedCategory.value == "كل الأجهزة" ||
-                              selectedCategory.value == entry.key)
-                              .map((entry) {
-                            final category = entry.key;
-                            final appliances = entry.value;
+                    const SizedBox(height: 6),
+
+                    // ============================
+                    // Main ListView
+                    // ============================
+                    Obx(() {
+                      final filteredGroups = grouped.entries.where((e) =>
+                      selectedCategory.value == "كل الأجهزة" ||
+                          selectedCategory.value == e.key);
+
+                      final list = filteredGroups.toList();
+
+                      return Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          itemCount: list.length,
+                          itemBuilder: (context, index) {
+                            final category = list[index].key;
+                            final appliances = list[index].value;
+
+                            // عدد الأجهزة المرئية حاليا لكل فئة
+                            final visibleCountRx = RxInt(
+                                (appliances.length < initialVisible)
+                                    ? appliances.length
+                                    : initialVisible);
 
                             return ExpansionTile(
-                              initiallyExpanded: true,
+                              initiallyExpanded: false,
                               title: Text(
                                 category,
                                 style: const TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               ),
-                              children: appliances.map((appliance) {
-                                final userUa = controller.userAppliances
-                                    .firstWhereOrNull(
-                                        (ua) => ua.applianceId == appliance.id);
+                              children: [
+                                Obx(() {
+                                  return Column(
+                                    children: [
+                                      // عرض الأجهزة المرئية
+                                      ...List.generate(visibleCountRx.value, (i) {
+                                        final appliance = appliances[i];
+                                        final userUa = controller.userAppliances
+                                            .firstWhereOrNull(
+                                                (ua) => ua.applianceId == appliance.id);
+                                        final hours = (userUa?.hoursPerDay ?? 1.0).obs;
+                                        final qty = (userUa?.quantity ?? 1).obs;
+                                        final priority = (userUa?.priority ?? "important").obs;
 
-                                final hours = RxDouble(userUa?.hoursPerDay ?? 1.0);
-                                final qty = RxInt(userUa?.quantity ?? 1);
-                                final priority =
-                                RxString(userUa?.priority ?? "important");
+                                        return Card(
+                                          color: Colors.white,
+                                          elevation: 3,
+                                          margin: const EdgeInsets.symmetric(vertical: 6),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(12),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "${appliance.name} (${appliance.brand}) - ${appliance.watt} وات",
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.bold),
+                                                ),
+                                                const SizedBox(height: 10),
 
-                                return Card(
-                                  elevation: 2,
-                                  margin:
-                                  const EdgeInsets.symmetric(vertical: 6),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "${appliance.name} (${appliance.brand}) - ${appliance.watt} وات",
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.schedule,
-                                                size: 20, color: Colors.grey),
-                                            const SizedBox(width: 6),
-                                            const Text("ساعات/يوم: "),
-                                            SizedBox(
-                                              width: 60,
-                                              child: Obx(() => TextFormField(
-                                                initialValue:
-                                                hours.value.toString(),
-                                                keyboardType:
-                                                TextInputType.number,
-                                                textAlign: TextAlign.center,
-                                                decoration: InputDecoration(
-                                                  isDense: true,
-                                                  contentPadding:
-                                                  const EdgeInsets
-                                                      .symmetric(
-                                                      vertical: 6,
-                                                      horizontal: 6),
-                                                  border:
-                                                  OutlineInputBorder(
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                        8),
-                                                  ),
-                                                  fillColor:
-                                                  Colors.grey.shade100,
-                                                  filled: true,
+                                                // ساعات + كمية
+                                                Row(
+                                                  children: [
+                                                    const Icon(Icons.schedule,
+                                                        size: 20, color: Colors.grey),
+                                                    const SizedBox(width: 6),
+                                                    const Text("ساعات/يوم: "),
+                                                    SizedBox(
+                                                      width: 60,
+                                                      child: Obx(() => TextFormField(
+                                                        initialValue:
+                                                        hours.value.toString(),
+                                                        keyboardType:
+                                                        TextInputType.number,
+                                                        textAlign: TextAlign.center,
+                                                        decoration: InputDecoration(
+                                                          isDense: true,
+                                                          filled: true,
+                                                          fillColor:
+                                                          Colors.grey.shade100,
+                                                          contentPadding:
+                                                          const EdgeInsets.symmetric(
+                                                              vertical: 6, horizontal: 6),
+                                                          border: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(8)),
+                                                        ),
+                                                        onChanged: (v) {
+                                                          hours.value =
+                                                              double.tryParse(v) ?? 1.0;
+                                                        },
+                                                      )),
+                                                    ),
+                                                    const SizedBox(width: 16),
+                                                    const Icon(Icons.confirmation_num,
+                                                        size: 20, color: Colors.grey),
+                                                    const SizedBox(width: 6),
+                                                    const Text("الكمية: "),
+                                                    SizedBox(
+                                                      width: 50,
+                                                      child: Obx(() => TextFormField(
+                                                        initialValue: qty.value.toString(),
+                                                        keyboardType: TextInputType.number,
+                                                        textAlign: TextAlign.center,
+                                                        decoration: InputDecoration(
+                                                          isDense: true,
+                                                          filled: true,
+                                                          fillColor: Colors.grey.shade100,
+                                                          contentPadding:
+                                                          const EdgeInsets.symmetric(
+                                                              vertical: 6, horizontal: 6),
+                                                          border: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(8)),
+                                                        ),
+                                                        onChanged: (v) {
+                                                          qty.value = int.tryParse(v) ?? 1;
+                                                        },
+                                                      )),
+                                                    ),
+                                                  ],
                                                 ),
-                                                onChanged: (v) =>
-                                                hours.value =
-                                                    double.tryParse(v) ??
-                                                        1.0,
-                                              )),
-                                            ),
-                                            const SizedBox(width: 16),
-                                            const Icon(Icons.confirmation_num,
-                                                size: 20, color: Colors.grey),
-                                            const SizedBox(width: 6),
-                                            const Text("الكمية: "),
-                                            SizedBox(
-                                              width: 50,
-                                              child: Obx(() => TextFormField(
-                                                initialValue: qty.value
-                                                    .toString(),
-                                                keyboardType:
-                                                TextInputType.number,
-                                                textAlign: TextAlign.center,
-                                                decoration: InputDecoration(
-                                                  isDense: true,
-                                                  contentPadding:
-                                                  const EdgeInsets
-                                                      .symmetric(
-                                                      vertical: 6,
-                                                      horizontal: 6),
-                                                  border:
-                                                  OutlineInputBorder(
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                        8),
-                                                  ),
-                                                  fillColor:
-                                                  Colors.grey.shade100,
-                                                  filled: true,
+
+                                                const SizedBox(height: 10),
+
+                                                // Priority + Delete
+                                                Row(
+                                                  children: [
+                                                    const Icon(Icons.flag,
+                                                        size: 20, color: Colors.grey),
+                                                    const SizedBox(width: 6),
+                                                    const Text("الأولوية: "),
+                                                    PriorityDropdown(priority: priority),
+                                                    const Spacer(),
+                                                    IconButton(
+                                                      icon: const Icon(Icons.delete,
+                                                          color: Colors.red, size: 28),
+                                                      onPressed: () {
+                                                        controller.deleteUserAppliance(
+                                                            userUa ??
+                                                                UserAppliance(
+                                                                    applianceId: appliance.id,
+                                                                    name: appliance.name,
+                                                                    brand: appliance.brand,
+                                                                    watt: appliance.watt,
+                                                                    hoursPerDay: 1,
+                                                                    quantity: 1,
+                                                                    priority: "important"));
+                                                      },
+                                                    ),
+                                                  ],
                                                 ),
-                                                onChanged: (v) => qty.value =
-                                                    int.tryParse(v) ?? 1,
-                                              )),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.flag,
-                                                size: 20, color: Colors.grey),
-                                            const SizedBox(width: 6),
-                                            const Text("الأولوية: "),
-                                            Obx(() => DropdownButton<String>(
-                                              value: priority.value,
-                                              items: const [
-                                                DropdownMenuItem(
-                                                    value: "important",
-                                                    child: Text("مهم")),
-                                                DropdownMenuItem(
-                                                    value: "not_important",
-                                                    child: Text("غير مهم")),
+
+                                                const SizedBox(height: 10),
+
+                                                Align(
+                                                  alignment: Alignment.centerRight,
+                                                  child: ElevatedButton.icon(
+                                                    onPressed: () async {
+                                                      if (userUa != null) {
+                                                        final updatedUa = userUa.copyWith(
+                                                            hoursPerDay: hours.value,
+                                                            quantity: qty.value,
+                                                            priority: priority.value);
+                                                        await controller.updateUserAppliance(
+                                                            updatedUa);
+                                                        Get.snackbar("تم التحديث",
+                                                            "تم تحديث بيانات الجهاز بنجاح",
+                                                            snackPosition:
+                                                            SnackPosition.BOTTOM);
+                                                      } else {
+                                                        await controller.addApplianceCustom(
+                                                            appliance,
+                                                            hoursPerDay: hours.value,
+                                                            quantity: qty.value,
+                                                            priority: priority.value);
+                                                        Get.snackbar("تم الإضافة",
+                                                            "تم إضافة الجهاز بنجاح",
+                                                            snackPosition:
+                                                            SnackPosition.BOTTOM);
+                                                      }
+                                                    },
+                                                    icon: Icon(userUa != null
+                                                        ? Icons.update
+                                                        : Icons.add, color: Colors.black,),
+                                                    label: Text(userUa != null
+                                                        ? "تحديث"
+                                                        : "أضف",style: TextStyle(color: Colors.black),),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:
+                                                      AppColor.primary_color,
+                                                      padding: const EdgeInsets.symmetric(
+                                                          vertical: 12, horizontal: 20),
+                                                      shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(12)),
+                                                    ),
+                                                  ),
+                                                ),
                                               ],
-                                              onChanged: (v) {
-                                                if (v != null)
-                                                  priority.value = v;
-                                              },
-                                            )),
-                                            const Spacer(),
-                                            IconButton(
-                                              icon: const Icon(Icons.delete,
-                                                  color: Colors.red, size: 28),
-                                              onPressed: () {
-                                                controller.deleteUserAppliance(
-                                                    userUa ??
-                                                        UserAppliance(
-                                                          applianceId:
-                                                          appliance.id,
-                                                          name: appliance.name,
-                                                          brand: appliance.brand,
-                                                          watt: appliance.watt,
-                                                          hoursPerDay: 1,
-                                                          quantity: 1,
-                                                          priority: "important",
-                                                        ));
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: ElevatedButton.icon(
-                                            onPressed: () async {
-                                              if (userUa != null) {
-                                                final updatedUa = userUa.copyWith(
-                                                    hoursPerDay: hours.value,
-                                                    quantity: qty.value,
-                                                    priority: priority.value);
-                                                await controller
-                                                    .updateUserAppliance(
-                                                    updatedUa);
-                                                Get.snackbar(
-                                                    "تم التحديث",
-                                                    "تم تحديث بيانات الجهاز بنجاح",
-                                                    snackPosition:
-                                                    SnackPosition.BOTTOM);
-                                              } else {
-                                                await controller.addApplianceCustom(
-                                                    appliance,
-                                                    hoursPerDay: hours.value,
-                                                    quantity: qty.value,
-                                                    priority: priority.value);
-                                                Get.snackbar(
-                                                    "تم الإضافة",
-                                                    "تم إضافة الجهاز بنجاح",
-                                                    snackPosition:
-                                                    SnackPosition.BOTTOM);
-                                              }
-                                            },
-                                            icon: Icon(userUa != null
-                                                ? Icons.update
-                                                : Icons.add),
-                                            label: Text(
-                                                userUa != null ? "تحديث" : "أضف"),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                              AppColor.primary_color,
-                                              padding:
-                                              const EdgeInsets.symmetric(
-                                                  vertical: 12,
-                                                  horizontal: 20),
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                  BorderRadius.circular(12)),
                                             ),
                                           ),
+                                        );
+                                      }),
+
+                                      // ============================
+                                      // زر عرض المزيد (3 إضافية)
+                                      // ============================
+                                      if (visibleCountRx.value < appliances.length)
+                                        TextButton(
+                                          onPressed: () {
+                                            final remaining = appliances.length - visibleCountRx.value;
+                                            visibleCountRx.value += (remaining >= 3) ? 3 : remaining;
+                                          },
+                                          child: const Text("عرض المزيد",style: TextStyle(color: Colors.black, fontSize: 18),),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
+                                    ],
+                                  );
+                                }),
+                              ],
                             );
-                          }).toList(),
-                        );
-                      }),
-                    ),
+                          },
+                        ),
+                      );
+                    }),
                   ],
                 ),
               );

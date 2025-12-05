@@ -38,7 +38,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
               PageHeader(
                 title: "إدارة الأجهزة والميزانية",
                 subtitle: "راجع ميزانيتك الشهرية وأجهزتك المضافة",
-                leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black, size: 26,), onPressed: ()=>Get.to(MainScreen()),),
+                leading: IconButton(icon: const Icon(Icons.arrow_forward, color: Colors.black, size: 26,), onPressed: ()=>Get.back()),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -109,8 +109,8 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                                           "⚠️ خطأ",
                                           "الرجاء إدخال قيمة صحيحة أكبر أو تساوي صفر",
                                           snackPosition: SnackPosition.BOTTOM,
-                                          backgroundColor: Colors.red.shade100,
-                                          colorText: Colors.black,
+                                          backgroundColor: Colors.red,
+                                          colorText: Colors.white,
                                         );
                                       }
                                     },
@@ -158,8 +158,8 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                           onPressed: () {
                             Get.to(() => AppliancesScreen());
                           },
-                          icon: const Icon(Icons.add),
-                          label: const Text("أضف جهاز جديد"),
+                          icon: const Icon(Icons.add, color: Colors.black,),
+                          label: const Text("أضف جهاز جديد", style: TextStyle(color: Colors.black, fontSize: 20),),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColor.primary_color,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -193,6 +193,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                             final priority = RxString(ua.priority);
         
                             return Card(
+                              color: Colors.white,
                               margin: const EdgeInsets.only(bottom: 16),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20)),
