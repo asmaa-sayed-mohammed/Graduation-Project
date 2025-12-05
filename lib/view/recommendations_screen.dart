@@ -20,7 +20,7 @@ class RecommendationsScreen extends StatelessWidget {
           body: Column(
             children: [
               PageHeader(
-                title: "توصيات استهلاك الكهرباء",
+                title: "اقتراحات للتوفير",
                 subtitle: "راجع استهلاكك واقتراحات التوفير",
                 trailing: IconButton(
                   icon: const Icon(Icons.refresh, color: Colors.black),
