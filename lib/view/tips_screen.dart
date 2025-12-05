@@ -51,7 +51,7 @@ class _TipsScreenState extends State<TipsScreen>
           children: [
             PageHeader(
               title: "نصائح عامة",
-              subtitle: "استهلاك أقل .. توفير أكبر 💡",
+              subtitle: "استهلاك أقل .. توفير أكبر ",
               leading: IconButton(icon:  const Icon(Icons.arrow_forward, color: Colors.black, size: 26,), onPressed: ()=>Get.to(MainScreen()),),
               trailing: const Icon(Icons.lightbulb, color: Colors.black, size: 28),
             ),
