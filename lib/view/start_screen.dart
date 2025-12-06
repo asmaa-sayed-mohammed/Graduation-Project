@@ -8,10 +8,12 @@ import 'package:graduation_project/view/profile_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../controllers/reading_controller.dart';
 import '../core/widgets/page_header.dart';
+import '../controllers/budget_controller.dart'; // تعديل جديد: إضافة BudgetController
 
 class StartScreen extends StatelessWidget {
   final HomeController controller = Get.put(HomeController());
   final ReadingController reading_controller = Get.put(ReadingController());
+  final BudgetController budgetController = Get.put(BudgetController()); // تعديل جديد: إضافة BudgetController
 
   StartScreen({super.key});
 
@@ -19,6 +21,10 @@ class StartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
     final double screenWidth = MediaQuery.of(context).size.width;
+    //  تحميل الميزانية ومقارنتها مع الإجمالي التراكمي
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkBudgetVsMonthlyCost(context);
+    });
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -121,8 +127,7 @@ class StartScreen extends StatelessWidget {
                 child: InkWell(
                   borderRadius: BorderRadius.circular(35),
                   onTap: () async {
-                    final user =
-                        Supabase.instance.client.auth.currentUser;
+                    final user = Supabase.instance.client.auth.currentUser;
                     if (user == null) {
                       Get.snackbar(
                         'خطأ',
@@ -198,10 +203,8 @@ class StartScreen extends StatelessWidget {
                   MediaQuery.of(context).size.width * 0.04,
                 ),
                 child: Obx(() {
-                  final maxBarHeight =
-                      MediaQuery.of(context).size.height * 0.45;
-                  final containerHeight =
-                      MediaQuery.of(context).size.height * 0.55;
+                  final maxBarHeight = MediaQuery.of(context).size.height * 0.45;
+                  final containerHeight = MediaQuery.of(context).size.height * 0.55;
 
                   return Container(
                     height: containerHeight,
@@ -220,9 +223,7 @@ class StartScreen extends StatelessWidget {
                                   border: Border(
                                     bottom: BorderSide(
                                       color: Colors.grey.shade300,
-                                      width:
-                                          MediaQuery.of(context).size.width *
-                                          0.002,
+                                      width: MediaQuery.of(context).size.width * 0.002,
                                     ),
                                   ),
                                 ),
@@ -240,18 +241,13 @@ class StartScreen extends StatelessWidget {
                               controller.price12Months.length,
                               (i) {
                                 double barHeight = controller.price12Months[i];
-                                double calculatedHeight =
-                                    (barHeight / controller.maxPriceValue()) *
-                                    maxBarHeight;
+                                double calculatedHeight = (barHeight / controller.maxPriceValue()) * maxBarHeight;
 
                                 return Container(
                                   margin: EdgeInsets.symmetric(
-                                    horizontal:
-                                        MediaQuery.of(context).size.width *
-                                        0.01,
+                                    horizontal: MediaQuery.of(context).size.width * 0.01,
                                   ),
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.08,
+                                  width: MediaQuery.of(context).size.width * 0.08,
                                   child: ConstrainedBox(
                                     constraints: BoxConstraints(
                                       maxHeight: containerHeight,
@@ -265,11 +261,7 @@ class StartScreen extends StatelessWidget {
                                             child: Text(
                                               "${barHeight.toStringAsFixed(0)} EGP",
                                               style: TextStyle(
-                                                fontSize:
-                                                    MediaQuery.of(
-                                                      context,
-                                                    ).size.width *
-                                                    0.03,
+                                                fontSize: MediaQuery.of(context).size.width * 0.03,
                                                 fontWeight: FontWeight.bold,
                                                 color: AppColor.black,
                                               ),
@@ -285,21 +277,13 @@ class StartScreen extends StatelessWidget {
                                         Align(
                                           alignment: Alignment.bottomCenter,
                                           child: Container(
-                                            width:
-                                                MediaQuery.of(
-                                                  context,
-                                                ).size.width *
-                                                0.08,
-                                            height: barHeight > 0
-                                                ? calculatedHeight
-                                                : 4,
+                                            width: MediaQuery.of(context).size.width * 0.08,
+                                            height: barHeight > 0 ? calculatedHeight : 4,
                                             decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
+                                              borderRadius: BorderRadius.circular(10),
                                               gradient: LinearGradient(
                                                 colors: [
-                                                  AppColor.primary_color
-                                                      .withOpacity(0.7),
+                                                  AppColor.primary_color.withOpacity(0.7),
                                                   AppColor.primary_color,
                                                 ],
                                                 begin: Alignment.bottomCenter,
@@ -319,11 +303,7 @@ class StartScreen extends StatelessWidget {
                                             child: Text(
                                               controller.months[i],
                                               style: TextStyle(
-                                                fontSize:
-                                                    MediaQuery.of(
-                                                      context,
-                                                    ).size.width *
-                                                    0.03,
+                                                fontSize: MediaQuery.of(context).size.width * 0.03,
                                                 fontWeight: FontWeight.bold,
                                                 color: AppColor.black,
                                               ),
@@ -376,5 +356,43 @@ class StartScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // تعديل جديد: دالة لعرض التنبيه بناءً على مقارنة الميزانية مع الإجمالي التراكمي
+  void _checkBudgetVsMonthlyCost(BuildContext context) {
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    if (currentUser != null) {
+      budgetController.init(currentUser.id); // تحميل البودجيت
+    }
+
+    ever(budgetController.monthlyBudget, (_) {
+      double monthlyBudget = budgetController.monthlyBudget.value;
+      double monthlyCost = controller.price12Months.isNotEmpty ? controller.price12Months.last : 0.0; // التكلفة الشهرية (آخر شهر)
+      double difference = monthlyBudget - monthlyCost;
+
+      if (monthlyBudget > 0 && monthlyCost > 0) {
+        String message;
+        Color bgColor;
+        if (monthlyCost > monthlyBudget) {
+          message = "⚠️ تجاوزت الميزانية الشهري! التكلفة: ${monthlyCost.toStringAsFixed(2)} EGP (الميزانية: ${monthlyBudget.toStringAsFixed(2)} EGP)";
+          bgColor = Colors.red;
+        } else if (difference < monthlyBudget * 0.2) { // قريب (أقل من 20%)
+          message = "⏰ قريب من تجاوز الميزانية! التكلفة: ${monthlyCost.toStringAsFixed(2)} EGP (المتبقي: ${difference.toStringAsFixed(2)} EGP)";
+          bgColor = Colors.orange;
+        } else {
+          return; // كل شيء تمام، مفيش إخطار
+        }
+
+        Get.snackbar(
+          'تنبيه الميزانية',
+          message,
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: bgColor,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+          onTap: (_) => Get.toNamed('/recommendations'), // الانتقال إلى صفحة النصائح
+        );
+      }
+    });
   }
 }

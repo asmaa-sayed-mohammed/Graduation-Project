@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/controllers/appliances_controller.dart';
+import 'package:graduation_project/controllers/start_controller.dart';
 import 'package:graduation_project/view/company_screen.dart';
 import 'package:graduation_project/view/recommendations_screen.dart';
 import 'package:graduation_project/view/start_screen.dart';
@@ -23,6 +24,7 @@ class MainScreen extends StatelessWidget {
   final NavigationController controller = Get.put(NavigationController());
   final BudgetController budgetController = Get.put(BudgetController());
   final SmartRecommendationController recommendationController = Get.put(SmartRecommendationController());
+  final HomeController homeController = Get.put(HomeController());
 
   final List<Widget> _screens = [
     StartScreen(),

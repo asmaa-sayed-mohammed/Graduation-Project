@@ -34,6 +34,15 @@ class HomeController extends GetxController {
     fetchMonthlyTotals(); // مجموع الأسعار لكل شهر
   }
 
+// تعديل جديد: دالة لحساب الإجمالي التراكمي (آخر شهر أو متوسط الـ12 شهر كمرجع للشهر الحالي)
+  double getCumulativePrice() {
+    if (price12Months.isEmpty) return 0.0;
+    // نفترض أن آخر عنصر هو الشهر الحالي، أو نأخذ المتوسط كتقدير
+    double lastMonth = price12Months.last;
+    double average = price12Months.reduce((a, b) => a + b) / price12Months.length;
+    return (lastMonth + average) / 2; // متوسط للدقة
+  }
+
   // جلب آخر قراءتين وحساب الفرق
   Future<void> fetchLatestTwoReadings() async {
     final user = supabase.auth.currentUser;

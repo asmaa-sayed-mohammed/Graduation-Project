@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:graduation_project/controllers/start_controller.dart';
 import '../controllers/appliances_controller.dart';
 import '../controllers/budget_controller.dart';
 import '../models/user_appliance_model.dart';
@@ -6,6 +7,7 @@ import '../models/user_appliance_model.dart';
 class SmartRecommendationController extends GetxController {
   final AppliancesController appliancesController = Get.find();
   final BudgetController budgetController = Get.find();
+  final HomeController homeController = Get.put(HomeController()); // تعديل جديد: إضافة HomeController لـ price12Months
 
   final RxList<Map<String, dynamic>> recommendations = <Map<String, dynamic>>[].obs;
 
@@ -87,7 +89,10 @@ class SmartRecommendationController extends GetxController {
     // اقتراحات التوفير تركز على الأجهزة غير المهمة
     List<UserAppliance> targetDevices = devices.where((d) => d.priority != "important").toList();
     final recs = _generateReductionOptions(targetDevices);
-
+    final statusMap = {
+      // ... (القيم السابقة)
+      "cumulativeHistorical": homeController.getCumulativePrice(),
+    };
     recommendations.assignAll([
       {
         "title": "الوضع الحالي",
@@ -102,7 +107,8 @@ class SmartRecommendationController extends GetxController {
         "title": "اقتراحات التوفير لباقي الشهر",
         "changes": recs,
         "totalSavedEGP": recs.fold(0.0, (sum, r) => sum + (r["savedEGP"]?.toDouble() ?? 0.0)),
-      }
+      },
+      statusMap
     ]);
   }
 

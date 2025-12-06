@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:graduation_project/bindings/app_bindings.dart';
 import 'package:graduation_project/models/profile_model_hive.dart';
 import 'package:graduation_project/models/reading_model_hive.dart';
 import 'package:graduation_project/services/notification/notification_permission.dart';
@@ -91,7 +92,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-
+      initialBinding: AppBinding(),
       // SplashScreen هيتولى تحديد أول شاشة حسب حالة المستخدم
       home: const SplashScreen(),
     );
