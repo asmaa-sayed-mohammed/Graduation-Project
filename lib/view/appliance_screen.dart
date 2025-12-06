@@ -79,8 +79,11 @@ class AppliancesScreen extends StatelessWidget {
                 title: "كل الأجهزة",
                 subtitle: "أضف أو حدث بيانات الأجهزة الخاصة بك",
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_forward, color: Colors.black, size: 26),
-                  onPressed: () => Get.back(),
+                  icon:  Icon(Icons.arrow_forward, color: AppColor.black, size: 26),
+                  onPressed: () {
+                    controller.loadData();
+                    Get.back();
+                  },
                 ),
               ),
         

@@ -285,10 +285,34 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                                               },
                                             ),
                                         ),
-                                        const Spacer(),
+                                         Spacer(),
                                         IconButton(
-                                          icon: const Icon(Icons.delete,
-                                              color: Colors.red, size: 28),
+                                          icon: Icon(Icons.save,
+                                              color: AppColor.primary_color, size: 28),
+                                          onPressed: () {
+                                            final updatedUa = UserAppliance(
+                                              id: ua.id,
+                                              applianceId: ua.applianceId,
+                                              name: ua.name,
+                                              brand: ua.brand,
+                                              watt: ua.watt,
+                                              hoursPerDay: hours.value,
+                                              quantity: qty.value,
+                                              priority: priority.value,
+                                            );
+                                            appliancesController.updateUserAppliance(updatedUa);
+                                            Get.snackbar(
+                                              "✅ تم الحفظ",
+                                              "تم تحديث بيانات الجهاز بنجاح",
+                                              snackPosition: SnackPosition.BOTTOM,
+                                              backgroundColor: AppColor.green,
+                                              colorText: AppColor.black,
+                                            );
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon:  Icon(Icons.delete,
+                                              color: AppColor.red, size: 28),
                                           onPressed: () {
                                             appliancesController.deleteUserAppliance(ua);
                                           },

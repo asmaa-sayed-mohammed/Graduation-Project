@@ -16,17 +16,15 @@ class HistoryScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         body: Column(
           children: [
-             PageHeader(title: "السجل",
+            PageHeader(
+              title: "السجل",
               leading: IconButton(
-              onPressed: () {
-                Get.off(()=>MainScreen());
-              },
-              icon:  Icon(
-                Icons.arrow_back,
-                color: AppColor.black,
-                size: 28,
+                onPressed: () {
+                  Get.off(() => MainScreen());
+                },
+                icon: Icon(Icons.arrow_back, color: AppColor.black, size: 28),
               ),
-            ),),
+            ),
             SizedBox(height: 20),
             Expanded(
               child: Obx(() {
@@ -45,7 +43,7 @@ class HistoryScreen extends StatelessWidget {
                     final item = controller.history[i];
 
                     return Container(
-                      margin:EdgeInsets.only(bottom: 12),
+                      margin: EdgeInsets.only(bottom: 12),
                       child: ListTile(
                         tileColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -65,9 +63,22 @@ class HistoryScreen extends StatelessWidget {
                 );
               }),
             ),
-            ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: AppColor.primary_color),onPressed: (){controller.syncWithCloud();
-            },  child:Text('تحديث',style: TextStyle(color: AppColor.black, fontWeight: FontWeight.bold),)),
-            SizedBox(height: 40,)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColor.primary_color,
+              ),
+              onPressed: () {
+                controller.syncWithCloud();
+              },
+              child: Text(
+                'تحديث',
+                style: TextStyle(
+                  color: AppColor.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            SizedBox(height: 40),
           ],
         ),
       ),
