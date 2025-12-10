@@ -119,18 +119,18 @@ class ReadingController extends GetxController {
       Get.snackbar(
         'تم الحفظ',
         'تم حفظ القراءة بنجاح',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
     } catch (e) {
-      Get.snackbar(
-        'خطأ',
-        'فشل حفظ القراءة: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
+      // Get.snackbar(
+      //   'خطأ',
+      //   'فشل حفظ القراءة: $e',
+      //   snackPosition: SnackPosition.BOTTOM,
+      //   backgroundColor: Colors.redAccent,
+      //   colorText: Colors.white,
+      // );
     }
   }
 
