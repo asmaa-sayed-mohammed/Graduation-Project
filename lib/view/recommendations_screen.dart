@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/controllers/budget_controller.dart';
 import 'package:graduation_project/models/user_appliance_model.dart';
+import 'package:graduation_project/view/appliance_screen.dart';
 import '../controllers/smart_recommendation_controller.dart';
 import '../controllers/appliances_controller.dart';
 import '../core/widgets/page_header.dart';
@@ -63,7 +64,7 @@ class RecommendationsScreen extends StatelessWidget {
                   if (monthlyBudget > 0) {
                     if (monthlyCost > monthlyBudget) {
                       budgetMessage =
-                      "تجاوزت الميزانية الشهرية!\nالتكلفة: ${monthlyCost.toStringAsFixed(2)} EGP\nالميزانية: ${monthlyBudget.toStringAsFixed(2)} EGP";
+                      "تجاوزت الميزانية الشهرية!\nالتكلفة: ${monthlyCost.toStringAsFixed(2)} EGP\nالميزانية: ${monthlyBudget.toStringAsFixed(2)} EGP \n قم بزيادة الميزانية او تقليل استخدام اجهزتك الغير مهمة \n يمكنك الستخدام الزر بالاسفل للانتقال لصفحة الميزانية";
                       budgetColor = Colors.red.shade100;
                       budgetIcon = Icons.warning_amber_rounded;
                       showDeviceSuggestions = true;
@@ -71,7 +72,7 @@ class RecommendationsScreen extends StatelessWidget {
                     } else if ((monthlyBudget - monthlyCost) <
                         monthlyBudget * 0.2) {
                       budgetMessage =
-                      "اقتربت من تجاوز الميزانية\nالمتبقي: ${(monthlyBudget - monthlyCost).toStringAsFixed(2)} EGP";
+                      "اقتربت من تجاوز الميزانية\nالمتبقي: ${(monthlyBudget - monthlyCost).toStringAsFixed(2)} EGP \n قم بزيادة الميزانية او تقليل استخدام اجهزتك الغير مهمة \n يمكنك الستخدام الزر بالاسفل للانتقال لصفحة الميزانية";
                       budgetColor = Colors.orange.shade100;
                       budgetIcon = Icons.error_outline;
                       showDeviceSuggestions = true;
@@ -246,7 +247,7 @@ class RecommendationsScreen extends StatelessWidget {
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
-                                  onPressed: () => Get.to(() => BudgetAndAppliancesScreen()),
+                                  onPressed: () => Get.to(() => AppliancesScreen()),
                                   icon: const Icon(Icons.add, color: Colors.black),
                                   label: const Text('أضف جهاز الآن', style: TextStyle(color: Colors.black)),
                                   style: ElevatedButton.styleFrom(

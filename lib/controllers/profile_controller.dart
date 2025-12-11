@@ -10,6 +10,7 @@ class ProfileController extends GetxController {
   final profile = Rx<ProfileHive?>(null);
   final _authService = AuthService();
   late final ProfileHiveService _profileService;
+  final isLoading = true.obs;
 
   @override
   void onInit() {
@@ -59,6 +60,7 @@ class ProfileController extends GetxController {
   // تحميل البروفايل من Hive لو موجود (اختياري)
   void loadProfileFromHive() {
     try {
+      isLoading.value = true;
       final id = _authService.getUserId();
       if (id == null) return;
       final data = _profileService.getOneProfile(id.toString());
@@ -66,6 +68,8 @@ class ProfileController extends GetxController {
     } catch (e) {
       print("❌ Error loading profile from Hive: $e");
       profile.value = null;
+    }finally {
+      isLoading.value = false;
     }
   }
 }

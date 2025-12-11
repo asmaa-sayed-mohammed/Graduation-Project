@@ -1,13 +1,18 @@
 // services/auth_service.dart
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:graduation_project/view/homescreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../main.dart';
+import 'connectivity_service.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
+  final isLoading = true.obs;
+   final hasInternet = true.obs;
+  final connectivityService = ConnectivityService();
 
   // جلب ID المستخدم الحالي
   String? get currentUserId => _supabase.auth.currentUser?.id;
@@ -29,14 +34,30 @@ class AuthService {
   }
 
 
+
+
   //login to account
   Future<bool> login(String email, String password) async {
     try {
+      isLoading.value = true;
       await cloud.auth.signInWithPassword(password: password, email: email);
+      hasInternet.value = await connectivityService.connected();
+      if(!hasInternet.value){
+        Get.snackbar(
+          'لا يوجد اتصال بالإنترنت',
+          'من فضلك اتصل بالإنترنت لتسجيل الدخول',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent.shade100,
+          colorText: Colors.black,
+        );
+        return hasInternet.value;
+      }
       return true;
     } catch (e) {
       print(e);
       return false;
+    } finally{
+      isLoading.value = false;
     }
   }
 

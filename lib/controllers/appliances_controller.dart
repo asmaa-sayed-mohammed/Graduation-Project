@@ -96,7 +96,7 @@ class AppliancesController extends GetxController {
   /// -----------------------
   Future<void> updateUserAppliance(UserAppliance ua) async {
     if (ua.id == null) return;
-
+    isLoading.value = true;
     await _service.updateUserAppliance(
       ua.id!,
       hoursPerDay: ua.hoursPerDay,
@@ -118,7 +118,6 @@ class AppliancesController extends GetxController {
   /// -----------------------
   Future<void> deleteUserAppliance(UserAppliance ua) async {
     if (ua.id == null) return;
-
     await _service.deleteUserAppliance(ua.id!);
     userAppliances.removeWhere((e) => e.id == ua.id);
   }

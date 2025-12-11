@@ -183,8 +183,8 @@ class AppliancesScreen extends StatelessWidget {
               // قائمة الأجهزة
               Obx(() {
                 if (controller.isLoading.value) {
-                  return const Expanded(
-                    child: Center(child: CircularProgressIndicator()),
+                  return Expanded(
+                    child: Center(child: CircularProgressIndicator(color: AppColor.primary_color,)),
                   );
                 }
 
