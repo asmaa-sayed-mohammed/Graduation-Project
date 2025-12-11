@@ -595,7 +595,7 @@ class ReadingController extends GetxController {
         date: DateTime.now().toIso8601String(),
         difference_readings: difference,
         chip: '', // ممكن تعدلي الاسم حسب الجهاز أو المستخدم
-        createdAt: DateTime.now().toIso8601String(),
+        createdAt: DateTime.now(),
         new_reading: newR,
         old_reading: oldR,
       );

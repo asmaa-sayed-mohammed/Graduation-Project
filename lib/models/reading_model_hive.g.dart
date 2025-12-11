@@ -21,7 +21,7 @@ class ReadingModelHiveAdapter extends TypeAdapter<ReadingModelHive> {
       difference_readings: fields[1] as double,
       price: fields[2] as double,
       chip: fields[3] as String,
-      createdAt: fields[4] as String,
+      createdAt: fields[4] as DateTime,
     );
   }
 

@@ -18,7 +18,7 @@ class ReadingModelHive{
   final String chip;
 
   @HiveField(4)
-  String createdAt;
+  final DateTime createdAt;
 
   ReadingModelHive({required this.userId, required this.difference_readings, required this.price, required this.chip, required this.createdAt, int new_reading = 0, int old_reading = 0, double consumption = 0.0, String date = ''});
 

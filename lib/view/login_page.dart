@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:graduation_project/view/homescreen.dart';
 import 'package:graduation_project/view/sign_up_page.dart';
 import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
@@ -169,6 +170,29 @@ class LoginPage extends StatelessWidget {
                           ),
                           child: Text(
                             "أنشئ حساب",
+                            style: TextStyle(
+                              color: AppColor.primary_color,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          " أو ",
+                          style: TextStyle(
+                            color: AppColor.black,
+                            fontSize: 16,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => Get.to(() => Homescreen()),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(50, 30),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            "اذهب للصفحة الرئيسية ",
                             style: TextStyle(
                               color: AppColor.primary_color,
                               fontSize: 16,
