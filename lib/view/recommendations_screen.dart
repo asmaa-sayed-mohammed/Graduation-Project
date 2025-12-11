@@ -77,7 +77,7 @@ class RecommendationsScreen extends StatelessWidget {
                       showDeviceSuggestions = true;
                       showBudgetAdviceButton = true;
                     } else {
-                      budgetMessage = "وضع الميزانية ممتاز ✅\nاستمر على هذا المعدل";
+                      budgetMessage = "وضع الميزانية ممتاز\nاستمر على هذا المعدل";
                       budgetColor = Colors.green.shade100;
                       budgetIcon = Icons.check_circle_outline;
                     }
@@ -89,43 +89,67 @@ class RecommendationsScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: budgetColor,
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          )
+                        ],
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.05),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              Icon(budgetIcon, size: 34),
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.6),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(budgetIcon, size: 28),
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   budgetMessage,
                                   style: const TextStyle(
                                       fontSize: 16,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black87,
+                                      height: 1.4),
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 12),
                           if (showBudgetAdviceButton)
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                Get.to(() => BudgetAndAppliancesScreen());
-                              },
-                              icon: const Icon(Icons.settings,
-                                  color: Colors.black),
-                              label: const Text(
-                                "قلل استهلاك اجهزتك / قم بزيادة الميزانية",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.yellow.shade200,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Get.to(() => BudgetAndAppliancesScreen());
+                                },
+                                icon: const Icon(Icons.tune,
+                                    color: Colors.black),
+                                label: const Text(
+                                  "إدارة الميزانية والأجهزة",
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColor.primary_color,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 0,
                                 ),
                               ),
                             ),
@@ -166,51 +190,86 @@ class RecommendationsScreen extends StatelessWidget {
                     }
                   }
 
-                  // ================== أجهزتي ==================
-                  widgets.add(const Divider(thickness: 2));
-                  widgets.add(_sectionTitle("أجهزتي المضافة"));
+                  // ================== أجهزتي المضافة (محسّنة) ==================
+                  widgets.add(Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.devices_outlined, color: Colors.black54),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'أجهزتي المضافة',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ));
 
                   widgets.add(Obx(() {
                     if (appliancesController.isLoading.value) {
-                      return const Center(
-                          child: CircularProgressIndicator());
-                    }
-
-                    if (appliancesController.userAppliances.isEmpty) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "لا توجد اجهزة",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: AppColor.black,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            "اذهب لصفحة الميزانية لاضافة اجهزتك",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: AppColor.black,
-                                ),
-                          ),
-                          const SizedBox(height: 8),
-                          // ElevatedButton(
-                          //   onPressed: () => Get.to(
-                          //           () => BudgetAndAppliancesScreen()),
-                          //   style: ElevatedButton.styleFrom(
-                          //       backgroundColor: AppColor.primary_color),
-                          //   child: const Text("أضف جهاز الآن",
-                          //       style: TextStyle(color: Colors.black)),
-                          // ),
-                        ],
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 32),
+                        child: Center(child: CircularProgressIndicator()),
                       );
                     }
 
-                    return Column(
-                      children: appliancesController.userAppliances.map((ua) {
-                        return _applianceCard(ua);
-                      }).toList(),
+                    if (appliancesController.userAppliances.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: AppColor.primary_color.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColor.primary_color.withOpacity(0.15)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.inbox_outlined,
+                                size: 48,
+                                color: AppColor.primary_color.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'لم تضف أي جهاز حتى الآن',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'أضف أجهزتك لتحصل على توصيات شخصية لتوفير الطاقة',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14, color: Colors.black54),
+                              ),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () => Get.to(() => BudgetAndAppliancesScreen()),
+                                  icon: const Icon(Icons.add, color: Colors.black),
+                                  label: const Text('أضف جهاز الآن', style: TextStyle(color: Colors.black)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColor.primary_color,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    elevation: 0,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: appliancesController.userAppliances.map((ua) {
+                          return _applianceCard(ua);
+                        }).toList(),
+                      ),
                     );
                   }));
 
@@ -259,22 +318,54 @@ class RecommendationsScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColor.primary_color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColor.primary_color.withOpacity(0.12)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 6),
+          )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "التوقع الشهري",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              Icon(Icons.trending_up_outlined, color: AppColor.primary_color),
+              const SizedBox(width: 8),
+              Text(
+                "التوقع الشهري",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColor.primary_color),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text("الإجمالي المتوقع: ${totalExpected.toStringAsFixed(2)} EGP"),
           const SizedBox(height: 12),
-          LinearProgressIndicator(
-            value: budget > 0 ? (totalExpected / budget).clamp(0, 1) : 0,
-            minHeight: 14,
-            backgroundColor: Colors.grey.shade300,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              "الإجمالي المتوقع: ${totalExpected.toStringAsFixed(2)} EGP",
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: budget > 0 ? (totalExpected / budget).clamp(0, 1) : 0,
+              minHeight: 12,
+              backgroundColor: Colors.grey.shade300,
+              color: totalExpected / (budget > 0 ? budget : 1) <= 0.5
+                  ? Colors.green
+                  : totalExpected / (budget > 0 ? budget : 1) <= 0.8
+                      ? Colors.orange
+                      : Colors.red,
+            ),
           ),
         ],
       ),
@@ -307,14 +398,66 @@ class RecommendationsScreen extends StatelessWidget {
 
   Widget _applianceCard(UserAppliance ua) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: ListTile(
-        leading: const Icon(Icons.devices),
-        title: Text("${ua.name} (${ua.brand})"),
-        subtitle: Text("ساعات/يوم: ${ua.hoursPerDay}"),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: () => Get.to(() => BudgetAndAppliancesScreen()),
+      margin: const EdgeInsets.only(bottom: 10),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: Colors.white,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColor.primary_color.withOpacity(0.08)),
+        ),
+        child: ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColor.primary_color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(Icons.devices, color: AppColor.primary_color, size: 24),
+          ),
+          title: Text(
+            '${ua.name} (${ua.brand})',
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '${ua.hoursPerDay} ساعة/يوم',
+                    style: const TextStyle(fontSize: 12, color: Colors.blue),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    'كمية: ${ua.quantity}',
+                    style: const TextStyle(fontSize: 12, color: Colors.purple),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          trailing: IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            color: AppColor.primary_color,
+            onPressed: () => Get.to(() => BudgetAndAppliancesScreen()),
+          ),
         ),
       ),
     );
