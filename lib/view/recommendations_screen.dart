@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:graduation_project/controllers/budget_controller.dart';
 import 'package:graduation_project/models/user_appliance_model.dart';
 import 'package:graduation_project/view/appliance_screen.dart';
+import '../controllers/bottom_navbar_controller.dart';
 import '../controllers/smart_recommendation_controller.dart';
 import '../controllers/appliances_controller.dart';
 import '../core/widgets/page_header.dart';
@@ -135,7 +136,9 @@ class RecommendationsScreen extends StatelessWidget {
                               width: double.infinity,
                               child: ElevatedButton.icon(
                                 onPressed: () {
-                                  Get.to(() => BudgetAndAppliancesScreen());
+                                  final navController =
+                                  Get.find<NavigationController>();
+                                  navController.currentIndex.value = 2;
                                 },
                                 icon: const Icon(Icons.tune,
                                     color: Colors.black),
@@ -457,7 +460,11 @@ class RecommendationsScreen extends StatelessWidget {
           trailing: IconButton(
             icon: const Icon(Icons.edit_outlined),
             color: AppColor.primary_color,
-            onPressed: () => Get.to(() => BudgetAndAppliancesScreen()),
+            onPressed: () {
+              final navController =
+              Get.find<NavigationController>();
+              navController.currentIndex.value = 2;
+            },
           ),
         ),
       ),

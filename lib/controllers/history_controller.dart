@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/history_model.dart';
@@ -10,56 +9,80 @@ class HistoryController extends GetxController {
   final hive = HiveHistoryService();
   final supa = SupabaseHistoryService();
 
-  final history = <UsageRecord>[].obs;
+  final fullHistory = <UsageRecord>[]; // كل البيانات كاملة
+  final displayedHistory = <UsageRecord>[].obs; // المعروض على الشاشة
   final isLoading = true.obs;
+
+  int limit = 5;
+  int currentCount = 0;
 
   @override
   void onInit() {
-    loadHistory();
+    loadInitial();
     super.onInit();
   }
 
-  Future<void> loadHistory() async {
+  Future<void> loadInitial() async {
     try {
       isLoading.value = true;
 
-      // 1. بجيب الـ Local DB الأول
       final localData = hive.loadHistory();
 
       if (localData != null && localData.isNotEmpty) {
-        // 2. لو فيه بيانات، اعرضها
-        history.value = localData;
+        fullHistory.clear();
+        fullHistory.addAll(localData);
 
-        print('from hive');
+        displayedHistory.clear();
+        displayedHistory.addAll(fullHistory.take(limit));
 
+        currentCount = displayedHistory.length;
+
+        print("Loaded from Hive");
       } else {
-        // 3. لو مفيش بيانات، هجيبها من السيرفر
-        final userId = Supabase.instance.client.auth.currentUser!.id;
-        final cloudData = await supa.getHistory(userId);
-        history.value = cloudData;
-
-        // 4. خزن البيانات الجديدة في الـ Local DB
-        await hive.saveHistory(cloudData);
-
-        print('from cloud');
+        await syncWithCloud();
       }
     } catch (e) {
-       Get.snackbar('loaded History', '$e');
+      print("Load Error: $e");
     } finally {
       isLoading.value = false;
     }
   }
 
-  // دالة  للمزامنة اليدوية
+  // زرار "عرض المزيد"
+  void loadMore() {
+    final remaining = fullHistory.length - currentCount;
+
+    if (remaining <= 0) return; // مفيش حاجة تاني
+
+    final nextBatch =
+    fullHistory.skip(currentCount).take(limit).toList();
+
+    displayedHistory.addAll(nextBatch);
+
+    currentCount = displayedHistory.length;
+  }
+
+  // تحديث من السحابة
   Future<void> syncWithCloud() async {
-     try {
+    try {
       isLoading.value = true;
+
       final userId = Supabase.instance.client.auth.currentUser!.id;
       final cloudData = await supa.getHistory(userId);
-      history.value = cloudData;
+
+      fullHistory.clear();
+      fullHistory.addAll(cloudData);
+
       await hive.saveHistory(cloudData);
+
+      displayedHistory.clear();
+      displayedHistory.addAll(fullHistory.take(limit));
+
+      currentCount = displayedHistory.length;
+
+      print("Synced with Cloud");
     } catch (e) {
-      print("Error syncing history: $e");
+      print("Cloud Error: $e");
     } finally {
       isLoading.value = false;
     }

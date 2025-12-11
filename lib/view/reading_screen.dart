@@ -39,135 +39,133 @@ class _ReadingScreenState extends State<ReadingScreen> {
         child: Scaffold(
           backgroundColor: Colors.white,
           body: SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ===== PageHeader =====
-                  const PageHeader(title: "إدخال القراءة"),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ===== PageHeader =====
+                const PageHeader(title: "إدخال القراءة"),
 
-                  const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Column(
-                      children: [
-                        _buildReadingInput(
-                          label: "القراءة القديمة",
-                          controller: controller.oldReadingController,
-                          onMicPressed: () => controller.recognizeVoice(
-                            controller.oldReadingController,
-                          ),
-                          onCameraPressed: () => controller.pickImage(
-                            ImageSource.camera,
-                            controller.oldReadingController,
-                          ),
-                          onGalleryPressed: () => controller.pickImage(
-                            ImageSource.gallery,
-                            controller.oldReadingController,
-                          ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Column(
+                    children: [
+                      _buildReadingInput(
+                        label: "القراءة القديمة",
+                        controller: controller.oldReadingController,
+                        onMicPressed: () => controller.recognizeVoice(
+                          controller.oldReadingController,
                         ),
-
-                        _buildReadingInput(
-                          label: "القراءة الجديدة",
-                          controller: controller.newReadingController,
-                          onMicPressed: () => controller.recognizeVoice(
-                            controller.newReadingController,
-                          ),
-                          onCameraPressed: () => controller.pickImage(
-                            ImageSource.camera,
-                            controller.newReadingController,
-                          ),
-                          onGalleryPressed: () => controller.pickImage(
-                            ImageSource.gallery,
-                            controller.newReadingController,
-                          ),
+                        onCameraPressed: () => controller.pickImage(
+                          ImageSource.camera,
+                          controller.oldReadingController,
                         ),
+                        onGalleryPressed: () => controller.pickImage(
+                          ImageSource.gallery,
+                          controller.oldReadingController,
+                        ),
+                      ),
 
-                        const SizedBox(height: 30),
-                        Center(
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(35),
-                            onTap: () async {
-                              final result = controller.calculateManualResult();
-                            history.syncWithCloud();
-                              if (result.hasError) {
+                      _buildReadingInput(
+                        label: "القراءة الجديدة",
+                        controller: controller.newReadingController,
+                        onMicPressed: () => controller.recognizeVoice(
+                          controller.newReadingController,
+                        ),
+                        onCameraPressed: () => controller.pickImage(
+                          ImageSource.camera,
+                          controller.newReadingController,
+                        ),
+                        onGalleryPressed: () => controller.pickImage(
+                          ImageSource.gallery,
+                          controller.newReadingController,
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+                      Center(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(35),
+                          onTap: () async {
+                            final result = controller.calculateManualResult();
+                          // history.syncWithCloud();
+                            if (result.hasError) {
+                              Get.snackbar(
+                                'خطأ',
+                                result.errorMessage!,
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.orangeAccent,
+                                colorText: Colors.white,
+                              );
+                            } else {
+                              final user =
+                                  Supabase.instance.client.auth.currentUser;
+                              if (user != null) {
+                                await controller.saveReadingToSupabase(
+                                  userId: user.id,
+                                );
+
+                                //  هنا بنمسح القراءة الجديدة بعد ما اتحفظت
+                                controller.newReadingController.clear();
+
+                                //  تحديث بيانات الصفحة الرئيسية فورًا
+                                final home = Get.find<HomeController>();
+                                await home.fetchLatestTwoReadings();
+                                await home.fetchLatestPrice();
+                                await home.fetchMonthlyTotals();
+
+                                // تحديث القيم مباشرة
+                                home.manualUsage.value = result.consumption;
+                                home.manualPrice.value = result.totalPrice;
+
+                                //  الرجوع للصفحة الرئيسية مع الحفاظ على BottomNavBar
+                                final navController =
+                                    Get.find<NavigationController>();
+                                navController.currentIndex.value = 0;
+                              } else {
                                 Get.snackbar(
                                   'خطأ',
-                                  result.errorMessage!,
+                                  'المستخدم غير مسجل الدخول',
                                   snackPosition: SnackPosition.BOTTOM,
-                                  backgroundColor: Colors.orangeAccent,
+                                  backgroundColor: Colors.redAccent,
                                   colorText: Colors.white,
                                 );
-                              } else {
-                                final user =
-                                    Supabase.instance.client.auth.currentUser;
-                                if (user != null) {
-                                  await controller.saveReadingToSupabase(
-                                    userId: user.id,
-                                  );
-
-                                  //  هنا بنمسح القراءة الجديدة بعد ما اتحفظت
-                                  controller.newReadingController.clear();
-
-                                  //  تحديث بيانات الصفحة الرئيسية فورًا
-                                  final home = Get.find<HomeController>();
-                                  await home.fetchLatestTwoReadings();
-                                  await home.fetchLatestPrice();
-                                  await home.fetchMonthlyTotals();
-
-                                  // تحديث القيم مباشرة
-                                  home.manualUsage.value = result.consumption;
-                                  home.manualPrice.value = result.totalPrice;
-
-                                  //  الرجوع للصفحة الرئيسية مع الحفاظ على BottomNavBar
-                                  final navController =
-                                      Get.find<NavigationController>();
-                                  navController.currentIndex.value = 0;
-                                } else {
-                                  Get.snackbar(
-                                    'خطأ',
-                                    'المستخدم غير مسجل الدخول',
-                                    snackPosition: SnackPosition.BOTTOM,
-                                    backgroundColor: Colors.redAccent,
-                                    colorText: Colors.white,
-                                  );
-                                }
                               }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 80,
-                                vertical: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColor.primary_color,
-                                borderRadius: BorderRadius.circular(35),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.15),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: const Text(
-                                "احسب",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 19,
-                                  fontWeight: FontWeight.bold,
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 80,
+                              vertical: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColor.primary_color,
+                              borderRadius: BorderRadius.circular(35),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
                                 ),
+                              ],
+                            ),
+                            child: const Text(
+                              "احسب",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 19,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

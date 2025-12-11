@@ -66,35 +66,24 @@ class AppliancesScreen extends StatelessWidget {
     final priority = "not_important".obs;
 
     Get.defaultDialog(
-      title: "أضف جهاز جديد",
+      title: "أضف جهاز غير موجود",
+      titlePadding: const EdgeInsets.symmetric(vertical: 16),
+      backgroundColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       content: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: TextDirection.rtl,
           children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: "اسم الجهاز"),
-            ),
-            TextField(
-              controller: brandController,
-              decoration: const InputDecoration(labelText: "النوع / الماركة"),
-            ),
-            TextField(
-              controller: wattController,
-              decoration: const InputDecoration(labelText: "القوة بالوات"),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: hoursController,
-              decoration: const InputDecoration(labelText: "ساعات/يوم"),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: quantityController,
-              decoration: const InputDecoration(labelText: "الكمية"),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 10),
+            _buildInputField("اسم الجهاز", nameController),
+            _buildInputField("النوع / الماركة", brandController),
+            _buildInputField("القوة بالوات", wattController, keyboard: TextInputType.number),
+            _buildInputField("ساعات/يوم", hoursController, keyboard: TextInputType.number),
+            _buildInputField("الكمية", quantityController, keyboard: TextInputType.number),
+            const SizedBox(height: 12),
             Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              textDirection: TextDirection.rtl,
               children: [
                 const Text("الأولوية: "),
                 PriorityDropdown(priority: priority),
@@ -103,7 +92,11 @@ class AppliancesScreen extends StatelessWidget {
           ],
         ),
       ),
+      buttonColor: AppColor.primary_color,
       textConfirm: "أضف",
+      textCancel: "إلغاء",
+      confirmTextColor: Colors.white,
+      cancelTextColor: Colors.black,
       onConfirm: () async {
         final name = nameController.text.trim();
         final brand = brandController.text.trim();
@@ -112,8 +105,11 @@ class AppliancesScreen extends StatelessWidget {
         final quantity = int.tryParse(quantityController.text) ?? 1;
 
         if (name.isEmpty || brand.isEmpty || watt <= 0) {
-          Get.snackbar("خطأ", "الرجاء ملء جميع الحقول بشكل صحيح",
-              snackPosition: SnackPosition.BOTTOM);
+          Get.snackbar(
+            "خطأ",
+            "الرجاء ملء جميع الحقول بشكل صحيح",
+            snackPosition: SnackPosition.BOTTOM,
+          );
           return;
         }
 
@@ -127,12 +123,34 @@ class AppliancesScreen extends StatelessWidget {
         );
 
         Get.back();
-        Get.snackbar("تم الإضافة", "تم إضافة الجهاز بنجاح",
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          "تم الإضافة",
+          "تم إضافة الجهاز بنجاح",
+          snackPosition: SnackPosition.BOTTOM,
+        );
       },
-      textCancel: "إلغاء",
     );
   }
+
+  Widget _buildInputField(String label, TextEditingController controller,
+      {TextInputType keyboard = TextInputType.text}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: TextField(
+        textDirection: TextDirection.rtl,
+        controller: controller,
+        keyboardType: keyboard,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        ),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -432,32 +450,32 @@ class AppliancesScreen extends StatelessWidget {
                                                           PriorityDropdown(
                                                               priority: priority),
                                                           const Spacer(),
-                                                          IconButton(
-                                                            icon: const Icon(
-                                                                Icons.delete,
-                                                                color: Colors.red,
-                                                                size: 28),
-                                                            onPressed: () {
-                                                              controller
-                                                                  .deleteUserAppliance(
-                                                                  userUa ??
-                                                                      UserAppliance(
-                                                                          applianceId:
-                                                                          appliance.id,
-                                                                          name: appliance
-                                                                              .name,
-                                                                          brand: appliance
-                                                                              .brand,
-                                                                          watt: appliance
-                                                                              .watt,
-                                                                          hoursPerDay:
-                                                                          1,
-                                                                          quantity:
-                                                                          1,
-                                                                          priority:
-                                                                          "important"));
-                                                            },
-                                                          ),
+                                                          // IconButton(
+                                                          //   icon: const Icon(
+                                                          //       Icons.delete,
+                                                          //       color: Colors.red,
+                                                          //       size: 28),
+                                                          //   onPressed: () {
+                                                          //     controller
+                                                          //         .deleteUserAppliance(
+                                                          //         userUa ??
+                                                          //             UserAppliance(
+                                                          //                 applianceId:
+                                                          //                 appliance.id,
+                                                          //                 name: appliance
+                                                          //                     .name,
+                                                          //                 brand: appliance
+                                                          //                     .brand,
+                                                          //                 watt: appliance
+                                                          //                     .watt,
+                                                          //                 hoursPerDay:
+                                                          //                 1,
+                                                          //                 quantity:
+                                                          //                 1,
+                                                          //                 priority:
+                                                          //                 "important"));
+                                                          //   },
+                                                          // ),
                                                         ],
                                                       ),
 

@@ -14,13 +14,11 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   final controller = Get.put(HistoryController());
 
-
   @override
   void initState() {
     super.initState();
-    controller.syncWithCloud();
+    controller.syncWithCloud(); // تحميل آخر بيانات
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +27,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
         backgroundColor: AppColor.white2,
         body: Column(
           children: [
+            // Header
             PageHeader(
               title: "السجل",
               leading: IconButton(
-                onPressed: () {
-                  Get.off(() => MainScreen());
-                },
+                onPressed: () => Get.off(() => MainScreen()),
                 icon: Icon(Icons.arrow_back, color: AppColor.black, size: 28),
               ),
             ),
@@ -43,11 +40,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
             Expanded(
               child: Obx(() {
-                if (controller.isLoading.value && controller.history.isEmpty) {
-                  return Center(child: CircularProgressIndicator(color: AppColor.primary_color,));
+                // Loading indicator
+                if (controller.isLoading.value &&
+                    controller.displayedHistory.isEmpty) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: AppColor.primary_color,
+                    ),
+                  );
                 }
 
-                if (controller.history.isEmpty) {
+                // Empty state
+                if (controller.displayedHistory.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -63,119 +67,153 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   );
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: controller.history.length,
-                  itemBuilder: (_, index) {
-                    final item = controller.history[index];
+                return Column(
+                  children: [
+                    // List of items
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: controller.displayedHistory.length,
+                        itemBuilder: (_, index) {
+                          final item = controller.displayedHistory[index];
 
-                    return Card(
-                      color: AppColor.white,
-                      elevation: 3,
-                      margin: const EdgeInsets.only(bottom: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            // Icon Circle
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: AppColor.primary_color,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.bolt,
-                                color: Colors.black,
-                                size: 28,
-                              ),
+                          return Card(
+                            color: AppColor.white,
+                            elevation: 3,
+                            margin: const EdgeInsets.only(bottom: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
                             ),
-
-                            const SizedBox(width: 14),
-
-                            // Texts
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
                                 children: [
-                                  Text(
-                                    "السعر: ${item.price} جنية",
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                  // Icon Circle
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      color: AppColor.primary_color,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.bolt,
+                                      color: Colors.black,
+                                      size: 28,
                                     ),
                                   ),
 
-                                  const SizedBox(height: 4),
+                                  const SizedBox(width: 14),
 
-                                  Text(
-                                    "الاستهلاك: ${item.reading} Kw",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: 6),
-
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.calendar_today_outlined,
-                                        size: 16,
-                                        color: Colors.grey,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        item.createdAt.toString().substring(0, 10),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey.shade700,
+                                  // Text info
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "السعر: ${item.price} جنية",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+
+                                        const SizedBox(height: 4),
+
+                                        Text(
+                                          "الاستهلاك: ${item.reading} Kw",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: 6),
+
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.calendar_today_outlined,
+                                              size: 16,
+                                              color: Colors.grey,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              item.createdAt
+                                                  .toString()
+                                                  .substring(0, 10),
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey.shade700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                          ],
+                          );
+                        },
+                      ),
+                    ),
+
+                    // Load More Button
+                    if (controller.displayedHistory.length <
+                        controller.fullHistory.length)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor.primary_color,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 14, horizontal: 22),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          onPressed: () => controller.loadMore(),
+                          child: const Text(
+                            "عرض المزيد",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
-                    );
-                  },
+
+                    // Sync button
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 28),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColor.primary_color,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 22),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        onPressed: () => controller.syncWithCloud(),
+                        icon: const Icon(Icons.refresh, color: Colors.black),
+                        label: const Text(
+                          'تحديث السجل',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               }),
-            ),
-
-            // Update button
-            Padding(
-              padding: const EdgeInsets.only(bottom: 28),
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primary_color,
-                  padding:
-                  const EdgeInsets.symmetric(vertical: 14, horizontal: 22),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                onPressed: () {
-                  controller.syncWithCloud();
-                },
-                icon: const Icon(Icons.refresh, color: Colors.black),
-                label: const Text(
-                  'تحديث السجل',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
             ),
           ],
         ),
