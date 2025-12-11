@@ -57,7 +57,7 @@ class RecommendationsScreen extends StatelessWidget {
 
                   // ================== كارد الميزانية ==================
                   late String budgetMessage;
-                  late Color budgetColor;
+                  late Color budgetColor = AppColor.white;
                   late IconData budgetIcon;
                   bool showDeviceSuggestions = false;
                   bool showBudgetAdviceButton = false;
