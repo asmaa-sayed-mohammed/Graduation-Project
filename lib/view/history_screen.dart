@@ -6,8 +6,21 @@ import '../controllers/history_controller.dart';
 import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
   final controller = Get.put(HistoryController());
+
+
+  @override
+  void initState() {
+    super.initState();
+    controller.syncWithCloud();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +44,7 @@ class HistoryScreen extends StatelessWidget {
             Expanded(
               child: Obx(() {
                 if (controller.isLoading.value && controller.history.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator(color: AppColor.primary_color,));
                 }
 
                 if (controller.history.isEmpty) {
