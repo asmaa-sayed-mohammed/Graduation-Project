@@ -9,7 +9,6 @@ import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
 import 'appliance_screen.dart';
 
-
 class BudgetAndAppliancesScreen extends StatelessWidget {
   BudgetAndAppliancesScreen({super.key});
 
@@ -38,7 +37,6 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
               PageHeader(
                 title: "إدارة الأجهزة والميزانية",
                 subtitle: "راجع ميزانيتك الشهرية وأجهزتك المضافة",
-                // leading: IconButton(icon: const Icon(Icons.arrow_forward, color: Colors.black, size: 26,), onPressed: ()=>Get.back()),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -51,10 +49,10 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                         if (budgetController.isLoading.value) {
                           return const Center(child: CircularProgressIndicator());
                         }
-        
+
                         budgetTextController.text =
                             budgetController.monthlyBudget.value.toStringAsFixed(2);
-        
+
                         return Card(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16)),
@@ -132,7 +130,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                           ),
                         );
                       }),
-        
+
                       // ---------------- Divider + Section Label ----------------
                       Row(
                         children: const [
@@ -150,7 +148,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-        
+
                       // ---------------- زر إضافة جهاز ----------------
                       SizedBox(
                         width: double.infinity,
@@ -158,8 +156,11 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                           onPressed: () {
                             Get.to(() => AppliancesScreen());
                           },
-                          icon: const Icon(Icons.add, color: Colors.black,),
-                          label: const Text("أضف جهاز جديد", style: TextStyle(color: Colors.black, fontSize: 20),),
+                          icon: const Icon(Icons.add, color: Colors.black),
+                          label: const Text(
+                            "أضف جهاز جديد",
+                            style: TextStyle(color: Colors.black, fontSize: 20),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColor.primary_color,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -169,13 +170,13 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-        
+
                       // ---------------- الأجهزة المضافة ----------------
                       Obx(() {
                         if (appliancesController.isLoading.value) {
                           return const Center(child: CircularProgressIndicator());
                         }
-        
+
                         if (appliancesController.userAppliances.isEmpty) {
                           return const Center(
                             child: Text(
@@ -184,14 +185,18 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                             ),
                           );
                         }
-        
-                        // عرض الأجهزة المضافة
-                        return Column(
-                          children: appliancesController.userAppliances.map((ua) {
+
+                        // تحسين الأداء: استخدم ListView.builder داخل SizedBox مع shrinkWrap لتسريع UI
+                        return ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: appliancesController.userAppliances.length,
+                          itemBuilder: (context, index) {
+                            final ua = appliancesController.userAppliances[index];
                             final hours = RxDouble(ua.hoursPerDay);
                             final qty = RxInt(ua.quantity);
                             final priority = RxString(ua.priority);
-        
+
                             return Card(
                               color: Colors.white,
                               margin: const EdgeInsets.only(bottom: 16),
@@ -204,7 +209,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "${ua.name} (${ua.brand}) - ${ua.watt} وات",
+                                      "${ua.displayName} - ${ua.effectiveWatt} وات${ua.applianceId == null ? " (مخصص)" : ""}",
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold, fontSize: 18),
                                     ),
@@ -221,16 +226,15 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                                             decoration: InputDecoration(
                                               contentPadding:
                                               const EdgeInsets.symmetric(
-                                                  vertical: 10,
-                                                  horizontal: 12),
+                                                  vertical: 10, horizontal: 12),
                                               border: OutlineInputBorder(
                                                   borderRadius:
                                                   BorderRadius.circular(12)),
                                               fillColor: Colors.grey.shade100,
                                               filled: true,
                                             ),
-                                            onChanged: (v) => hours.value =
-                                                double.tryParse(v) ?? 0,
+                                            onChanged: (v) =>
+                                            hours.value = double.tryParse(v) ?? 0,
                                           )),
                                         ),
                                       ],
@@ -248,8 +252,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                                             decoration: InputDecoration(
                                               contentPadding:
                                               const EdgeInsets.symmetric(
-                                                  vertical: 10,
-                                                  horizontal: 12),
+                                                  vertical: 10, horizontal: 12),
                                               border: OutlineInputBorder(
                                                   borderRadius:
                                                   BorderRadius.circular(12)),
@@ -268,24 +271,23 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                                         const Text("الأولوية: ",
                                             style: TextStyle(fontSize: 16)),
                                         Obx(() => DropdownButton<String>(
-                                              value: priority.value,
-                                              dropdownColor: Colors.white, // الخلفية البيضا
-                                              items: const [
-                                                DropdownMenuItem(
-                                                  value: "important",
-                                                  child: Text("مهم"),
-                                                ),
-                                                DropdownMenuItem(
-                                                  value: "not_important",
-                                                  child: Text("غير مهم"),
-                                                ),
-                                              ],
-                                              onChanged: (v) {
-                                                if (v != null) priority.value = v;
-                                              },
+                                          value: priority.value,
+                                          dropdownColor: Colors.white,
+                                          items: const [
+                                            DropdownMenuItem(
+                                              value: "important",
+                                              child: Text("مهم"),
                                             ),
-                                        ),
-                                         Spacer(),
+                                            DropdownMenuItem(
+                                              value: "not_important",
+                                              child: Text("غير مهم"),
+                                            ),
+                                          ],
+                                          onChanged: (v) {
+                                            if (v != null) priority.value = v;
+                                          },
+                                        )),
+                                        const Spacer(),
                                         IconButton(
                                           icon: Icon(Icons.save,
                                               color: AppColor.primary_color, size: 28),
@@ -296,6 +298,9 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                                               name: ua.name,
                                               brand: ua.brand,
                                               watt: ua.watt,
+                                              customName: ua.customName,
+                                              customBrand: ua.customBrand,
+                                              customWatt: ua.customWatt,
                                               hoursPerDay: hours.value,
                                               quantity: qty.value,
                                               priority: priority.value,
@@ -311,7 +316,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                                           },
                                         ),
                                         IconButton(
-                                          icon:  Icon(Icons.delete,
+                                          icon: Icon(Icons.delete,
                                               color: AppColor.red, size: 28),
                                           onPressed: () {
                                             appliancesController.deleteUserAppliance(ua);
@@ -323,7 +328,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                                 ),
                               ),
                             );
-                          }).toList(),
+                          },
                         );
                       }),
                     ],

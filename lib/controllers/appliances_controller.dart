@@ -23,15 +23,21 @@ class AppliancesController extends GetxController {
     }
   }
 
+  /// -----------------------
+  /// Total monthly consumption
+  /// -----------------------
   double getTotalMonthlyConsumption({String? priority}) {
     double total = 0.0;
     for (final ua in userAppliances) {
       if (priority != null && ua.priority != priority) continue;
-      total += ua.watt * ua.hoursPerDay * ua.quantity / 1000 * 30;
+      total += ua.effectiveWatt * ua.hoursPerDay * ua.quantity / 1000 * 30;
     }
     return total;
   }
 
+  /// -----------------------
+  /// Load all data
+  /// -----------------------
   Future<void> loadData() async {
     isLoading.value = true;
 
@@ -43,6 +49,10 @@ class AppliancesController extends GetxController {
 
     isLoading.value = false;
   }
+
+  /// -----------------------
+  /// Add ready appliance (existing)
+  /// -----------------------
   Future<void> addApplianceCustom(
       Appliance appliance, {
         required double hoursPerDay,
@@ -50,7 +60,7 @@ class AppliancesController extends GetxController {
         required String priority,
       }) async {
     await _service.addUserAppliance(
-      applianceId: appliance.id,
+      applianceId: appliance.id!,
       hoursPerDay: hoursPerDay,
       quantity: quantity,
       priority: priority,
@@ -58,15 +68,43 @@ class AppliancesController extends GetxController {
     await loadData();
   }
 
+  /// -----------------------
+  /// Add custom appliance
+  /// -----------------------
+  Future<void> addCustomAppliance({
+    required String name,
+    required String brand,
+    required int watt,
+    required double hoursPerDay,
+    required int quantity,
+    String priority = "not_important",
+  }) async {
+    await _service.addCustomAppliance(
+      userId: userId,
+      customName: name,
+      customBrand: brand,
+      customWatt: watt,
+      hoursPerDay: hoursPerDay,
+      quantity: quantity,
+      priority: priority,
+    );
+    await loadData();
+  }
 
+  /// -----------------------
+  /// Update appliance (ready or custom)
+  /// -----------------------
   Future<void> updateUserAppliance(UserAppliance ua) async {
-    if (ua.id == null) return; // لو الـ id مش موجود، ما نعملش update
+    if (ua.id == null) return;
 
     await _service.updateUserAppliance(
-      ua.id!, // force unwrap لأن الـ id موجود
+      ua.id!,
       hoursPerDay: ua.hoursPerDay,
       quantity: ua.quantity,
-      priority: ua.priority,
+      priority: ua.priority ?? "not_important",
+      customName: ua.customName ?? "",
+      customBrand: ua.customBrand ?? "",
+      customWatt: ua.customWatt ?? 0,
     );
 
     final index = userAppliances.indexWhere((e) => e.id == ua.id);
@@ -75,13 +113,13 @@ class AppliancesController extends GetxController {
     }
   }
 
+  /// -----------------------
+  /// Delete appliance (ready or custom)
+  /// -----------------------
   Future<void> deleteUserAppliance(UserAppliance ua) async {
-    if (ua.id == null) return; // لو الـ id مش موجود، ما نعملش delete
+    if (ua.id == null) return;
 
     await _service.deleteUserAppliance(ua.id!);
     userAppliances.removeWhere((e) => e.id == ua.id);
   }
-
-
-
 }
