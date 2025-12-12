@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/core/style/colors.dart';
-import '../../core/widgets/page_header.dart'; // استدعاء الهيدر الجديد
+import '../../core/widgets/page_header.dart';
 
 class CalculationResultScreen extends StatelessWidget {
   final double oldReading;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:graduation_project/view/main_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../controllers/budget_controller.dart';
 import '../controllers/appliances_controller.dart';

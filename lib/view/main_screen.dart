@@ -5,7 +5,6 @@ import 'package:graduation_project/view/company_screen.dart';
 import 'package:graduation_project/view/reading_screen.dart';
 import 'package:graduation_project/view/recommendations_screen.dart';
 import 'package:graduation_project/view/start_screen.dart';
-import 'package:graduation_project/view/tips_screen.dart';
 import '../controllers/bottom_navbar_controller.dart';
 import '../core/widgets/bottom_navbar.dart';
 

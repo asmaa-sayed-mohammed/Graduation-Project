@@ -8,6 +8,7 @@ import '../main.dart';
 import '../../core/widgets/page_header.dart';
 import 'homescreen.dart';
 
+
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 

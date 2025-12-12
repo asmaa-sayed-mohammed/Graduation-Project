@@ -9,7 +9,6 @@ import '../controllers/appliances_controller.dart';
 import '../core/widgets/page_header.dart';
 import '../core/style/colors.dart';
 import 'tips_screen.dart';
-import '../view/budget_and_user_appliances_screen.dart';
 import '../controllers/start_controller.dart';
 
 class RecommendationsScreen extends StatelessWidget {

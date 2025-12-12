@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/electricity_controller.dart';
 import '../core/widgets/page_header.dart';
 
+
 const Color primaryYellowColor = Color(0xFFFFCC00);
 
 class CompanyScreen extends GetView<ElectricityController> {

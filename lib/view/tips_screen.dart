@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
-import 'main_screen.dart';
 
 class TipsScreen extends StatefulWidget {
   const TipsScreen({super.key});

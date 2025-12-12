@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/appliances_controller.dart';
-import '../models/user_appliance_model.dart';
-import '../models/appliance_model.dart';
 import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
 

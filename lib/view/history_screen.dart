@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:graduation_project/view/main_screen.dart';
-
-import '../controllers/bottom_navbar_controller.dart';
 import '../controllers/history_controller.dart';
 import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';

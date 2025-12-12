@@ -5,10 +5,8 @@ import 'package:graduation_project/controllers/start_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import 'package:graduation_project/controllers/reading_controller.dart';
-import 'package:graduation_project/view/start_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../controllers/bottom_navbar_controller.dart';
-import '../core/widgets/bottom_navbar.dart';
 import '../core/widgets/page_header.dart';
 
 class ReadingScreen extends StatefulWidget {

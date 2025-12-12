@@ -5,8 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:graduation_project/controllers/reading_controller.dart';
 import 'package:graduation_project/core/style/colors.dart';
 import '../../core/widgets/page_header.dart';
-
-// 💡 تم تحديث الاستيراد لصفحة الكهرباء الجديدة
 import 'package:graduation_project/view/company_screen.dart';
 import 'package:graduation_project/models/manual_calculation_result.dart';
 

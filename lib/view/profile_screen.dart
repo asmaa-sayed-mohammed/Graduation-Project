@@ -4,7 +4,7 @@ import 'package:graduation_project/services/auth_service.dart';
 import '../controllers/profile_controller.dart';
 import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
-import 'main_screen.dart';
+
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});

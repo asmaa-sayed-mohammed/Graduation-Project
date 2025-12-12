@@ -7,6 +7,7 @@ import 'package:graduation_project/view/start_screen.dart';
 import '../main.dart';
 import '../core/widgets/page_header.dart';
 
+
 class OnBoardingScreen extends StatefulWidget {
   @override
   State<OnBoardingScreen> createState() => _OnBoardingScreenState();

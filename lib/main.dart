@@ -10,14 +10,10 @@ import 'package:graduation_project/models/reading_model_hive.dart';
 import 'package:graduation_project/services/notification/notification_permission.dart';
 import 'package:graduation_project/services/notification/notification_service.dart';
 import 'package:graduation_project/services/notification/workmanager_service.dart';
-import 'package:graduation_project/view/calculate_once_screen.dart';
-import 'package:graduation_project/view/reading_screen.dart';
 import 'package:graduation_project/view/splash_screen.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-// استيراد المتحكم المطلوب وإضافته (Get.put)
 import 'controllers/electricity_controller.dart';
 import 'controllers/history_controller.dart';
 import 'models/history_model.dart';
