@@ -31,7 +31,7 @@ class AppliancesScreen extends StatelessWidget {
   final controller = Get.find<AppliancesController>();
 
   String getCategory(String name) {
-    if (name.contains("تكييف")) return "تكييف";
+    if (name.contains("تكييف") || name.contains("مكيف")) return "تكييف";
     if (name.contains("ثلاجة")) return "ثلاجات";
     if (name.contains("غسالة")) return "غسالات";
     if (name.contains("سخان")) return "سخانات كهرباء";
@@ -174,8 +174,6 @@ class AppliancesScreen extends StatelessWidget {
                   },
                 ),
               ),
-
-              // زر إضافة جهاز جديد
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton.icon(
@@ -196,7 +194,6 @@ class AppliancesScreen extends StatelessWidget {
                 ),
               ),
 
-              // قائمة الأجهزة
               Obx(() {
                 if (controller.isLoading.value) {
                   return Expanded(
@@ -336,7 +333,6 @@ class AppliancesScreen extends StatelessWidget {
                                                       ),
                                                       const SizedBox(height: 10),
 
-                                                      // ساعات + كمية
                                                       Row(
                                                         children: [
                                                           const Icon(Icons.schedule,

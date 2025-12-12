@@ -28,7 +28,7 @@ class BudgetController extends GetxController {
     try {
       await _service.insertOrUpdateBudget(userId, value);
       monthlyBudget.value = value;
-      lastUpdated.value = DateTime.now(); // تحديث وقت آخر حفظ
+      lastUpdated.value = DateTime.now();
     } catch (e) {
       print(e);
     }finally{

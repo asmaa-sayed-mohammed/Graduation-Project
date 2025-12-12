@@ -23,9 +23,6 @@ class AppliancesController extends GetxController {
     }
   }
 
-  /// -----------------------
-  /// Total monthly consumption
-  /// -----------------------
   double getTotalMonthlyConsumption({String? priority}) {
     double total = 0.0;
     for (final ua in userAppliances) {
@@ -34,10 +31,6 @@ class AppliancesController extends GetxController {
     }
     return total;
   }
-
-  /// -----------------------
-  /// Load all data
-  /// -----------------------
   Future<void> loadData() async {
     isLoading.value = true;
 
@@ -50,9 +43,6 @@ class AppliancesController extends GetxController {
     isLoading.value = false;
   }
 
-  /// -----------------------
-  /// Add ready appliance (existing)
-  /// -----------------------
   Future<void> addApplianceCustom(
       Appliance appliance, {
         required double hoursPerDay,
@@ -67,10 +57,6 @@ class AppliancesController extends GetxController {
     );
     await loadData();
   }
-
-  /// -----------------------
-  /// Add custom appliance
-  /// -----------------------
   Future<void> addCustomAppliance({
     required String name,
     required String brand,
@@ -90,10 +76,6 @@ class AppliancesController extends GetxController {
     );
     await loadData();
   }
-
-  /// -----------------------
-  /// Update appliance (ready or custom)
-  /// -----------------------
   Future<void> updateUserAppliance(UserAppliance ua) async {
     if (ua.id == null) return;
     isLoading.value = true;
@@ -118,10 +100,6 @@ class AppliancesController extends GetxController {
       userAppliances[index] = ua;
     }
   }
-
-  /// -----------------------
-  /// Delete appliance (ready or custom)
-  /// -----------------------
   Future<void> deleteUserAppliance(UserAppliance ua) async {
     if (ua.id == null) return;
     await _service.deleteUserAppliance(ua.id!);

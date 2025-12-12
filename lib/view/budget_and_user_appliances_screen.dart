@@ -43,7 +43,6 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ---------------- الميزانية ----------------
                       Obx(() {
                         if (budgetController.isLoading.value) {
                           return const Center(child: CircularProgressIndicator());
@@ -129,8 +128,6 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                           ),
                         );
                       }),
-
-                      // ---------------- Divider + Section Label ----------------
                       Row(
                         children: const [
                           Expanded(child: Divider(color: Colors.grey, thickness: 1)),
@@ -147,8 +144,6 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-
-                      // ---------------- زر إضافة جهاز ----------------
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -169,8 +164,6 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-
-                      // ---------------- الأجهزة المضافة ----------------
                       Obx(() {
                         if (appliancesController.isLoading.value) {
                           return const Center(child: CircularProgressIndicator());
@@ -184,8 +177,6 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                             ),
                           );
                         }
-
-                        // تحسين الأداء: استخدم ListView.builder داخل SizedBox مع shrinkWrap لتسريع UI
                         return ListView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,

@@ -5,9 +5,6 @@ import '../models/user_appliance_model.dart';
 class ApplianceService {
   final SupabaseClient supabase = Supabase.instance.client;
 
-  /// -----------------------
-  /// جلب كل الأجهزة
-  /// -----------------------
   Future<List<Appliance>> getAllAppliances() async {
     final response = await supabase.from('appliances').select();
 
@@ -15,10 +12,6 @@ class ApplianceService {
         .map((e) => Appliance.fromMap(e as Map<String, dynamic>))
         .toList();
   }
-
-  /// -----------------------
-  /// جلب أجهزة المستخدم
-  /// -----------------------
   Future<List<UserAppliance>> getUserAppliances(String userId) async {
     final res = await supabase
         .from('user_appliances')
@@ -29,10 +22,6 @@ class ApplianceService {
         .map((e) => UserAppliance.fromJson(e as Map<String, dynamic>))
         .toList();
   }
-
-  /// -----------------------
-  /// إضافة جهاز جاهز
-  /// -----------------------
   Future<void> addUserAppliance({
     required int applianceId,
     required double hoursPerDay,
@@ -49,10 +38,6 @@ class ApplianceService {
       'priority': priority,
     });
   }
-
-  /// -----------------------
-  /// إضافة جهاز مخصص
-  /// -----------------------
   Future<void> addCustomAppliance({
     required String userId,
     required String customName,
@@ -73,10 +58,6 @@ class ApplianceService {
       'priority': priority,
     });
   }
-
-  /// -----------------------
-  /// تحديث جهاز (جاهز أو مخصص)
-  /// -----------------------
   Future<void> updateUserAppliance(
       int id, {
         double? hoursPerDay,
@@ -101,10 +82,6 @@ class ApplianceService {
       await supabase.from('user_appliances').update(data).eq('id', id);
     }
   }
-
-  /// -----------------------
-  /// حذف جهاز (جاهز أو مخصص)
-  /// -----------------------
   Future<void> deleteUserAppliance(int id) async {
     await supabase.from('user_appliances').delete().eq('id', id);
   }

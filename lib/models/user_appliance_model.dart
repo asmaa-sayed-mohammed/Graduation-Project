@@ -1,17 +1,12 @@
 class UserAppliance {
   final int? id;
-  final int? applianceId; // لو الجهاز جاهز → ID، لو مخصص → null
-
-  // بيانات الجهاز الجاهز من جدول appliances
+  final int? applianceId;
   final String? name;
   final String? brand;
   final int? watt;
-
-  // بيانات الجهاز المخصص
   final String? customName;
   final String? customBrand;
   final int? customWatt;
-
   final double hoursPerDay;
   final int quantity;
   final String priority;
@@ -30,9 +25,6 @@ class UserAppliance {
     this.priority = "not_important",
   });
 
-  /// --------------------------
-  ///   fromJson (بدون dynamic)
-  /// --------------------------
   factory UserAppliance.fromJson(Map<String, Object?> json) {
     // Read nested "appliances" safely
     final appliancesJson = json['appliances'] as Map<String, Object?>?;
@@ -43,8 +35,6 @@ class UserAppliance {
       name: appliancesJson != null ? appliancesJson['name'] as String? : null,
       brand: appliancesJson != null ? appliancesJson['brand'] as String? : null,
       watt: appliancesJson != null ? appliancesJson['watt'] as int? : null,
-
-      // لو الجهاز مخصص
       customName: json['custom_name'] as String?,
       customBrand: json['custom_brand'] as String?,
       customWatt: json['custom_watt'] as int?,
@@ -54,10 +44,6 @@ class UserAppliance {
       priority: json['priority'] as String? ?? "not_important",
     );
   }
-
-  /// --------------------------
-  ///   JSON for INSERT/UPDATE
-  /// --------------------------
   Map<String, Object?> toJson() {
     return {
       'id': id,
@@ -70,10 +56,6 @@ class UserAppliance {
       'priority': priority,
     };
   }
-
-  /// --------------------------
-  ///   copyWith
-  /// --------------------------
   UserAppliance copyWith({
     int? id,
     double? hoursPerDay,
@@ -95,11 +77,6 @@ class UserAppliance {
     );
   }
 
-  /// --------------------------
-  /// Getter مفيد: Watt الفعلي
-  /// --------------------------
   int get effectiveWatt => watt ?? customWatt ?? 0;
-
-  /// Getter للاسم الصحيح
   String get displayName => name ?? customName ?? "Unknown Device";
 }

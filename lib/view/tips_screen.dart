@@ -27,10 +27,9 @@ class _TipsScreenState extends State<TipsScreen>
 
     _scaleAnimation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.elasticOut, // تأثير bounce
+      curve: Curves.elasticOut,
     );
 
-    // بدء الأنيميشن
     _controller.forward();
   }
 
@@ -53,7 +52,6 @@ class _TipsScreenState extends State<TipsScreen>
                 title: "نصائح عامة",
                 subtitle: "استهلاك أقل .. توفير أكبر ",
                 leading: IconButton(icon:  const Icon(Icons.arrow_forward, color: Colors.black, size: 26,), onPressed: ()=>Get.back(),),
-                // trailing: const Icon(Icons.ad, color: Colors.black, size: 28),
               ),
         
               const SizedBox(height: 10),
@@ -107,10 +105,6 @@ class _TipsScreenState extends State<TipsScreen>
       ),
     );
   }
-
-  // ---------------------------------------------------
-  // بطاقة النصيحة مع تأثير الـ bounce
-  // ---------------------------------------------------
   Widget _buildAnimatedTip({
     required IconData icon,
     required String title,
