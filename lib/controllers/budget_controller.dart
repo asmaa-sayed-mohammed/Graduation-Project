@@ -25,8 +25,15 @@ class BudgetController extends GetxController {
 
   Future<void> saveBudget(double value) async {
     if (value < 0) return;
-    await _service.insertOrUpdateBudget(userId, value);
-    monthlyBudget.value = value;
-    lastUpdated.value = DateTime.now(); // تحديث وقت آخر حفظ
+    try {
+      await _service.insertOrUpdateBudget(userId, value);
+      monthlyBudget.value = value;
+      lastUpdated.value = DateTime.now(); // تحديث وقت آخر حفظ
+    } catch (e) {
+      print(e);
+    }finally{
+      isLoading.value = false;
+    }
+
   }
 }

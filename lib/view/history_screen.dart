@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/view/main_screen.dart';
 
+import '../controllers/bottom_navbar_controller.dart';
 import '../controllers/history_controller.dart';
 import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
@@ -31,7 +32,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             PageHeader(
               title: "السجل",
               leading: IconButton(
-                onPressed: () => Get.off(() => MainScreen()),
+                onPressed: () {Get.back();},
                 icon: Icon(Icons.arrow_back, color: AppColor.black, size: 28),
               ),
             ),

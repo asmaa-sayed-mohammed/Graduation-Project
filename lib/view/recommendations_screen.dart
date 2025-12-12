@@ -424,7 +424,7 @@ class RecommendationsScreen extends StatelessWidget {
             child: Icon(Icons.devices, color: AppColor.primary_color, size: 24),
           ),
           title: Text(
-            '${ua.name} (${ua.brand})',
+            '${ua.customName} (${ua.customBrand})',
             style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
           ),
           subtitle: Padding(

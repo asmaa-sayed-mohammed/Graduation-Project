@@ -97,15 +97,21 @@ class AppliancesController extends GetxController {
   Future<void> updateUserAppliance(UserAppliance ua) async {
     if (ua.id == null) return;
     isLoading.value = true;
-    await _service.updateUserAppliance(
-      ua.id!,
-      hoursPerDay: ua.hoursPerDay,
-      quantity: ua.quantity,
-      priority: ua.priority ?? "not_important",
-      customName: ua.customName ?? "",
-      customBrand: ua.customBrand ?? "",
-      customWatt: ua.customWatt ?? 0,
-    );
+    try {
+      await _service.updateUserAppliance(
+            ua.id!,
+            hoursPerDay: ua.hoursPerDay,
+            quantity: ua.quantity,
+            priority: ua.priority ?? "not_important",
+            customName: ua.customName ?? "",
+            customBrand: ua.customBrand ?? "",
+            customWatt: ua.customWatt ?? 0,
+          );
+    } catch (e) {
+      print(e);
+    }finally{
+      isLoading.value = false;
+    };
 
     final index = userAppliances.indexWhere((e) => e.id == ua.id);
     if (index != -1) {

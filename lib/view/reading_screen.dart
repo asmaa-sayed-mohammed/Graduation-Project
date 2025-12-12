@@ -25,6 +25,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
   @override
   void initState() {
     super.initState();
+
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null) {
       controller.loadLastReading(user.id);
@@ -89,7 +90,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                           borderRadius: BorderRadius.circular(35),
                           onTap: () async {
                             final result = controller.calculateManualResult();
-                          // history.syncWithCloud();
+                            // history.syncWithCloud();
                             if (result.hasError) {
                               Get.snackbar(
                                 'خطأ',
@@ -107,6 +108,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                 );
 
                                 //  هنا بنمسح القراءة الجديدة بعد ما اتحفظت
+                                controller.oldReadingController.text = controller.loadLastReading(user.id).toString();
                                 controller.newReadingController.clear();
 
                                 //  تحديث بيانات الصفحة الرئيسية فورًا
@@ -121,7 +123,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
 
                                 //  الرجوع للصفحة الرئيسية مع الحفاظ على BottomNavBar
                                 final navController =
-                                    Get.find<NavigationController>();
+                                Get.find<NavigationController>();
                                 navController.currentIndex.value = 0;
                               } else {
                                 Get.snackbar(

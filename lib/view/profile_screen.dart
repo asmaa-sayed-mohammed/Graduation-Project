@@ -23,7 +23,7 @@ class ProfileScreen extends StatelessWidget {
               title: "الملف الشخصي",
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.black, size: 26),
-                onPressed: () => Get.to(MainScreen()),
+                onPressed: () => Get.back(),
               ),
             ),
 
