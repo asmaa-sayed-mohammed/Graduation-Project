@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../controllers/bottom_navbar_controller.dart';
 import '../controllers/smart_recommendation_controller.dart';
 import '../controllers/appliances_controller.dart';
 import '../controllers/budget_controller.dart';
@@ -124,7 +125,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
   }
 
   // ========================================
-  // صندوق تحذير الميزانية
+  // صندوق تحذير الميزانية مع زر تعديل
   // ========================================
   Widget _buildBudgetAlert() {
     final monthlyBudget = budgetController.monthlyBudget.value;
@@ -135,25 +136,28 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     String budgetMessage;
     Color budgetColor;
     IconData budgetIcon;
+    bool showActionButton = false;
 
     if (monthlyBudget > 0) {
       if (monthlyCost > monthlyBudget) {
         budgetMessage =
-        "⚠️ تجاوزت الميزانية الشهرية!\nالتكلفة: ${monthlyCost.toStringAsFixed(2)} EGP\nالميزانية: ${monthlyBudget.toStringAsFixed(2)} EGP \nقم بزيادة الميزانية أو تقليل استخدام أجهزتك الغير مهمة.";
+        "⚠ تجاوزت الميزانية الشهرية!\nالتكلفة: ${monthlyCost.toStringAsFixed(2)} EGP\nالميزانية: ${monthlyBudget.toStringAsFixed(2)} EGP\nقم بزيادة الميزانية أو تقليل استخدام أجهزتك الغير مهمة.";
         budgetColor = Colors.red.shade100;
         budgetIcon = Icons.warning_amber_rounded;
+        showActionButton = true;
       } else if ((monthlyBudget - monthlyCost) < monthlyBudget * 0.2) {
         budgetMessage =
-        "⚠️ اقتربت من تجاوز الميزانية\nالمتبقي: ${(monthlyBudget - monthlyCost).toStringAsFixed(2)} EGP \nقلل استهلاكك للحفاظ على الميزانية.";
+        "⚠ اقتربت من تجاوز الميزانية\nالمتبقي: ${(monthlyBudget - monthlyCost).toStringAsFixed(2)} EGP\nقلل استهلاكك للحفاظ على الميزانية.";
         budgetColor = Colors.orange.shade100;
         budgetIcon = Icons.error_outline;
+        showActionButton = true;
       } else {
         budgetMessage = "✅ وضع الميزانية ممتاز\nاستمر على هذا المعدل";
         budgetColor = Colors.green.shade100;
         budgetIcon = Icons.check_circle_outline;
       }
     } else {
-      budgetMessage = "ℹ️ لم يتم تحديد ميزانية بعد";
+      budgetMessage = "ℹ لم يتم تحديد ميزانية بعد";
       budgetColor = Colors.grey.shade200;
       budgetIcon = Icons.info_outline;
     }
@@ -165,17 +169,41 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(0, 4))],
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(budgetIcon, size: 36),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              budgetMessage,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(budgetIcon, size: 36),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  budgetMessage,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
+          if (showActionButton) ...[
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                final navController =
+                Get.find<NavigationController>();
+                navController.currentIndex.value = 2;
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColor.primary_color,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text(
+                "عدل الميزانية أو الأجهزة",
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -225,7 +253,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
   }
 
   // ========================================
-  // اقتراحات تحسين استهلاك الأجهزة
+  // اقتراحات الأجهزة
   // ========================================
   List<Widget> _buildDeviceSuggestions(
       SmartRecommendationController controller,
@@ -313,7 +341,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
   }
 
   // ========================================
-  // بطاقة الأجهزة المضافة (محسنة UI)
+  // بطاقة الجهاز
   // ========================================
   Widget _buildApplianceCard(UserAppliance ua) {
     final displayName = ua.customName?.isNotEmpty == true ? ua.customName! : ua.name;
@@ -381,7 +409,11 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
             IconButton(
               icon: const Icon(Icons.edit_outlined),
               color: AppColor.primary_color,
-              onPressed: () => Get.to(() => BudgetAndAppliancesScreen()),
+              onPressed: () {
+                final navController =
+                Get.find<NavigationController>();
+                navController.currentIndex.value = 2;
+              },
             ),
           ],
         ),

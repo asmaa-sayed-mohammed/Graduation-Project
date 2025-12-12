@@ -17,10 +17,16 @@ class BudgetController extends GetxController {
 
   Future<void> loadBudget() async {
     isLoading.value = true;
-    final budget = await _service.getCurrentMonthBudget(userId);
-    monthlyBudget.value = budget?.budget ?? 0.0;
-    lastUpdated.value = budget?.updatedAt;
-    isLoading.value = false;
+    try {
+      final budget = await _service.getCurrentMonthBudget(userId);
+      monthlyBudget.value = budget?.budget ?? 0.0;
+      lastUpdated.value = budget?.updatedAt;
+      isLoading.value = false;
+    } catch (e) {
+      print(e);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> saveBudget(double value) async {
