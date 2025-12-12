@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graduation_project/bindings/app_bindings.dart';
+import 'package:graduation_project/controllers/bottom_navbar_controller.dart';
 import 'package:graduation_project/models/profile_model_hive.dart';
 import 'package:graduation_project/models/reading_model_hive.dart';
 import 'package:graduation_project/services/notification/notification_permission.dart';
@@ -75,6 +76,7 @@ void main() async {
   // حقن المتحكم في GetX
   Get.put(ElectricityController());
   Get.lazyPut(() => HistoryController());
+  Get.put(NavigationController());
 
   runApp(const MyApp());
 }

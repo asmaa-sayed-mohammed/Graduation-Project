@@ -29,6 +29,18 @@ class _ReadingScreenState extends State<ReadingScreen> {
       controller.loadLastReading(user.id);
     }
   }
+  @override
+  void dispose() {
+    // لو عايز تتحكم في TextEditingController
+    controller.oldReadingController.dispose();
+    controller.newReadingController.dispose();
+
+    // لو عايز تتحكم في controller نفسه
+    Get.delete<ReadingController>();
+
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
