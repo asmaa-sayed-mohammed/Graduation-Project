@@ -45,7 +45,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                     children: [
                       Obx(() {
                         if (budgetController.isLoading.value) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator(color: AppColor.primary_color,));
                         }
 
                         budgetTextController.text =
@@ -166,7 +166,7 @@ class BudgetAndAppliancesScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       Obx(() {
                         if (appliancesController.isLoading.value) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator(color: AppColor.primary_color,));
                         }
 
                         if (appliancesController.userAppliances.isEmpty) {

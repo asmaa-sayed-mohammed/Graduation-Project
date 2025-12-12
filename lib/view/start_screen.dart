@@ -63,7 +63,7 @@ class StartScreen extends StatelessWidget {
                       child: Obx(
                         () => Center(
                           child: Text(
-                            "${controller.manualUsage.value > 0 ? controller.manualUsage.value.toStringAsFixed(3) : controller.latestUsageDifference.value} KWh",
+                            "${controller.manualUsage.value > 0 ? controller.manualUsage.value.toStringAsFixed(2) : controller.latestUsageDifference.value} KWh",
                             style: const TextStyle(
                               fontSize: 42,
                               fontWeight: FontWeight.bold,
