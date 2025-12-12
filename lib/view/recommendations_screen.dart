@@ -65,20 +65,29 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
             final recs = (controller.recommendations.length > 1) ? controller.recommendations[1] : null;
 
             return ListView(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16), // إزالة padding علوي
               children: [
+                // =========================
+                // PageHeader ملتصق بالأعلى
+                // =========================
                 const PageHeader(
                   title: "التوصيات الذكية",
                   subtitle: "إدارة استهلاك الكهرباء بسهولة",
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
+                // =========================
+                // صندوق مقارنة الميزانية والتكلفة
+                // =========================
                 if (hasRecommendations) _buildBudgetAlert(),
                 const SizedBox(height: 20),
 
                 if (hasRecommendations && status != null) _buildConsumptionSummary(status),
                 const SizedBox(height: 20),
 
+                // =========================
+                // اقتراحات الأجهزة
+                // =========================
                 if (recs != null && recs["changes"] != null && recs["changes"].isNotEmpty)
                   ..._buildDeviceSuggestions(controller, appliancesController),
                 const SizedBox(height: 20),
@@ -124,9 +133,9 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     );
   }
 
-  // ========================================
+  // =========================
   // صندوق تحذير الميزانية مع زر تعديل
-  // ========================================
+  // =========================
   Widget _buildBudgetAlert() {
     final monthlyBudget = budgetController.monthlyBudget.value;
     final monthlyCost = homeController.price12Months.isNotEmpty
@@ -189,8 +198,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {
-                final navController =
-                Get.find<NavigationController>();
+                final navController = Get.find<NavigationController>();
                 navController.currentIndex.value = 2;
               },
               style: ElevatedButton.styleFrom(
@@ -209,9 +217,9 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     );
   }
 
-  // ========================================
-  // ملخص الاستهلاك
-  // ========================================
+  // =========================
+  // باقي الأكواد كما هي
+  // =========================
   Widget _buildConsumptionSummary(Map<String, dynamic> status) {
     return Card(
       color: Colors.grey.shade100,
@@ -252,13 +260,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     );
   }
 
-  // ========================================
-  // اقتراحات الأجهزة
-  // ========================================
-  List<Widget> _buildDeviceSuggestions(
-      SmartRecommendationController controller,
-      AppliancesController appliancesController) {
-
+  List<Widget> _buildDeviceSuggestions(SmartRecommendationController controller, AppliancesController appliancesController) {
     final deviceSuggestions = controller.recommendations.length > 1
         ? List<Map<String, dynamic>>.from(controller.recommendations[1]["changes"] ?? [])
         : [];
@@ -340,9 +342,6 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     }).toList();
   }
 
-  // ========================================
-  // بطاقة الجهاز
-  // ========================================
   Widget _buildApplianceCard(UserAppliance ua) {
     final displayName = ua.customName?.isNotEmpty == true ? ua.customName! : ua.name;
     final displayBrand = ua.customBrand?.isNotEmpty == true ? ua.customBrand! : ua.brand;
@@ -410,8 +409,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
               icon: const Icon(Icons.edit_outlined),
               color: AppColor.primary_color,
               onPressed: () {
-                final navController =
-                Get.find<NavigationController>();
+                final navController = Get.find<NavigationController>();
                 navController.currentIndex.value = 2;
               },
             ),
@@ -421,9 +419,6 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     );
   }
 
-  // ========================================
-  // صندوق الأجهزة الفارغ
-  // ========================================
   Widget _buildEmptyDevicesWidgetWithUsage(Map<String, dynamic>? lastStatus) {
     return Container(
       padding: const EdgeInsets.all(20),
