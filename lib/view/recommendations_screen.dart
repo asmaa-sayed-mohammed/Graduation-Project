@@ -33,6 +33,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     homeController = Get.find<HomeController>();
     budgetController = Get.find<BudgetController>();
     appliancesController = Get.find<AppliancesController>();
+
     ever(appliancesController.userAppliances, (_) {
       controller.generateRecommendations();
       _updateLastStatus();
@@ -71,10 +72,10 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                if (hasRecommendations) _buildBudgetAlert(status!),
+                if (hasRecommendations) _buildBudgetAlert(),
                 const SizedBox(height: 20),
 
-                if (hasRecommendations) _buildConsumptionSummary(status!),
+                if (hasRecommendations && status != null) _buildConsumptionSummary(status),
                 const SizedBox(height: 20),
 
                 if (recs != null && recs["changes"] != null && recs["changes"].isNotEmpty)
@@ -90,44 +91,13 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                   }
 
                   if (appliancesController.userAppliances.isEmpty) {
-
                     return _buildEmptyDevicesWidgetWithUsage(lastStatus);
                   }
 
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: appliancesController.userAppliances.length,
-                    itemBuilder: (context, index) {
-                      final ua = appliancesController.userAppliances[index];
-                      final displayName = ua.customName?.isNotEmpty == true
-                          ? ua.customName!
-                          : ua.name;
-                      final displayBrand = ua.customBrand?.isNotEmpty == true
-                          ? ua.customBrand!
-                          : ua.brand;
-
-                      return Card(
-                        color: Colors.white,
-                        margin: const EdgeInsets.only(bottom: 8),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        elevation: 2,
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          leading: Icon(Icons.devices, color: AppColor.primary_color),
-                          title: Text('$displayName ($displayBrand)',
-                              style: const TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: Text(
-                              'ساعات/يوم: ${ua.hoursPerDay} • كمية: ${ua.quantity}',
-                              style: const TextStyle(color: Colors.black54)),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.black54),
-                            onPressed: () => Get.to(() => BudgetAndAppliancesScreen()),
-                          ),
-                        ),
-                      );
-                    },
+                  return Column(
+                    children: appliancesController.userAppliances
+                        .map((ua) => _buildApplianceCard(ua))
+                        .toList(),
                   );
                 }),
                 const SizedBox(height: 20),
@@ -152,48 +122,68 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
       ),
     );
   }
-  Widget _buildBudgetAlert(Map<String, dynamic> status) {
-    double totalExpectedCost = status["totalExpectedCost"] ?? 0.0;
-    double monthlyBudget = budgetController.monthlyBudget.value;
 
-    String alertMessage;
-    Color alertColor;
-    IconData alertIcon;
+  // ========================================
+  // صندوق تحذير الميزانية
+  // ========================================
+  Widget _buildBudgetAlert() {
+    final monthlyBudget = budgetController.monthlyBudget.value;
+    final monthlyCost = homeController.price12Months.isNotEmpty
+        ? homeController.price12Months.last
+        : 0.0;
 
-    if (totalExpectedCost > monthlyBudget) {
-      alertMessage = "⚠ ستتجاوز الميزانية هذا الشهر! حاول تقليل استهلاكك.";
-      alertColor = Colors.red.shade100;
-      alertIcon = Icons.warning_amber_rounded;
-    } else if ((totalExpectedCost - monthlyBudget).abs() < 1) {
-      alertMessage = "⚠ قريب من الحد: استهلاكك المتوقع يساوي الميزانية.";
-      alertColor = Colors.orange.shade100;
-      alertIcon = Icons.error_outline;
+    String budgetMessage;
+    Color budgetColor;
+    IconData budgetIcon;
+
+    if (monthlyBudget > 0) {
+      if (monthlyCost > monthlyBudget) {
+        budgetMessage =
+        "⚠️ تجاوزت الميزانية الشهرية!\nالتكلفة: ${monthlyCost.toStringAsFixed(2)} EGP\nالميزانية: ${monthlyBudget.toStringAsFixed(2)} EGP \nقم بزيادة الميزانية أو تقليل استخدام أجهزتك الغير مهمة.";
+        budgetColor = Colors.red.shade100;
+        budgetIcon = Icons.warning_amber_rounded;
+      } else if ((monthlyBudget - monthlyCost) < monthlyBudget * 0.2) {
+        budgetMessage =
+        "⚠️ اقتربت من تجاوز الميزانية\nالمتبقي: ${(monthlyBudget - monthlyCost).toStringAsFixed(2)} EGP \nقلل استهلاكك للحفاظ على الميزانية.";
+        budgetColor = Colors.orange.shade100;
+        budgetIcon = Icons.error_outline;
+      } else {
+        budgetMessage = "✅ وضع الميزانية ممتاز\nاستمر على هذا المعدل";
+        budgetColor = Colors.green.shade100;
+        budgetIcon = Icons.check_circle_outline;
+      }
     } else {
-      alertMessage = " كل شيء جيد، استهلاكك المتوقع أقل من الميزانية.";
-      alertColor = Colors.green.shade100;
-      alertIcon = Icons.check_circle_outline;
+      budgetMessage = "ℹ️ لم يتم تحديد ميزانية بعد";
+      budgetColor = Colors.grey.shade200;
+      budgetIcon = Icons.info_outline;
     }
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: alertColor,
+        color: budgetColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(0, 4))],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(alertIcon, size: 36),
+          Icon(budgetIcon, size: 36),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(alertMessage, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: Text(
+              budgetMessage,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
     );
   }
 
+  // ========================================
+  // ملخص الاستهلاك
+  // ========================================
   Widget _buildConsumptionSummary(Map<String, dynamic> status) {
     return Card(
       color: Colors.grey.shade100,
@@ -233,69 +223,46 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
       ),
     );
   }
+
+  // ========================================
+  // اقتراحات تحسين استهلاك الأجهزة
+  // ========================================
   List<Widget> _buildDeviceSuggestions(
       SmartRecommendationController controller,
       AppliancesController appliancesController) {
 
     final deviceSuggestions = controller.recommendations.length > 1
-        ? List<Map<String, dynamic>>.from(
-        controller.recommendations[1]["changes"] ?? [])
+        ? List<Map<String, dynamic>>.from(controller.recommendations[1]["changes"] ?? [])
         : [];
 
-    /// لو مفيش أي اقتراحات متعلقة بالأجهزة نرجع صندوق نصائح كبير وواضح
     if (deviceSuggestions.isEmpty) {
       return [
         const SizedBox(height: 16),
-
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Color(0xFFEFF6FF),
+            color: const Color(0xFFEFF6FF),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.blueAccent, width: 1.2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 6,
-                offset: Offset(0, 3),
-              )
-            ],
+            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3))],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
-              Text(
-                "💡 اقتراحات لتحسين ميزانيتك",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
-                ),
-              ),
+              Text("💡 اقتراحات لتحسين ميزانيتك",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueAccent)),
               SizedBox(height: 12),
-
-              Text(
-                "• يُفضَّل زيادة الميزانية الشهرية بنسبة 10% لتحسين توازن المصروفات.",
-                style: TextStyle(fontSize: 16, height: 1.4),
-              ),
-
+              Text("• زيادة الميزانية الشهرية بنسبة 10% لتحسين التوازن.",
+                  style: TextStyle(fontSize: 16, height: 1.4)),
               SizedBox(height: 8),
-
-              Text(
-                "• يُستحسن تقليل ساعات تشغيل الأجهزة غير الضرورية خلال اليوم.",
-                style: TextStyle(fontSize: 16, height: 1.4),
-              ),
-
+              Text("• تقليل ساعات تشغيل الأجهزة غير الضرورية.",
+                  style: TextStyle(fontSize: 16, height: 1.4)),
               SizedBox(height: 8),
-
-              Text(
-                "• يُنصَح بتفعيل وضع توفير الطاقة في أكبر عدد من الأجهزة.",
-                style: TextStyle(fontSize: 16, height: 1.4),
-              ),
+              Text("• تفعيل وضع توفير الطاقة في أكبر عدد من الأجهزة.",
+                  style: TextStyle(fontSize: 16, height: 1.4)),
             ],
           ),
         ),
-
         const SizedBox(height: 16),
       ];
     }
@@ -312,17 +279,10 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
         ),
       );
 
-      final displayName = userDevice.customName?.isNotEmpty == true
-          ? userDevice.customName!
-          : userDevice.name;
-
-      final displayBrand = userDevice.customBrand?.isNotEmpty == true
-          ? userDevice.customBrand!
-          : userDevice.brand;
-
+      final displayName = userDevice.customName?.isNotEmpty == true ? userDevice.customName! : userDevice.name;
+      final displayBrand = userDevice.customBrand?.isNotEmpty == true ? userDevice.customBrand! : userDevice.brand;
       final currentHours = userDevice.hoursPerDay;
-      final reducedHours = (currentHours - (device["reduceHours"] ?? 0))
-          .clamp(0, currentHours);
+      final reducedHours = (currentHours - (device["reduceHours"] ?? 0)).clamp(0, currentHours);
 
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -331,13 +291,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.grey.shade300, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 3),
-            )
-          ],
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3))],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,21 +303,95 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                 "قلل تشغيل جهاز $displayName ($displayBrand) من "
                     "$currentHours إلى $reducedHours ساعة يوميًا لتوفير "
                     "${device["savedEGP"]?.toStringAsFixed(2) ?? "0.00"} EGP.",
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  height: 1.4,
-                ),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, height: 1.4),
               ),
             ),
           ],
         ),
       );
-      ;
     }).toList();
   }
 
+  // ========================================
+  // بطاقة الأجهزة المضافة (محسنة UI)
+  // ========================================
+  Widget _buildApplianceCard(UserAppliance ua) {
+    final displayName = ua.customName?.isNotEmpty == true ? ua.customName! : ua.name;
+    final displayBrand = ua.customBrand?.isNotEmpty == true ? ua.customBrand! : ua.brand;
 
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 3,
+      color: Colors.white,
+      shadowColor: Colors.black12,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: AppColor.primary_color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.devices, color: AppColor.primary_color, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "$displayName ($displayBrand)",
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${ua.hoursPerDay} ساعة/يوم',
+                          style: const TextStyle(fontSize: 12, color: Colors.blue),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'كمية: ${ua.quantity}',
+                          style: const TextStyle(fontSize: 12, color: Colors.purple),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              color: AppColor.primary_color,
+              onPressed: () => Get.to(() => BudgetAndAppliancesScreen()),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ========================================
+  // صندوق الأجهزة الفارغ
+  // ========================================
   Widget _buildEmptyDevicesWidgetWithUsage(Map<String, dynamic>? lastStatus) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -412,5 +440,4 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
       ),
     );
   }
-
 }
