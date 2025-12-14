@@ -6,10 +6,16 @@ import '../core/style/colors.dart';
 import '../core/widgets/page_header.dart';
 
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   final ProfileController controller = Get.put(ProfileController());
+
   final _authService = AuthService();
 
   @override
@@ -196,5 +202,11 @@ class ProfileScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }
